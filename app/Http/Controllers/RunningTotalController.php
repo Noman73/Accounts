@@ -72,7 +72,7 @@ from(
                      sales.dates,
                      sales.micro_time as datetime,
                      products.product_name,
-                     null as voucer_id,
+                     '' as voucer_id,
                      sales.qantity,
                      sales.price,
                      0 as debit,
@@ -86,22 +86,22 @@ from(
               SELECT 
                      dates,
                      micro_time datetime,
-                     null,
+                     '',
                      id,
-                     null,
-                     null,
+                     '',
+                     '',
                      (case when payment_type='Deposit' then ammount else 0 end) as debit,
                      (case when payment_type='Expence' then ammount else 0 end) as credit
                       FROM voucers 
                         WHERE name_data_id=:id and name='customer'
                           and dates>=:fromDate and dates<=:toDate
                           UNION ALL
-              SELECT 0,
-                     null,
+              SELECT '',
+                     '',
                      'Prev-B',
-                     null,
-                     null,
-                     null,
+                     '',
+                     '',
+                     '',
                      '".$dabit."',
                      '".$credit."'
                           UNION ALL
@@ -109,9 +109,9 @@ from(
                       dates,
                       micro_time,
                       '(vat+lbr)-dis',
-                      null,
-                      null,
-                      null,
+                      '',
+                      '',
+                      '',
                       cast(ifnull((total*discount)/100,0) as decimal(16,2)) as debit,
                       cast(ifnull((total*vat)/100,0)+ifnull(labour_cost,0) as decimal(14,2)) as credit
                   from invoices where customer_id=:id 
@@ -121,7 +121,7 @@ from(
                     dates,
                     micro_time,
                     products.product_name,
-                    null,
+                    '',
                     salesbacks.qantity,
                     salesbacks.price,
                     (cast(salesbacks.qantity*salesbacks.price as decimal(12,2))) as dabit,
@@ -133,9 +133,9 @@ from(
                     dates,
                     micro_time,
                     'fine',
-                    null,
-                    null,
-                    null,
+                    '',
+                    '',
+                    '',
                     0 as credit,
                     ifnull(total*fine/100,0) as dabit
                     from invoicebacks where customer_id=:id and dates>=:fromDate and dates<=:toDate
@@ -248,9 +248,9 @@ from(
                         WHERE name_data_id=:id and name='supplier'
                         and dates>=:fromDate and dates<=:toDate
                       UNION ALL
-              SELECT 'Prev-B',
+              SELECT 0,
                      null,
-                     null,
+                     'Prev-B',
                      null,
                      null,
                      null,
@@ -259,26 +259,6 @@ from(
               ) t1 order by t1.micro_time",['id'=>$r->id,'fromDate'=>$fromDate,'toDate'=>$toDate]);
         }
       }
-      return response()->json(['get'=>$get,'current_blnce'=>$current_blnce,'fromDate'=>$fromDate,'toDate'=>$toDate]);
-
-      // view('pages.reports.running_total_pdf',compact('get','current_blnce','fromDate','toDate'));
-      // $pdf=PDF::loadView('pages.reports.running_total_pdf',compact('get','current_blnce','fromDate','toDate'))->setPaper('a4','portrait');
-      //   return $pdf->stream('invoice.pdf',);
+      return response()->json(['get'=>$get,'current_blnce'=>$current_blnce,'fromDate'=>$fromDate,'toDate'=>$toDate,'name'=>$r->name,'category'=>$r->category]);
     }
-//     public function CreateRunningTotal(Request $r){
-//      $date=explode(" ",$r->date);
-//     $fromDate=strtotime(strval($date[0]));
-//     $toDate=strtotime(strval($date[2]));
-//      return $current_blnce=DB::select("
-//             SELECT
-//     t.Deposit,t.Expence,t.salePrice,t.invoice,(t.Deposit-t.Expence)-(t.salePrice+t.invoice) as total
-// from(
-//     select 
-//     sum(IF(payment_type='Deposit',ammount,0)) as Deposit,
-//     sum(IF(payment_type='Expence',ammount,0)) as Expence,        
-//     ifnull((select SUM(qantity*price) from sales where customer_id=:id),0) as salePrice,
-//     (select SUM((((total*ifnull(discount,0)/100)+(total*ifnull(vat,0))/100)))-SUM(ifnull(labour_cost,0)) from invoices where customer_id=:id) as invoice
-//     from voucers where name='customer' and name_data_id=:id
-//     ) t",['id'=>$r->id]);
-//     }
 }

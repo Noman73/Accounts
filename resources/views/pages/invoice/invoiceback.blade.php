@@ -496,7 +496,7 @@ if (isValid==true) {
       }
     })
     .catch(function(error){
-      console.log(error.request.response);
+      console.log(error);
     })
   }
 }

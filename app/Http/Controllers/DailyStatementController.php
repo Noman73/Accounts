@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
-use PDF;
 use Auth;
 class DailyStatementController extends Controller
 {
@@ -32,7 +31,6 @@ class DailyStatementController extends Controller
     	             from voucers where dates>=:fromDate and dates<=:toDate
     	    		",['fromDate'=>$fromDate,'toDate'=>$toDate]);
 
-    	$pdf=PDF::loadView('pages.reports.dailyStatement.daily_statement_pdf',compact('get','fromDate','toDate'))->setPaper('a4','portrait');
-        return $pdf->stream('invoice.pdf');
+    	return ['get'=>$get,'fromDate'=>$fromDate,'toDate'=>$toDate];
     }
 }

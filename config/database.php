@@ -63,7 +63,7 @@ return [
                 PDO::ATTR_EMULATE_PREPARES => true,
             ]) : [],
             'dump' => [
-               'dump_binary_path' => 'C:/xamppnew1/mysql/bin/', // only the path, so without `mysqldump` or `pg_dump`
+               'dump_binary_path' => 'C:/xampp/mysql/bin/', // only the path, so without `mysqldump` or `pg_dump`
                'use_single_transaction',
                'timeout' => 60 * 5, // 5 minute timeout
             ],

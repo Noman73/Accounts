@@ -18,7 +18,7 @@
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Running Total <img class="float-right buffer d-none" src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
+      <h5 class="m-0 font-weight-bold">Running Total  <p id="test"></p> <img class="float-right buffer d-none" src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
       
      </div>
     <div class="card-body px-3 px-md-5">
@@ -28,7 +28,7 @@
          <div class="col-sm-9">
             <select class="form-control form-control-sm" onchange="getName(this)" name="category" id="category">
             <option value="">--select--</option>
-            @foreach($categories as $category)
+              @foreach($categories as $category)
             <option value="{{$category->name}}">{{$category->name}}</option>
             @endforeach
           </select>
@@ -114,21 +114,23 @@ function ajaxRequest(){
   $('.submit').attr('disabled',true);
   let category=$('#category').val();
   let id=$('#name').val();
+  let name=$('#name').text();
   let fromDate=$('#fromDate').val();
   let toDate=$('#toDate').val();
   let formData=new FormData();
   formData.append('category',category);
   formData.append('id',id);
+  formData.append('name',name);
   formData.append('fromDate',fromDate);
   formData.append('toDate',toDate);
   axios.post('admin/running-total',formData)
         .then(function(res){
             console.log(res)
             data=res.data.get;
-  let html="<h1 style='text-align:center'>header hello world</h1>"
+  let html='';
        html+='<table>'
        html+="<thead>"
-       html+="<tr style='background-color:red;text-align:center'>"
+       html+="<tr style='text-align:center;font-size:10px;height:12px;'>"
        html+="<th width='5%'>ID</th>"
        html+="<th width='10%'>DATE</th>"
        html+="<th width='15%'>Details</th>"
@@ -140,29 +142,43 @@ function ajaxRequest(){
        html+="<th width='20%'>Balance</th>"
        html+='</tr>'
        html+="</thead>"
-       html+="<tbody>"
+       html+="<tbody style='font-size:8px;text-align:center;'>"
       for (var i = 0; i < data.length; i++){
-        (data[i]['product_name']!=null) ? console.log(data[i]['product_name']) : '';
-        html+=`<tr style='height:10px;'>
-                <td style='font-size:8px;'>`+i+`</td>
-                <td style='font-size:8px;'>`+data[i]['dates']+`</td>
-                <td style='font-size:8px;'>`+(data[i]['product_name']!=null ? data[i]['product_name'] : '')+`</td>
-                <td style='font-size:8px;'>`+(data[i]['voucer_id']!=null ? data[i]['voucer_id'] : '')+`</td>
-                <td style='font-size:8px;'>`+(data[i]['qantity']!=null ? data[i]['qantity'] : '')+`</td>
-                <td style='font-size:8px;'>`+(data[i]['price']!=null ? data[i]['price'] : '')+`</td>
-                <td style='font-size:8px;'>`+(data[i]['debit']!=null ? data[i]['debit'] : '')+`</td>
-                <td style='font-size:8px;'>`+(data[i]['credit']!=null ? data[i]['credit'] : '')+`</td>
-                <td style='font-size:8px;'>`+data[i]['balance']+`</td>
+        // $('#test').text(i+=i);
+        html+=`<tr style='height:12px;'>
+                <td>`+i+`</td>
+                <td>`+data[i]['dates']+`</td>
+                <td>`+data[i]['product_name']+`</td>
+                <td>`+data[i]['voucer_id']+`</td>
+                <td>`+data[i]['qantity']+`</td>
+                <td>`+data[i]['price']+`</td>
+                <td>`+data[i]['debit']+`</td>
+                <td>`+data[i]['credit']+`</td>
+                <td>`+data[i]['balance']+`</td>
                </tr>`
       }
        html+="</tbody>"
+       html+=`<tfoot>
+              <tr>
+                <th colspan="6"></th>
+                <th colspan="3" id="blnc">Current Balance: `+res.data['current_blnce'][0]['total']+`<span id='curr_blnc'></span></th>
+              </tr>
+            </tfoot>`;
+      header=`<h6 style='text-align:center;margin-top:10px;'>Ledger Sheet</h6>
+             <strong style='font-size:10px;text-align:center'>`+dateFormat(new Date(res.data.fromDate*1000))+` to `+dateFormat(new Date(res.data.toDate*1000))+`</strong>
+                <div style='text-align:center;font-weight:bold;margin-top:10px;'>`+capitalize(res.data.category)+` : `+res.data.name+`</div>
+                <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` </div>`;
+      footer=`<div style='margin-top:50px;'><p style='text-align:center;font-size:10px;color:#808080;'>DevTunes Technology || 01731186740</p></div>`
+
+    var head = HtmlToPdfMake(header);
     var val = HtmlToPdfMake(html,{
-  tableAutoSize:true
-});
-    var dd = {content:val};
+              tableAutoSize:true
+            });
+    var footer = HtmlToPdfMake(footer);
+        var dd = {pageMargins:[20,80,20,40],content:val,header:head,footer:footer};
     MakePdf.createPdf(dd).open();
   $('.buffer').addClass('d-none');
-  document.getElementById('myForm').reset()
+  // document.getElementById('myForm').reset()
   $('.submit').attr('disabled',false);
 
     // endpdf
@@ -197,5 +213,18 @@ function ajaxRequest(){
         maxDate: '01/01/2050'
         
   })
+ $('#category').select2({
+  theme:"bootstrap4",
+ })
+ function capitalize(s){
+    return s[0].toUpperCase() + s.slice(1);
+}
+function dateFormat(date){
+let date_ob = date;
+let dates = ("0" + date_ob.getDate()).slice(-2);
+let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+let year = date_ob.getFullYear();
+return(dates + "-" + month + "-" + year);
+}
 </script>
 @endsection
