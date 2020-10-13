@@ -4,6 +4,7 @@
 
 use App\Voucer;
 use App\Information;
+use App\Customer;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -40,5 +41,15 @@ $factory->define(Information::class, function (Faker $faker){
         'adress' => 'barisal,Bangladesh',
         'phone' => '01823767347',
         'logo'=>'fixed.jpg',
+    ];
+});
+
+$factory->define(Customer::class, function (Faker $faker){
+    return [
+        'name' => $faker->name,
+        'email' => $faker->email,
+        'phone1' => $faker->phoneNumber,
+        'adress' => $faker->address,
+        'stutus' =>1,
     ];
 });

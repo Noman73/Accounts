@@ -21,7 +21,7 @@ class CreatePurchaseBacksTable extends Migration
             $table->unsignedInteger('product_id');
             $table->decimal('qantity',16,2);
             $table->decimal('price',16,2);
-            $table->decimal('micro_time',21,6);
+            $table->unsignedBigInteger('increment_id');
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->foreign('invoice_id')->references('id')->on('invpurchasebacks')->onDelete('cascade');

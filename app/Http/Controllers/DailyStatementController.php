@@ -17,6 +17,10 @@ class DailyStatementController extends Controller
     public function Report(Request $r){
     	$fromDate=strtotime(strval($r->fromDate));
     	$toDate=strtotime(strval($r->toDate));
+        $opening_balance=DB::table('banks')->selectRaw('sum(opening_balance) as opening_balance')->first();
+        $expence=DB::table('voucers')->selectRaw('sum(ammount) as ammount')->where('payment_type','Expence')->first();
+        $deposit=DB::table('voucers')->selectRaw('sum(ammount) as ammount')->where('payment_type','Deposit')->first();
+        $total=($deposit->ammount-$expence->ammount)+$opening_balance->opening_balance;
     	$get=DB::select("
     	    		SELECT dates,
     	    		       name as category,
@@ -31,6 +35,6 @@ class DailyStatementController extends Controller
     	             from voucers where dates>=:fromDate and dates<=:toDate
     	    		",['fromDate'=>$fromDate,'toDate'=>$toDate]);
 
-    	return ['get'=>$get,'fromDate'=>$fromDate,'toDate'=>$toDate];
+    	return response()->json(['get'=>$get,'fromDate'=>$fromDate,'toDate'=>$toDate,'total'=>$total]);
     }
 }

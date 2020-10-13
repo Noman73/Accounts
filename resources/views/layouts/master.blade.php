@@ -357,6 +357,23 @@
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-pie"></i>
               <p>
+                Stock
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/stock') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Stock</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
                 Create Voucer
                 <i class="right fas fa-angle-left"></i>
               </p>
@@ -418,6 +435,12 @@
                 <a href="{{ URL::to('/admin/daily_statement') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>Daily Statement</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/buyerlistform') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Buyer List</p>
                 </a>
               </li>
               <li class="nav-item">

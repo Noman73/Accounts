@@ -16,13 +16,13 @@ class CreateVoucersTable extends Migration
         Schema::create('voucers', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger('bank_id');
-            $table->string('dates',15);
-            $table->string('name',15);
-            $table->unsignedInteger('name_data_id');
-            $table->string('payment_type',15);
-            $table->decimal('ammount',16,2);
+            $table->string('dates',16);
+            $table->string('category',80);
+            $table->unsignedInteger('data_id');
+            $table->decimal('debit',16,2)->default(false);
+            $table->decimal('credit',16,2)->default(false);
+            $table->unsignedBigInteger('increment_id');
             $table->unsignedInteger('user_id');
-            $table->decimal('micro_time',21,6);
             $table->timestamps();
         });
     }

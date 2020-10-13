@@ -127,6 +127,10 @@ Route::get('admin/backup-db','BackupController@Backup');
 Route::get('admin/backup-download/{data}','BackupController@Download');
 // stock controller
 Route::get('admin/stock','StockController@Stock');
+// BuyerReportController
+Route::get('admin/buyerlistform','BuyerReportController@Form');
+Route::get('admin/getbuyerlist','BuyerReportController@BuyerList');
+Route::get('admin/getbuyerbalancesheet','BuyerReportController@BuyerBalanceSheet');
 // test controller route
 Route::get('admin/testpage','TestController@page');
 Route::post('admin/testpage','TestController@test');

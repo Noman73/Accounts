@@ -14,10 +14,10 @@ class VoucerController extends Controller
     }
 
     public function ManageVoucer(){
-      $names=DB::table('names')->select('id','name')->get();
+      $names=DB::table('names')->select('id','name')->where('stutus',1)->get();
     	$banks=DB::table('banks')->select('id','name')->get();
     	if (request()->ajax()) {
-        $get=DB::select("select voucers.dates,voucers.name,banks.name as bank_name,voucers.ammount,voucers.payment_type from voucers inner join banks on banks.id=voucers.bank_id");
+        $get=DB::select("select voucers.dates,voucers.category,banks.name as bank_name,voucers.debit,voucers.credit from voucers inner join banks on banks.id=voucers.bank_id");
           return DataTables::of($get)
           ->addIndexColumn()
           ->addColumn('dat',function($get){
@@ -48,19 +48,24 @@ class VoucerController extends Controller
             'date'=>'required|max:10|min:10',
             'category'=>'required|max:100',
             'data'=>'required|max:10',
-            'payment_type'=>'required|max:100',
+            'payment_type'=>'required|max:7',
             'bank'=>'required|max:10',
-            'ammount'=>'required|max:20|',
+            'debit'=>'nullable|max:20|',
+            'credit'=>'nullable|max:20|',
         ]);
-        if ($validator->passes()) {
+        if ($validator->passes()){
             $microtime=explode(' ',microtime());
             $voucer=new Voucer;
             $voucer->dates=strtotime(strval($r->date));
             $voucer->name=strtolower($r->category);
             $voucer->name_data_id=$r->data;
-            $voucer->payment_type=$r->payment_type;
             $voucer->bank_id=$r->bank;
-            $voucer->ammount=$r->ammount;
+            if ($r->debit!=null) {
+              $voucer->debit=$r->debit;
+            }
+            if ($r->credit!=null) {
+              $voucer->credit=$r->credit;
+            }
             $voucer->micro_time=$microtime[1].'.'.(int)round($microtime[0]*1000);
             $voucer->user_id=Auth::user()->id;
             $voucer->save();

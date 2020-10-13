@@ -13,12 +13,15 @@
   height: 30px;
   width: 30px;
  }
+ #blnc{
+  text-align:right;
+ }
 </style>
 @endsection
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Running Total  <p id="test"></p> <img class="float-right buffer d-none" src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
+      <h5 class="m-0 font-weight-bold">Running Total<img class="float-right buffer d-none" src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
       
      </div>
     <div class="card-body px-3 px-md-5">
@@ -161,7 +164,7 @@ function ajaxRequest(){
        html+=`<tfoot>
               <tr>
                 <th colspan="6"></th>
-                <th colspan="3" id="blnc">Current Balance: `+res.data['current_blnce'][0]['total']+`<span id='curr_blnc'></span></th>
+                <th colspan="3" style='text-align:right;'>Current Balance: `+res.data['current_blnce'][0]['total']+`<span id='curr_blnc'></span></th>
               </tr>
             </tfoot>`;
       header=`<h6 style='text-align:center;margin-top:10px;'>Ledger Sheet</h6>
@@ -175,7 +178,7 @@ function ajaxRequest(){
               tableAutoSize:true
             });
     var footer = HtmlToPdfMake(footer);
-        var dd = {pageMargins:[20,80,20,40],content:val,header:head,footer:footer};
+        var dd = {info:{title:res.data.name+(new Date()).getTime()},pageMargins:[20,80,20,40],content:val,header:head,footer:footer};
     MakePdf.createPdf(dd).open();
   $('.buffer').addClass('d-none');
   // document.getElementById('myForm').reset()

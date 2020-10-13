@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
-use PDF;
+use DOMPDF;
 class SalesReportController extends Controller
 {
     public function __construct(){
@@ -122,7 +122,7 @@ select sales.customer_id,
     	   from sales where dates>=:fromDate and dates<=:toDate group by invoice_id,customer_id
 
 )t1 order by t1.micro_time,t1.name,t1.invoice_id",['fromDate'=>$fromDate,'toDate'=>$toDate]);
-    	$pdf=PDF::loadView('pages.reports.sales.pdf',compact('get','fromDate','toDate'))->setPaper('a4','portrait');
+    	$pdf=DOMPDF::loadView('pages.reports.sales.pdf',compact('get','fromDate','toDate'))->setPaper('a4','portrait');
         return $pdf->stream('invoice.pdf');
     }
 }

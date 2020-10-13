@@ -70,11 +70,11 @@ class PurchaseController extends Controller
                     $stmt->qantity=$data['qantities'][$i];
                     $stmt->price=$data['prices'][$i];
                     $stmt->user_id=$user_id;
-                    $stmt->micro_time=$microtime[1].'.'.(int)round($microtime[0]*1000)+$i;
+                    $stmt->micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+$i);
                     $stmt->save();
                 }
                 if ($stmt=true) {
-                    $micro_time=$microtime[1].'.'.(int)round($microtime[0]*1000)+($length+2);
+                    $micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+($length+2));
                     $inv=Invpurchase::where('id',$inv_id)->update(['micro_time'=>$micro_time]);
                     if ($inv=true) {
                         return ['message'=>'success'];
