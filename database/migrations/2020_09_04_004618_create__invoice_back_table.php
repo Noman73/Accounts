@@ -21,7 +21,7 @@ class CreateInvoiceBackTable extends Migration
             $table->decimal('fine',16,2)->nullable();
             $table->decimal('total_payable',16,2);
             $table->decimal('total',16,2);
-            $table->unsinedBigInteger('increment_id');
+            $table->unsignedBigInteger('increment_id');
             $table->unsignedInteger('user_id');
             $table->timestamps();
         });

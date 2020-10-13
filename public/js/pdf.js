@@ -75446,7 +75446,7 @@ __webpack_require__(/*! ./bootstrap-pdf */ "./resources/js/bootstrap-pdf.js");
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xamppnew1\htdocs\accounts\resources\js\pdf.js */"./resources/js/pdf.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\accounts\resources\js\pdf.js */"./resources/js/pdf.js");
 
 
 /***/ })

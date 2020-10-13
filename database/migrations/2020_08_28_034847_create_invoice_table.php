@@ -23,7 +23,7 @@ class CreateInvoiceTable extends Migration
             $table->decimal('labour_cost',16,2)->nullable();
             $table->decimal('total_payable',16,2);
             $table->decimal('total',16,2);
-            $table->unsinedBigInteger('increment_id');
+            $table->unsignedBigInteger('increment_id');
             $table->unsignedInteger('user_id');
             $table->timestamps();
         });

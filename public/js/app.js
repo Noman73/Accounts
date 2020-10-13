@@ -90861,8 +90861,8 @@ window.axios.defaults.baseURL =  true ? 'http://localhost/accounts/public' : und
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xamppnew1\htdocs\accounts\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xamppnew1\htdocs\accounts\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\xampp\htdocs\accounts\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\accounts\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

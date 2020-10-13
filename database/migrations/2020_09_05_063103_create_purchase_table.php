@@ -22,7 +22,7 @@ class CreatePurchaseTable extends Migration
             $table->decimal('qantity',16,2);
             $table->decimal('price',16,2);
             $table->unsignedBigInteger('increment_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('invoice_id')->references('id')->on('invpurchases')->onDelete('cascade');
         });
