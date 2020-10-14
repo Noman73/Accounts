@@ -444,6 +444,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{{ URL::to('/admin/getbuyerbalanceform') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Buyer Balance</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{{ URL::to('/admin/sales_report') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>C-W-Sales-Report</p>

@@ -131,6 +131,7 @@ Route::get('admin/stock','StockController@Stock');
 Route::get('admin/buyerlistform','BuyerReportController@Form');
 Route::get('admin/getbuyerlist','BuyerReportController@BuyerList');
 Route::get('admin/getbuyerbalancesheet','BuyerReportController@BuyerBalanceSheet');
+Route::get('admin/getbuyerbalanceform','BuyerReportController@BuyerBlnceForm');
 // test controller route
 Route::get('admin/testpage','TestController@page');
 Route::post('admin/testpage','TestController@test');

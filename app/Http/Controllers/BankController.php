@@ -86,8 +86,9 @@ class BankController extends Controller
         // echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA')."<br>";
         // echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T')."<br>";
         // echo DNS2D::getBarcodePNGPath('4445645656', 'PDF417')."<>";
-        return $get=DB::select("
-                select product_name,(ifnull((select sum(qantity) from purchases where products.id=purchases.product_id),0))-ifnull((select sum(qantity) from sales where products.id=sales.product_id),0) as total from products
-                ");
+return $data=DB::select("
+    SELECT name,phone,(ifnull((select sum(debit-credit) from voucers where category='customer' and data_id=customers.id),0)+ifnull((select sum(total_payable) from invoicebacks where customer_id=customers.id),0))-ifnull((select sum(total_payable) from invoices where customer_id=customers.id),0) as balance from customers
+              ");
+// return json_encode($data);
     }
 }

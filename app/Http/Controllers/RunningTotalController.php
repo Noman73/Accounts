@@ -25,26 +25,26 @@ class RunningTotalController extends Controller
     t.Deposit,t.Expence,t.salePrice,t.invoice,cast(((t.Deposit+t.rtrnPrice)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
 from(
     select 
-    sum(IF(payment_type='Deposit',ammount,0)) as Deposit,
-    sum(IF(payment_type='Expence',ammount,0)) as Expence,        
+    sum(ifnull(debit,0)) as Deposit,
+    sum(ifnull(credit,0)) as Expence,        
     ifnull((select SUM(qantity*price) from sales where customer_id=:id and dates<:fromDate),0) as salePrice,
     (select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id and dates<:fromDate) as invoice,
     ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id and dates<:fromDate),0) as rtrnPrice,
     ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id and dates<:fromDate),0) as rtrnInvoice
-    from voucers where name='customer' and name_data_id=:id and dates<:fromDate
+    from voucers where category='customer' and data_id=:id and dates<:fromDate
     ) t",['id'=>$r->id,'fromDate'=>$fromDate]);
      $current_blnce=DB::select("
             SELECT
     t.Deposit,t.Expence,t.salePrice,t.invoice,cast(((t.Deposit+t.rtrnPrice)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
 from(
     select 
-    sum(IF(payment_type='Deposit',ammount,0)) as Deposit,
-    sum(IF(payment_type='Expence',ammount,0)) as Expence,        
+    sum(ifnull(debit,0)) as Deposit,
+    sum(ifnull(credit,0)) as Expence,      
     ifnull((select SUM(qantity*price) from sales where customer_id=:id),0) as salePrice,
     (select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id) as invoice,
     ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id),0) as rtrnPrice,
     ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id),0) as rtrnInvoice
-    from voucers where name='customer' and name_data_id=:id
+    from voucers where category='customer' and data_id=:id
     ) t",['id'=>$r->id]);
           if ($previous[0]->total>0) {
             $dabit=abs($previous[0]->total);
@@ -70,7 +70,7 @@ from(
               FROM(
               select 
                      sales.dates,
-                     sales.micro_time as datetime,
+                     sales.increment_id as datetime,
                      products.product_name,
                      '' as voucer_id,
                      sales.qantity,
@@ -85,15 +85,15 @@ from(
                             UNION ALL
               SELECT 
                      dates,
-                     micro_time datetime,
+                     increment_id,
                      '',
                      id,
                      '',
                      '',
-                     (case when payment_type='Deposit' then ammount else 0 end) as debit,
-                     (case when payment_type='Expence' then ammount else 0 end) as credit
+                     ifnull(debit,0) as debit,
+                     ifnull(credit,0) as credit
                       FROM voucers 
-                        WHERE name_data_id=:id and name='customer'
+                        WHERE data_id=:id and category='customer'
                           and dates>=:fromDate and dates<=:toDate
                           UNION ALL
               SELECT '',
@@ -107,7 +107,7 @@ from(
                           UNION ALL
               SELECT 
                       dates,
-                      micro_time,
+                      increment_id,
                       '(vat+lbr)-dis',
                       '',
                       '',
@@ -119,7 +119,7 @@ from(
                     UNION ALL
               SELECT 
                     dates,
-                    micro_time,
+                    increment_id,
                     products.product_name,
                     '',
                     salesbacks.qantity,
@@ -131,7 +131,7 @@ from(
                     UNION ALL
               SELECT 
                     dates,
-                    micro_time,
+                    increment_id,
                     'fine',
                     '',
                     '',

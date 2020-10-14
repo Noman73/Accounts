@@ -28,10 +28,9 @@ class HomeController extends Controller
     }
 
     public function dashboard(){
-        $deposit=Voucer::where(['payment_type'=>'Deposit','dates'=>strtotime(date('d-m-Y'))])->sum('ammount');
-        $expence=Voucer::where(['payment_type'=>'Expence','dates'=>strtotime(date('d-m-Y'))])->sum('ammount');
-        $total_sales_ammount=Invoice::where(['dates'=>strtotime(date('d-m-Y'))])->sum('total_payable');
-
+        $deposit=Voucer::where('dates',strtotime(date('d-m-Y')))->sum('debit');
+        $expence=Voucer::where('dates',strtotime(date('d-m-Y')))->sum('credit');
+        $total_sales_ammount=Invoice::where('dates',strtotime(date('d-m-Y')))->sum('total_payable');
         return ['deposit'=>$deposit,'expence'=>$expence,'total_sales'=>$total_sales_ammount];
     }
 }

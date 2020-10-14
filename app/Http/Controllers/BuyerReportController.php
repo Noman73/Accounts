@@ -18,8 +18,12 @@ class BuyerReportController extends Controller
     	return response()->json(['get'=>$data]);
     }
     public function BuyerBalanceSheet(){
-    	return $data=DB::select("
-SELECT id,name,phone1,((select ifnull(sum(ammount),0) from voucers where payment_type='Deposit' and name_data_id=customers.id and name='customer')-((select ifnull(sum(ammount),0) from voucers where payment_type='Expence' and name_data_id=customers.id and name='customer')+previous_due+ifnull((select sum(total_payable) from invoicebacks where customer_id=customers.id),0)))-ifnull((select sum(total_payable) from invoices where customer_id=customers.id),0) as balance from customers
+     $data=DB::select("
+SELECT id,name,phone1,adress,((ifnull((select sum(debit-credit) from voucers where category='customer' and data_id=customers.id),0)+ifnull((select sum(total_payable) from invoicebacks where customer_id=customers.id),0))-ifnull((select sum(total_payable) from invoices where customer_id=customers.id),0))-previous_due as balance from customers
     ");
+     return response()->json(['get'=>$data]);
+    }
+    public function BuyerBlnceForm(){
+        return view('pages.reports.buyer.buyerbalancesheet');
     }
 }

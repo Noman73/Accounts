@@ -8,6 +8,7 @@ use App\Customer;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
+use App\Test;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,17 +20,30 @@ use Illuminate\Support\Arr;
 | model instances for testing / seeding your application's database.
 |
 */
+function xxx(){
+    $rand=rand(200,null);
+    if($rand!=null){
+        $x=$rand;
+        $a=0;
+        return [$x,$a];
+    }else{
+        $x=500;
+        $a=0;
+        return [$x,$a];
+    }
+}
+
 
 $factory->define(Voucer::class, function (Faker $faker){
+    
     return [
         'bank_id' => 1,
         'dates' => strtotime(date('d-m-Y')),
-        'name' => 'customer',
-        'name_data_id' => 19,
-        'payment_type'=>Arr::random(['Deposit','Expence']),
-        'ammount'=>rand(100,1000),
+        'category' => 'customer',
+        'data_id' => 19,
+        'debit'=>xxx()[0],
+        'credit'=>xxx()[1],
         'user_id'=>1,
-        'micro_time'=>explode(' ',microtime())[1].'.'.(int)round(explode(' ',microtime())[0]*1000),
     ];
 });
 
@@ -47,9 +61,15 @@ $factory->define(Information::class, function (Faker $faker){
 $factory->define(Customer::class, function (Faker $faker){
     return [
         'name' => $faker->name,
-        'email' => $faker->email,
-        'phone1' => $faker->phoneNumber,
+        'email' => $faker->unique()->email,
+        'phone1' => $faker->unique()->phoneNumber,
         'adress' => $faker->address,
         'stutus' =>1,
+    ];
+});
+
+$factory->define(Test::class, function (Faker $faker){
+    return [
+        'name' =>$faker->unique()->name,
     ];
 });

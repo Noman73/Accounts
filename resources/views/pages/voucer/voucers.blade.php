@@ -70,7 +70,7 @@
                 <div class="input-group">
                   <label class="control-label col-sm-3 text-lg-right" for="supplier">Select Category:</label>
                   <div class="col-md-7">
-                    <select type="text" id="category" onchange="getVoucerRelName()" class="form-control form-control-sm">
+                    <select type="text" id="category" class="form-control form-control-sm">
                       <option value="">--SELECT--</option>
                       @foreach($names as $name)
                       <option value="{{$name->name}}">{{$name->name}}</option>
@@ -172,16 +172,16 @@
             name:'dat',
           },
           {
-            data:'name',
-            name:'name',
+            data:'categories',
+            name:'categories',
           },
           {
-            data:'ammount',
-            name:'ammount',
+            data:'debit',
+            name:'debit',
           },
           {
-            data:'payment_type',
-            name:'payment_type',
+            data:'credit',
+            name:'credit',
           },
           {
             data:'bank_name',
@@ -238,29 +238,29 @@ function ajaxRequest(){
   });
  }
 
- function getVoucerRelName(){
-  var category=$('#category').val();
-    if (category!='' || category!=undefined || category!=null || category!=NaN){
-      axios.get('admin/voucer_get_name/'+category)
-      .then(function(response){
-        console.log(response.data.length);
-        let html="<option value=''>--SELECT--</option>";
-        if (response.data.length>0) {
-       response.data.forEach(function(d){
-          html +="<option value='"+d.id+"'>"+d.name+"</option>"
-       })
-        }else{
-          html+="<option disabled value=''>data not found</option>"
+ $('#data').select2({
+    theme:'bootstrap4',
+    placeholder:'select',
+    allowClear:true,
+    ajax:{
+      url:"{{URL::to('admin/search_customer')}}",
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
         }
-        
-       $('#data').html(html);
-      })
-      .catch(function (error) {
-    console.log(error.request.response);
-    });
-
+      },
+      cache:true,
     }
- }
+  })
 
   // get child category
  function ModalClose(){

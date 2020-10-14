@@ -17,14 +17,18 @@ class VoucerController extends Controller
       $names=DB::table('names')->select('id','name')->where('stutus',1)->get();
     	$banks=DB::table('banks')->select('id','name')->get();
     	if (request()->ajax()) {
-        $get=DB::select("select voucers.dates,voucers.category,banks.name as bank_name,voucers.debit,voucers.credit from voucers inner join banks on banks.id=voucers.bank_id");
+        $get=DB::select("select voucers.dates,voucers.category,voucers.data_id,banks.name as bank_name,voucers.debit,voucers.credit from voucers inner join banks on banks.id=voucers.bank_id");
           return DataTables::of($get)
           ->addIndexColumn()
           ->addColumn('dat',function($get){
           $dates  = date('d-m-Y',$get->dates);
           return $dates;
-      })
-      ->rawColumns(['dat'])->make(true);
+          })
+          ->addColumn('categories',function($get){
+          $categories =ucwords($get->category).'(ID-'.$get->data_id.')';
+          return $categories;
+          })
+          ->rawColumns(['dat','categories'])->make(true);
         }
         return view('pages.voucer.voucers',compact('names','banks'));
     }
@@ -54,24 +58,42 @@ class VoucerController extends Controller
             'credit'=>'nullable|max:20|',
         ]);
         if ($validator->passes()){
-            $microtime=explode(' ',microtime());
+           
             $voucer=new Voucer;
             $voucer->dates=strtotime(strval($r->date));
-            $voucer->name=strtolower($r->category);
-            $voucer->name_data_id=$r->data;
+            $voucer->category=strtolower($r->category);
+            $voucer->data_id=$r->data;
             $voucer->bank_id=$r->bank;
-            if ($r->debit!=null) {
-              $voucer->debit=$r->debit;
+            if ($r->payment_type=='Deposit') {
+              $voucer->debit=$r->ammount;
             }
-            if ($r->credit!=null) {
-              $voucer->credit=$r->credit;
+            if ($r->payment_type=='Expence') {
+              $voucer->credit=$r->ammount;
             }
-            $voucer->micro_time=$microtime[1].'.'.(int)round($microtime[0]*1000);
+            $voucer->increment_id=$this->Increment()+1;
             $voucer->user_id=Auth::user()->id;
             $voucer->save();
             return ['message'=>'success'];
         }
 
         return response()->json([$validator->getMessageBag()]);
+    }
+    public function Increment(){
+       $data=DB::select("
+          SELECT 
+              (SELECT max(increment_id) from voucers) as voucer_id,
+              (SELECT max(increment_id) from invoices) as invoice_id,
+              (SELECT max(increment_id) from sales) as sales_id,
+              (SELECT max(increment_id) from invoicebacks) as invoiebacks_id,
+              (SELECT max(increment_id) from salesbacks) as salesbacks_id,
+              (SELECT max(increment_id) from invpurchases) as invpurchase_id,
+              (SELECT max(increment_id) from purchases) as purchase_id,
+              (SELECT max(increment_id) from invpurchasebacks) as invpurchasebacks_id,
+              (SELECT max(increment_id) from purchasebacks) as purchaseback_id
+              ");
+    foreach ($data[0] as $key => $value) {
+        $arr[]=$value;
+    }
+    return intval(max($arr));
     }
 }

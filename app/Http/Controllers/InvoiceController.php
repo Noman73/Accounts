@@ -48,7 +48,6 @@ class InvoiceController extends Controller
     	]);
     	if ($validator->passes()) {
     		$invoice=new Invoice;
-    		$microtime=explode(' ', microtime());
     		$invoice->dates=$data['date'];
     		$invoice->customer_id=$data['customer'];
     		$invoice->total_item=$data['total_item'];
@@ -57,7 +56,7 @@ class InvoiceController extends Controller
     		$invoice->labour_cost=$data['labour'];
     		$invoice->total_payable=$data['total_payable'];
     		$invoice->total=$data['total'];
-    		$invoice->micro_time=$microtime[1];
+    		$invoice->increment_id=$this->Increment();
     		$invoice->user_id=Auth::user()->id;
     		$invoice->save();
     		$inv_id=$invoice->id;
@@ -65,7 +64,6 @@ class InvoiceController extends Controller
 	    	if ($invoice=true) {
 	    			$length=intval($data['total_item'])-1;
     			for ($i=0; $i <=$length; $i++) {
-	                $microtime=explode(' ', microtime());
 	    			$stmt=new Sale();
 	                $stmt->invoice_id=$inv_id;
 	    			$stmt->dates=$data['date'];
@@ -74,12 +72,12 @@ class InvoiceController extends Controller
 	    			$stmt->qantity=$data['qantities'][$i];
 	    			$stmt->price=$data['prices'][$i];
 	    			$stmt->user_id=$user_id;
-	                $stmt->micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+$i);
+	                $stmt->increment_id=$this->Increment($i)+1;
 	    			$stmt->save();
     			}
     			if ($stmt=true) {
-    				$micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+($length+2));
-    				$inv=Invoice::where('id',$inv_id)->update(['micro_time'=>$micro_time]);
+    				$increment_id=$this->Increment()+1;
+    				$inv=Invoice::where('id',$inv_id)->update(['increment_id'=>$increment_id]);
     				if ($inv=true) {
     					return ['message'=>'success'];
     				}
@@ -156,7 +154,6 @@ class InvoiceController extends Controller
         ]);
         if ($validator->passes()) {
             $invoice=Invoice::find($id);
-            $microtime=explode(' ', microtime());
             $invoice->dates=$data['date'];
             $invoice->customer_id=$data['customer'];
             $invoice->total_item=$data['total_item'];
@@ -165,7 +162,7 @@ class InvoiceController extends Controller
             $invoice->labour_cost=$data['labour'];
             $invoice->total_payable=$data['total_payable'];
             $invoice->total=$data['total'];
-            $invoice->micro_time=$microtime[1];
+            $invoice->micro_time=$this->Increment();
             $invoice->user_id=Auth::user()->id;
             $invoice->save();
             $inv_id=$invoice->id;
@@ -174,7 +171,6 @@ class InvoiceController extends Controller
                     $length=intval($data['total_item'])-1;
                 for ($i=0; $i <=$length; $i++){
                     if ($data['row'][$i]!=0) {
-                        $microtime=explode(' ', microtime());
                         $stmt=Sale::find($data['row'][$i]);
                         $stmt->invoice_id=$inv_id;
                         $stmt->dates=$data['date'];
@@ -183,10 +179,9 @@ class InvoiceController extends Controller
                         $stmt->qantity=$data['qantities'][$i];
                         $stmt->price=$data['prices'][$i];
                         $stmt->user_id=$user_id;
-                        $stmt->micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+$i);
+                        $stmt->increment_id=$this->Increment()+1;
                         $stmt->save();
                     }else{
-                        $microtime=explode(' ', microtime());
                         $stmt=new Sale();
                         $stmt->invoice_id=$inv_id;
                         $stmt->dates=$data['date'];
@@ -195,13 +190,13 @@ class InvoiceController extends Controller
                         $stmt->qantity=$data['qantities'][$i];
                         $stmt->price=$data['prices'][$i];
                         $stmt->user_id=$user_id;
-                        $stmt->micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+$i);
+                        $stmt->increment_id=$this->Increment()+1;
                         $stmt->save();
                     }
                 }
                 if ($stmt=true) {
-                    $micro_time=$microtime[1].'.'.((int)round($microtime[0]*1000)+($length+2));
-                    $inv=Invoice::where('id',$inv_id)->update(['micro_time'=>$micro_time]);
+                    $increment_id=$this->Increment()+1;
+                    $inv=Invoice::where('id',$inv_id)->update(['increment_id'=>$increment_id]);
                     if ($inv=true) {
                         return ['message'=>'success'];
                     }
@@ -209,5 +204,23 @@ class InvoiceController extends Controller
             }
         }
         return response()->json([$validator->getMessageBag()]);
+    }
+    public function Increment($data=null){
+       $data=DB::select("
+          SELECT 
+              (SELECT max(increment_id) from voucers) as voucer_id,
+              (SELECT max(increment_id) from invoices) as invoice_id,
+              (SELECT max(increment_id) from sales) as sales_id,
+              (SELECT max(increment_id) from invoicebacks) as invoiebacks_id,
+              (SELECT max(increment_id) from salesbacks) as salesbacks_id,
+              (SELECT max(increment_id) from invpurchases) as invpurchase_id,
+              (SELECT max(increment_id) from purchases) as purchase_id,
+              (SELECT max(increment_id) from invpurchasebacks) as invpurchasebacks_id,
+              (SELECT max(increment_id) from purchasebacks) as purchaseback_id
+              ");
+    foreach ($data[0] as $key => $value) {
+        $arr[]=$value;
+    }
+    return intval(max($arr));
     }
 }

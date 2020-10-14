@@ -11,6 +11,6 @@ class VoucerSeeder extends Seeder
      */
     public function run()
     {
-        factory(Voucer::class,3000)->create();
+        factory(Voucer::class,10)->create();
     }
 }
