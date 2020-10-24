@@ -31,23 +31,24 @@
               </ul>
           </div>
       @endif
-       <form action="{{URL::to('admin/barcode')}}" method="POST">
+       <form action="{{URL::to('admin/barcode')}}" method="POST" target="_blank">
         @csrf
         <div class="input-group">
           <select class="form-control" name="product" id="product">
           </select>
         </div>
+        <div class="input-group">
+          <input class="form-control" name="qantity" id="product" placeholder="Enter Qantity .....">
+          </input>
+        </div>
+        <div class="input-group">
+          <input class="form-control" name="price" id="price" placeholder="Enter Price $.....">
+          </input>
+        </div>
         <div class="col-md-2" id="submit">
           <button class="btn btn-sm btn-primary" type="submit">Create Barcode</button>
         </div>
       </form>
-      @if(Session::has('data'))
-        <div class="card barcode p-4 col-md-3 align-items-center">
-           @php
-           echo '<svg>'.Session::get('data').'</svg>';
-           @endphp
-        </div>
-      @endif
     </div>
   </div>
 </div>
@@ -58,7 +59,7 @@
  $('#product').select2({
       theme:"bootstrap4",
       allowClear:true,
-      placeholder:'select',
+      placeholder:'Product Select',
       ajax:{
       url:"{{URL::to('admin/product_code')}}",
       type:'post',

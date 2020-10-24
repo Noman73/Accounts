@@ -51,7 +51,7 @@ class VoucerController extends Controller
         $validator=Validator::make($r->all(),[
             'date'=>'required|max:10|min:10',
             'category'=>'required|max:100',
-            'data'=>'required|max:10',
+            'data'=>'required|max:20',
             'payment_type'=>'required|max:7',
             'bank'=>'required|max:10',
             'debit'=>'nullable|max:20|',

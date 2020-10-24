@@ -38,16 +38,16 @@ class ProductController extends Controller
     }
     public function insertProduct(Request $r){
     	$validator=Validator::make($r->all(),[
-    		'product_name'    =>   'required|max:100',
-    		'category'        =>   'required|max:10',
-    		'child_category'  =>   'required|max:10',
-    		'product_code'    =>   'nullable|max:10',
-    		'model_no' 		  =>   'nullable|max:10',
-    		'warranty'		  =>   'nullable|max:10',
-    		'product_type'	  =>   'nullable|max:10',
-    		'packaging'		  =>   'nullable|max:10',
-    		'price'     	  =>   'required|max:10',
-    		'photo'     	  =>   'nullable|image|max:2048',
+    		'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+    		'category'        =>   'required|max:10|regex:/^([0-9]+)$/',
+    		'child_category'  =>   'required|max:10|regex:/^([0-9]+)$/',
+    		'product_code'    =>   'nullable|max:10|regex:/^([0-9]+)$/',
+    		'model_no' 		    =>   'nullable|max:10|regex:/^([a-zA-Z0-9]+)$/',
+    		'warranty'		    =>   'nullable|max:10|regex:/^([a-zA-Z0-9 ]+)$/',
+    		'product_type'	  =>   'nullable|max:10|regex:/^([a-zA-Z0-9]+)$/',
+    		'packaging'		    =>   'nullable|max:10|regex:/^([a-zA-Z]+)$/',
+    		'price'     	    =>   'required|max:10|regex:/^([0-9.]+)$/',
+    		'photo'     	    =>   'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
        	]);
 
        	if ($validator->passes()) {
@@ -86,7 +86,7 @@ class ProductController extends Controller
     public function productBarcode(Request $r){
       $data=DB::select("SELECT product_code,product_name from products where product_name like '%".$r->searchTerm."%' order by product_name asc limit 100");
       foreach($data as $value){
-        $set_data[]=['id'=> ($value->product_code==null) ? 0 : $value->product_code,'text'=>$value->product_name];
+        $set_data[]=['id'=> ($value->product_code==null) ? 0 : $value->product_code.'|'.$value->product_name,'text'=>$value->product_name];
       }
       return $set_data;
     }
@@ -107,16 +107,16 @@ class ProductController extends Controller
     }
     public function Update(Request $r,$id){
       $validator=Validator::make($r->all(),[
-        'product_name'    =>   'required|max:100',
-        'category'        =>   'required|max:10',
-        'child_category'  =>   'required|max:10',
-        'product_code'    =>   'nullable|max:10',
-        'model_no'      =>   'nullable|max:10',
-        'warranty'      =>   'nullable|max:10',
-        'product_type'    =>   'nullable|max:10',
-        'packaging'     =>   'nullable|max:10',
-        'price'         =>   'required|max:10',
-        'photo'         =>   'nullable|image|max:2048',
+        'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'category'        =>   'required|max:10|regex:/^([0-9]+)$/',
+        'child_category'  =>   'required|max:10|regex:/^([0-9]+)$/',
+        'product_code'    =>   'nullable|max:10|regex:/^([0-9]+)$/',
+        'model_no'        =>   'nullable|max:10|regex:/^([a-zA-Z0-9.-]+)$/',
+        'warranty'        =>   'nullable|max:10|regex:/^([a-zA-Z0-9 ]+)$/',
+        'product_type'    =>   'nullable|max:10|regex:/^([a-zA-Z0-9]+)$/',
+        'packaging'       =>   'nullable|max:10|regex:/^([a-zA-Z]+)$/',
+        'price'           =>   'required|max:10|regex:/^([0-9.]+)$/',
+        'photo'           =>   'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
 
         if ($validator->passes()) {

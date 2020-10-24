@@ -11,7 +11,7 @@
         </button>
 
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" id="Modalx">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -141,12 +141,12 @@ document.getElementById('myForm').reset();
 $('#id').val('');
 $('#exampleModalLabel').text('Add New Supplier');
 $('.submit').text('Save');
-$('.modal').modal('show');
+$('#Modalx').modal('show');
 }
 $(document).on('click','.edit',function(){
   $('#exampleModalLabel').text('Update Supplier');
   $('.submit').text('Update');
-$('.modal').modal('show');
+$('#Modalx').modal('show');
   id=$(this).data('id');
   $('#id').val(id);
   axios.get('admin/get-supplier/'+id)

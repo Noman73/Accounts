@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DB;
 use Validator;
 use App\Category;
+use App\Notification;
 use DataTables;
 use Auth;
 class CategoryController extends Controller
@@ -15,9 +16,17 @@ class CategoryController extends Controller
     }
     public function ManageCategory(){
     	if (request()->ajax()){
-    $get=DB::select("select categories.name,users.name as username from categories inner join users on categories.user_id=users.id");
+    $get=DB::select("select categories.id,categories.name,users.name as username from categories inner join users on categories.user_id=users.id");
    return DataTables::of($get)
-      ->addIndexColumn()->make(true);
+         ->addIndexColumn()
+         ->addColumn('action',function($get){
+          $button  ='<div class="btn-group btn-group-toggle" data-toggle="buttons">
+                       <button type="button" data-id="'.$get->id.'" class="btn btn-sm btn-primary rounded mr-1 edit" data-toggle="modal" data-target=""><i class="fas fa-eye"></i></button>
+                       <button class="btn btn-danger btn-sm rounded delete" data-id="'.$get->id.'"><i class="fas fa-trash-alt"></i></button>
+                    </div>';
+        return $button;
+      })
+      ->rawColumns(['action'])->make(true);
     }
    return view('pages.products.category');
     }
@@ -39,6 +48,44 @@ class CategoryController extends Controller
     public function getCat(){
         $category=DB::table('categories')->select('id','name')->get();
         return [$category];
+    }
+    public function getCatById($id){
+        $get=Category::select('name')->where('id',$id)->first();
+        return ['name'=>$get->name];
+    }
+    public function Delete($id=null){
+        $name=Category::select('name')->where('id',$id)->first();
+        $delete=Category::where('id',$id)->delete();
+        if ($delete) {
+            $notification=new Notification;
+            $notification->details='Product Category <strong>'.$name->name.'('.$id.')</strong>'.' deleted by <strong>'.Auth::user()->name.'('.Auth::user()->id.')</strong>';
+            $notification->action='delete';
+            $save=$notification->save();
+            if ($save) {
+                return response()->json(['message'=>'success']);
+            }
+        }
+    }
+
+    public function Update($id=null){
+         $validator=Validator::make($r->all(),[
+            "product_type"=>'required|max:100|min:2|regex:/^([a-zA-Z0-9 ]+)$/',
+        ]);
+        if ($validator->passes()) {
+            $category=Category::find($id);
+            $category->name=$r->name;
+            $category->user_id=Auth::user()->id;
+            $save=$type->save();
+            if ($save){
+                $notification=new Notification;
+                $notification->details='Category <strong>'.$r->name.'('.$id.')</strong>'.' Updated by <strong>'.Auth::user()->name.'('.Auth::user()->id.')</strong>';
+                $notification->action='update';
+                $notification->save();
+                return ['message'=>'success'];
+            }
+            
+        }
+    return response()->json([$validator->getMessageBag()]);
     }
 
 }

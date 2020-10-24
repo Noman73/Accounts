@@ -29,21 +29,21 @@ class CustomerController extends Controller
 			$array['stutus']=1;
 		}
     	$validator = Validator::make($array,[
-        'company_name'      => 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'name'              => 'required|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'previous_due'      => 'nullable|max:15|regex:/^([a-zA-Z0-9., ]+)$/',
-        'maximum_due'     	=> 'nullable|max:15',
-        'phone1'     		=> 'required|max:20|unique:customers,phone1', 
-        'phone2'     		=> 'nullable|max:20|unique:customers,phone2',
+        'company_name'      => "nullable|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'name'              => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'previous_due'      => 'nullable|max:15|regex:/^([0-9.]+)$/',
+        'maximum_due'     	=> 'nullable|max:15|regex:/^([0-9.]+)$/',
+        'phone1'     		=> 'required|max:20|unique:customers,phone1|regex:/^([0-9]+)$/', 
+        'phone2'     		=> 'nullable|max:20|unique:customers,phone2|regex:/^([0-9]+)$/',
         'email'     		=> 'nullable|max:100|email|unique:customers,email',
-        'birth_date'    	=> 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'mariage_date'      => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'adress'     		=> 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'city'     			=> 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'postal_code'     	=> 'nullable|max:20|regex:/^([a-zA-Z0-9., ]+)$/',
-        'stutus'     		=> 'nullable|max:1|regex:/^([a-zA-Z0-9., ]+)$/',
-        'group_type'     	=> 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'photo'     		=> 'nullable|image|max:2024',
+        'birth_date'    	=> 'nullable|max:100|date_format:d-m-Y',
+        'mariage_date'      => 'nullable|max:100|date_format:d-m-Y',
+        'adress'     		=> "nullable|max:100|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'city'     			=> 'nullable|max:50|regex:/^([a-zA-Z0-9]+)$/',
+        'postal_code'     	=> 'nullable|max:20|regex:/^([a-zA-Z0-9]+)$/',
+        'stutus'     		=> 'nullable|max:1|regex:/^([0-1]+)$/',
+        'group_type'     	=> 'nullable|max:50|regex:/^([a-zA-Z0-9]+)$/',
+        'photo'     		=> 'nullable|image|mimes:jpeg,png,jpg,svg|max:2024',
         ]);
 
     //for image
@@ -77,7 +77,7 @@ class CustomerController extends Controller
     }
 
     public function searchCustomer(Request $r){
-        if (!preg_match("/[^a-zA-Z0-9 ]/", $r->searchTerm)) {
+        if (!preg_match("/[^a-zA-Z0-9. ]/", $r->searchTerm)) {
             $data=DB::select("SELECT id,name,phone1 from customers where name like '%".$r->searchTerm."%' or  phone1 like '%".$r->searchTerm."%' limit 10");
             foreach ($data as $value) {
                 $set_data[]=['id'=>$value->id,'text'=>$value->name.'('.$value->phone1.')'];
@@ -90,16 +90,17 @@ class CustomerController extends Controller
         if (!preg_match("/[^0-9]/",$id)){
            $get=DB::select("
             SELECT
-    cast(((t.Deposit+t.rtrnPrice)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
+    cast(((t.Deposit+t.rtrnPrice+t.previous_due)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
 from(
     select 
-    sum(IF(payment_type='Deposit',ammount,0)) as Deposit,
-    sum(IF(payment_type='Expence',ammount,0)) as Expence,        
+    sum(IFNULL(debit,0)) as Deposit,
+    sum(IFNULL(credit,0)) as Expence,       
     ifnull((select SUM(qantity*price) from sales where customer_id=:id),0) as salePrice,
-    (select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id) as invoice,
+    ifnull((select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id),0) as invoice,
     ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id),0) as rtrnPrice,
-    ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id),0) as rtrnInvoice
-    from voucers where name='customer' and name_data_id=:id
+    ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id),0) as rtrnInvoice,
+    (select previous_due from customers where id=:id) as previous_due
+    from voucers where category='customer' and data_id=:id
     ) t",['id'=>$id]);
            return $get;
         }else{
@@ -153,21 +154,21 @@ from(
             $array['stutus']=1;
         }
         $validator = Validator::make($array,[
-        'company_name'      => 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'name'              => 'required|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'previous_due'      => 'nullable|max:15|regex:/^([a-zA-Z0-9., ]+)$/',
-        'maximum_due'       => 'nullable|max:15',
-        'phone1'            => 'required|max:20', 
-        'phone2'            => 'nullable|max:20|unique:customers,phone2',
-        'email'             => 'nullable|max:100|email|unique:customers,email',
-        'birth_date'        => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'mariage_date'      => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'adress'            => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'city'              => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'postal_code'       => 'nullable|max:20|regex:/^([a-zA-Z0-9., ]+)$/',
-        'stutus'            => 'nullable|max:1|regex:/^([a-zA-Z0-9., ]+)$/',
-        'group_types'       => 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'photo'             => 'nullable|image|max:2024',
+        'company_name'      => "nullable|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'name'              => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'previous_due'      => 'nullable|max:15|regex:/^([0-9.]+)$/',
+        'maximum_due'       => 'nullable|max:15|regex:/^([0-9.]+)$/',
+        'phone1'            => 'required|regex:/^([0-9]+)$/|max:20|unique:customers,phone1,'.$id, 
+        'phone2'            => 'nullable|max:20|regex:/^([0-9]+)$/|unique:customers,phone2,'.$id,
+        'email'             => 'nullable|max:100|email|unique:customers,email,'.$id,
+        'birth_date'        => 'nullable|max:100|date_format:d-m-Y',
+        'mariage_date'      => 'nullable|max:100|date_format:d-m-Y',
+        'adress'            => "nullable|max:100|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'city'              => 'nullable|max:50|regex:/^([a-zA-Z0-9]+)$/',
+        'postal_code'       => 'nullable|max:20|regex:/^([a-zA-Z0-9]+)$/',
+        'stutus'            => 'nullable|max:1|regex:/^([0-1]+)$/',
+        'group_type'        => 'nullable|max:50|regex:/^([a-zA-Z0-9]+)$/',
+        'photo'             => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2024',
         ]);
 
     //for image

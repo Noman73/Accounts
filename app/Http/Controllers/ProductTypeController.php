@@ -35,7 +35,7 @@ class ProductTypeController extends Controller
     }
     public function insertProductType(Request $r){
     	$validator=Validator::make($r->all(),[
-    		"product_type"=>'required|max:100|min:2|',
+    		"product_type"=>'required|max:100|min:2|regex:/^([a-zA-Z0-9 ]+)$/',
     	]);
 
     	if ($validator->passes()) {
@@ -64,7 +64,7 @@ class ProductTypeController extends Controller
     }
     public function Update(Request $r,$id=null){
         $validator=Validator::make($r->all(),[
-            "product_type"=>'required|max:100|min:2|',
+            "product_type"=>'required|max:100|min:2|regex:/^([a-zA-Z0-9 ]+)$/',
         ]);
         if ($validator->passes()) {
             $type=Ptype::find($id);

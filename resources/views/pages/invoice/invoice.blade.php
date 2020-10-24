@@ -1,9 +1,17 @@
 @extends('layouts.master')
 @section('content')
+@section('link')
+<style>
+  .buffer{
+    height: 20px;
+    width:20px;
+  }
+</style>
+@endsection
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Sale Invoice</h5>
+      <h5 class="m-0 font-weight-bold">Sale Invoice <img class='buffer float-right d-none' src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
      </div>
     <div class="card-body px-3 px-md-5">
     <form>
@@ -108,84 +116,9 @@
                       </td>
                   </tr>
                 </table>
-                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="showModal()" id="submit">submit</button>
+                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
-                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog " role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">New Invoice</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ModalClose()">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <!--modal body-->
-                      <div class="modal-body">
-                        <div >
-                          <table>
-                            <tr>
-                              <td><strong>Customer</strong></td>
-                              <td><strong id="report_customer"></strong></td>
-                            </tr>
-                            <tr>
-                              <td><strong>Date</strong></td>
-                              <td><strong id="report_date"></strong></td>
-                            </tr>
-                          </table>
-                          <br>
-                          {{-- product list --}}
-                          <table class="table table-sm text-center">
-                            <thead>
-                              <th>Product</th>
-                              <th>Qantity</th>
-                              <th>Price</th>
-                              <th>Total</th>
-                            </thead>
-                            <tbody  id="product_list">
-                            </tbody>
-                          </table>
-                          <hr>
-                          <div class="float-right mr-4">
-                            <table>
-                              <tr>
-                                <th>Total</th>
-                                <td id='report_total'></td>
-                              </tr>
-                              <tr>
-                                <th>Discount</th>
-                                <td id="report_discount"></td>
-                              </tr>
-                              <tr>
-                                <th>Vat</th>
-                                <td id="report_vat"></td>
-                              </tr>
-                              <tr>
-                                <th>Labour Cost</th>
-                                <td id="report_labour_cost"></td>
-                              </tr>
-                              <tr>
-                                <th>Previous Due</th>
-                                <td id="report_previous_due"></td>
-                              </tr>
-                              <tr>
-                                <th >Total Payable</th>
-                                <td id="report_total_payable"></td>
-                              </tr>
-                            </table>
-                          </div>
-                        </div>
-                        
-                       <!--end 2nd column -->
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="submit()">Confirm</button>
-                        <button type="button" class="btn btn-warning"><i class="fas fa-print"></i>Print</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 {{-- /invoic modal --}}
             </div>
       </div>
@@ -194,6 +127,7 @@
 </div>
 @endsection
 @section('script')
+<script src='{{asset('js/pdf.js')}}'></script>
 <script type="text/javascript">
 $(document).ready(function(){
   $('#customer').select2({
@@ -228,6 +162,7 @@ function getBlnce(id){
     }
   axios.get('admin/customer_balance/'+id)
   .then(function(response){
+    console.log(response);
     if (response.data[0].total){
         total=response.data[0].total;
         $('#balance').removeClass('d-none');
@@ -236,7 +171,7 @@ function getBlnce(id){
           $('#balance').removeClass('bg-danger');
           $('#balance').addClass('bg-success');
         }else if(total==null){
-          $('#balance').addClass('d-none');
+          $('#balance').text('Balance:'+0.00);
         }else{
           $('#balance').removeClass('bg-success');
           $('#balance').addClass('bg-danger');
@@ -244,10 +179,6 @@ function getBlnce(id){
     }
   })
 }
-
-
-  
-
  var count=0;
 //add item function 
 function addItem(){
@@ -278,6 +209,13 @@ function addItem(){
           }
       },
       processResults:function(response){
+        item=$("select[name='item[]'] option:selected")
+                  .map(function(){return $(this).val();}).get();
+         res=response.map(function(currentValue, index, arr){
+          if (item.includes(currentValue.id)){
+            response[index]['disabled']=true;
+          }
+        });
         return {
           results:response,
         }
@@ -391,7 +329,7 @@ function totalCalculation(){
     }
     total_payableX=(total_payable*discount)/100;
     vat=(total_payable*vat)/100;
-    $('#total_payable').val((total_payable-total_payableX)+labour+vat);
+    $('#total_payable').val(((total_payable-total_payableX)+labour+vat).toFixed(2));
   }
 }
 function calculation(){
@@ -435,9 +373,9 @@ $(document).on('keyup','#labour',function(){
 
 // show Modal with data
 
-function showModal(){
+function CreatePdf(inv_id){
   isValid=Validate();
-  if(isValid==true){
+  if(isValid){
       products = $("select[name='item[]'] option:selected")
                   .map(function(){return $(this).text();}).get();
       qantities = $("input[name='qantity[]']")
@@ -448,26 +386,55 @@ function showModal(){
                   .map(function(){return $(this).val();}).get();
                   console.log(products.length);
       x=[{product:products,qantities,prices,total}];
-      html='';
+      html=`
+      <table style='font-weight:bold;'>
+        <tr style='border:none;'><td>Invoice ID</td><td> : `+inv_id+`</td></tr>
+        <tr style='border:none;'><td>Date</td><td> : `+$('#date').val()+`</td></tr>
+        <tr style='border:none;'><td>Customer</td><td> : `+$('#customer').text()+`</td></tr>
+      </table>
+      <h6 style='text-align:center;font-size:15px'>Product List</h6>
+      <table style='font-size:10px;'>
+      <tr style='text-align:center;width:25%'>
+        <th>Product Name</th>
+        <th>Qantity</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+      `;
       console.log(x[0].product[0])
       for (var i=0;i<products.length; i++) {
-        html+="<tr>";
+        html+="<tr style='text-align:center;width:25%'>";
         html+="<td>"+x[0]['product'][i]+"</td>";
         html+="<td>"+x[0]['qantities'][i]+"</td>";
         html+="<td>"+x[0]['prices'][i]+"</td>";
         html+="<td>"+x[0]['total'][i]+"</td>";
         html+="</tr>";
       }
-      $('#product_list').html(html);
-      $('#report_date').text(' :'+$('#date').val());
-      $('#report_total').text(' :'+$('#final_total').val());
-      $('#report_discount').text(':'+$('#discount').val());
-      $('#report_vat').text(' :'+$('#vat').val());
-      $('#report_labour_cost').text(' :'+$('#labour').val());
-      $('#report_total_payable').text(' :'+$('#total_payable').val());
-      $('#report_customer').text(' :'+$('#customer option:selected').text());
-      $('#report_previous_due').text(' :');
-      $('.modal').modal('show');
+      html+=`</table>
+        <table>
+            <tr style='border:none;'><td>Total</td><td> : `+$('#final_total').val()+`</td></tr>
+            <tr style='border:none;'><td>Total Item</td><td> : `+$('#total_item').val()+`</td></tr>
+            <tr style='border:none;'><td>Discount</td><td> : `+$('#discount').val()+`</td></tr>
+            <tr style='border:none;'><td>vat</td><td> : `+$('#vat').val()+`</td></tr>
+            <tr style='border:none;'><td>Labour Cost</td><td> : `+$('#labour').val()+`</td></tr>
+            <tr style='border:none;'><td>Total Payable</td><td> : `+$('#total_payable').val()+`</td></tr>
+        </table>
+
+      `;
+      header=`<h6 style='text-align:center;margin-top:10px;'>Customer Invoice</h6>
+               <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` 
+                </div>`;
+      footer=`<div style='margin-top:50px;'><p style='text-align:center;font-size:10px;color:#808080;'>Powered By : DevTunes Technology || 01731186740</p></div>`
+       // var head = HtmlToPdfMake(header);
+    var val = HtmlToPdfMake(html,{
+              tableAutoSize:true
+            });
+    var header = HtmlToPdfMake(header,{
+              // tableAutoSize:true
+            });
+    var footer = HtmlToPdfMake(footer);
+        var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,80,20,40],pageSize:'A5',content:val,header:header,footer:footer};
+    MakePdf.createPdf(dd).open();
     }
   }
 // validate all fields
@@ -504,6 +471,8 @@ return isValid;
 }
 function submit(){
    isValid=Validate();
+   // isValid=true;
+   $('.buffer').removeClass('d-none');
 if (isValid==true) {
        qan=document.getElementsByName('qantity[]');
    qantities = $("input[name='qantity[]']")
@@ -535,20 +504,31 @@ if (isValid==true) {
     axios.post('admin/invoice',formData)
     .then(function(response){
       console.log(response.data);
-      if (response.data.message!=='success'){
-        length=Object.keys(response.data[0]).length;
+      $('.buffer').addClass('d-none');
+      if (!response.data.message){
+        keys=Object.keys(response.data[0]);
         html='';
-        for (var i = 0; i<length; i++) {
-          html+='*';
-          html+=response.data[0]["product."+i+""][0]+'\n';
+        for (var i = 0; i <keys.length; i++) {
+          console.log(keys[i]);
+          html+="<p style='color:red;line-height:1px;font-size:12px;'>"+response.data[0][keys[i]][0]+"</p>";
         }
-        alert(html);
+        // alert(html);
+        Swal.fire({
+          title: 'Error !',
+          icon:false,
+          html:html,
+          showCloseButton: true,
+          showCancelButton: false,
+          focusConfirm: false,
+          confirmButtonText:'Ok',
+        })
       }else if(response.data.message==='success'){
         window.toastr.success('Invoice Added Success');
+        CreatePdf(response.data.id);
       }
     })
     .catch(function(error){
-      console.log(error.request.response);
+      console.log(error);
     })
   }
 }
@@ -563,6 +543,12 @@ $('#date').daterangepicker({
         }
   });
 
-
+function dateFormat(date){
+let date_ob = date;
+let dates = ("0" + date_ob.getDate()).slice(-2);
+let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+let year = date_ob.getFullYear();
+return(dates + "-" + month + "-" + year);
+}
  </script>
 @endsection

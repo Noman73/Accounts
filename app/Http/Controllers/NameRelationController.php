@@ -45,4 +45,12 @@ class NameRelationController extends Controller
     	}
     	return [$validator->getMessageBag()];
     }
+
+    public function getRelationById($id=null){
+      $data=DB::table('namerelations')->select('id','rel_name')->where('name_id',$id)->get();
+      foreach ($data as $value){
+                $set_data[]=['id'=>$value->id,'text'=>$value->rel_name];
+            }
+      return $set_data;
+    }
 }

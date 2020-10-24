@@ -11,7 +11,7 @@
         </button>
 
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="Modalx" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -26,12 +26,12 @@
                 
                 <form id="myForm">
                   <input type="hidden" id="id">
-                <div class="form-group">
-                  <label class="font-weight-bold">Product Type:</label>
-                  <input class="form-control form-control-sm" id="product_type"  type="text" placeholder="Enter Product Type...">
-                  <div id="product_type_msg" class="invalid-feedback">
-                  </div>
-                </div>
+                    <div class="form-group">
+                      <label class="font-weight-bold">Product Type:</label>
+                      <input class="form-control form-control-sm" id="product_type"  type="text" placeholder="Enter Product Type...">
+                      <div id="product_type_msg" class="invalid-feedback">
+                      </div>
+                    </div>
                 </form>
                <!--end 2nd column -->
               </div>
@@ -104,12 +104,12 @@ document.getElementById('myForm').reset();
 $('#id').val('');
 $('#exampleModalLabel').text('Add New product_type');
 $('.submit').text('Save');
-$('.modal').modal('show');
+$('#Modalx').modal('show');
 }
  $(document).on('click','.edit',function(){
   $('#exampleModalLabel').text('Update Product');
   $('.submit').text('Update');
-  $('.modal').modal('show');
+  $('#Modalx').modal('show');
   id=$(this).data('id');
   $('#id').val(id);
   axios.get('admin/product_type/'+id)
@@ -132,7 +132,6 @@ function ajaxRequest(){
     let productType=$('#product_type').val();
     let formData= new FormData();
     formData.append('product_type',productType);
-    
     //axios post request
   if (!id) {
      axios.post('/admin/product_type',formData)

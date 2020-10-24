@@ -34,16 +34,16 @@ class EmployeeController extends Controller
     }
     public function insertEmployee(Request $r){
     	$validator = Validator::make($r->all(),[
-        'name'       		=> 'required|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'email'      		=> 'nullable|email|unique:employees,email',
-        'phone'      		=> 'required|max:11|regex:/^([0-9]+)$/',
-        'adress'        	=> 'required|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-        'experience' 		=> 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'nid'        		=> 'nullable|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-        'salary'     		=> 'required|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-        'job_department'   	=> 'required|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-        'city'       		=> 'nullable|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-        'photo'      		=> 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'name'       	 => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'email'      	 => 'nullable|email|unique:employees,email|max:100',
+        'phone'          => 'required|max:15|min:3|unique:employees,phone|regex:/^([0-9]+)$/',
+        'adress'         => "required|max:100|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'experience' 	 => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
+        'nid'        	 => 'nullable|max:20|regex:/^([0-9]+)$/',
+        'salary'         => 'required|max:12|regex:/^([0-9.]+)$/',
+        'job_department' => 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
+        'city'       	 => 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
+        'photo'      	 => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
         ]);
 
     //for image
@@ -86,20 +86,20 @@ class EmployeeController extends Controller
     public function Update(Request $r,$id){
         // return $r->all();
             $validator = Validator::make($r->all(),[
-            'name'              => 'required|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-            'email'             => 'nullable|email',
-            'phone'             => 'required|max:11|regex:/^([0-9]+)$/',
-            'adress'            => 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
+            'name'              => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+            'email'             => 'nullable|email|unique:employees,email,'.$id,
+            'phone'             => 'required|max:20|regex:/^([0-9]+)$/|unique:employees,phone,'.$id,
+            'adress'            => "required|max:100|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
             'experience'        => 'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-            'nid'               => 'nullable|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-            'salary'            => 'required|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-            'job_department'    => 'required|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-            'city'              => 'nullable|max:14|regex:/^([a-zA-Z0-9., ]+)$/',
-            'photo'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'nid'               => 'nullable|max:20|regex:/^([a-zA-Z0-9., ]+)$/',
+            'salary'            => 'required|max:12|regex:/^([0-9.]+)$/',
+            'job_department'    => 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
+            'city'              => 'nullable|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
+            'photo'             => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             ]);
 
         //for image
-        if ($validator->passes()) {
+        if ($validator->passes()){
             $employee=Employee::find($id);
             $employee->name              = $r->name;
             $employee->email             = $r->email;

@@ -11,14 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/','Auth\LoginController@showLoginForm');
 
 Auth::routes();
-
+// home controller
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
+Route::get('/admin/getVoucerFormData', 'HomeController@getVoucerFormData');
 // banks route
 Route::get('/admin/banks', 'BankController@bankForm');
 Route::post('/admin/banks', 'BankController@insertBank');
@@ -48,7 +47,10 @@ Route::get('/admin/get-customer/{id}','CustomerController@getCustomer');
 Route::post('/admin/customer/{id}','CustomerController@Update');
 //category route
 Route::get('/admin/category', 'CategoryController@ManageCategory');
+Route::get('/admin/category_get/{id}', 'CategoryController@getCatById');
+Route::delete('/admin/category/{id}', 'CategoryController@Delete');
 Route::post('/admin/category', 'CategoryController@insertCategory');
+Route::post('/admin/category/{id}', 'CategoryController@Update');
 Route::get('/admin/get_all_category', 'CategoryController@getCat');
 //Child category route
 Route::get('/admin/child_category','ChildCategoryController@ManageCategory');
@@ -84,6 +86,7 @@ Route::post('/admin/name','NameController@insertName');
 // name relation route here
 Route::get('/admin/name_relation','NameRelationController@ManageNameRelation');
 Route::post('/admin/name_relation','NameRelationController@insertNameRelation');
+Route::get('/admin/relation_search/{id}','NameRelationController@getRelationById');
 // voucer controller
 Route::get('/admin/voucer','VoucerController@ManageVoucer');
 Route::post('/admin/voucer','VoucerController@insertVoucer');
@@ -95,7 +98,7 @@ Route::get('/admin/invoice-update/{id}','InvoiceController@UpdateForm');
 Route::post('/admin/invoice','InvoiceController@insertInvoice');
 Route::post('/admin/invoice/{id}','InvoiceController@Update');
 Route::get('/admin/get_child_cat_by_cat_id/{id?}','InvoiceController@getChildCat');
-Route::get('/admin/all-invoices','InvoiceController@allInvoices');
+Route::get('/admin/all_invoice','InvoiceController@allInvoices');
 // invoieBack Route
 Route::get('/admin/invoice_back','InvoiceBackController@InvoiceBackForm');
 Route::post('/admin/invoice_back','InvoiceBackController@insert');

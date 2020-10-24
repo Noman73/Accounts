@@ -27,6 +27,9 @@
       background-color:#8DC78A;
       margin-right: 5px;
     }
+    .input-group{
+      margin-top:5px;
+    }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -39,7 +42,6 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      
     </ul>
 
     <!-- SEARCH FORM -->
@@ -57,10 +59,10 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <li>
-        <a class="nav-link receive font-weight-bold" href="{{URL::to('admin/voucer')}}">New Receive</a>
+        <button class="nav-link receive font-weight-bold btn" onclick='MasterModal()'>New Voucer</button>
       </li>
       <li>
-        <a class="nav-link invoice font-weight-bold" href="{{URL::to('admin/invoice')}}">New Invoice</a>
+        <a class="nav-link invoice btn font-weight-bold" href="{{URL::to('admin/invoice')}}">New Invoice</a>
       </li>
       <a class="nav-link" href="{{ route('logout') }}" 
 
@@ -234,6 +236,12 @@
                 <a href="{{ URL::to('/admin/invoice_back') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>Sales Return</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/all_invoice') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>All Invoice</p>
                 </a>
               </li>
             </ul>
@@ -489,12 +497,6 @@
                   <p>Add Info</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/name_relation') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Name-Relation</p>
-                </a>
-              </li>
             </ul>
           </li>
           <li class="nav-item has-treeview">
@@ -523,6 +525,73 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-voucer">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="VModalLabel"></h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ModalClose()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <!--modal body-->
+    <div class="modal-body" id="forms">
+      <form id="myMasterForm">
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" for="date">Date:</label>
+        <div class="col-md-7">
+          <input type="text" id="master-date" class="master-date form-control form-control-sm">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" for="categories">Select Category:</label>
+        <div class="col-md-7">
+          <select type="text" id="master-category" class="form-control form-control-sm" onchange="getMasterCat(this)">
+            <option value="">--SELECT--</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" id='data-label' for="childCategory"></label>
+        <div class="col-md-7">
+          <select type="text" id="master-data" class="form-control form-control-sm">
+            <option value="">--SELECT--</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" for="payment">Payment Type:</label>
+        <div class="col-md-7">
+          <select type="text" id="master-payment_type" class="form-control form-control-sm">
+            <option value="">--SELECT--</option>
+            <option value="Deposit">Deposit</option>
+            <option value="Expence">Expence</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" for="bank">Select Bank:</label>
+        <div class="col-md-7">
+          <select type="text" id="master-bank" class="form-control form-control-sm">
+            <option value="">--SELECT--</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="control-label col-sm-3 text-lg-right" for="product">Ammount $:</label>
+        <div class="col-md-7">
+          <input type="text" id="master-ammount" class="form-control form-control-sm" placeholder="Enter rate......">
+        </div>
+      </div>
+     </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-primary" onclick="MasterAjaxRequest()">Save changes</button>
+    </div>
+  </div>
+</div>
+</div>
     @yield('content')
   </div>
   <!-- /.content-wrapper -->
@@ -536,13 +605,10 @@
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
   </aside>
-  <!-- /.control-sidebar -->
 </div>
-<!-- ./wrapper -->
+{{-- voucer modal --}}
 
-<!-- jQuery -->
 <script src="{{ asset('js/app.js') }}"></script>
 @yield('script')
 <script>
@@ -569,6 +635,126 @@ $(document).ready(function(){
         return this.href == url;
     }).parentsUntil(".sidebar-menu > .nav-treeview").children(0).addClass('active');
 
+});
+
+function MasterModal(){
+  $('#modal-voucer').modal('show');
+  $('#VModalLabel').text('Create New Voucer');
+  document.getElementById('myMasterForm').reset();
+  axios.get('admin/getVoucerFormData')
+  .then((res)=>{
+    console.log(res)
+   data=Object.keys(res.data);
+   banks="<option>--select--</option>";
+   category="<option>--select--</option>";
+   for (var i = 0; i < data.length; i++) {
+     for (var x = 0; x < res.data[data[i]].length; x++) {
+      if (data[i]=='banks'){
+        banks+="<option value='"+res.data[data[i]][x].id+"'>"+res.data[data[i]][x].name+"</option>";
+      }else if(data[i]=='category'){
+        category+="<option value='"+res.data[data[i]][x].id+"'>"+res.data[data[i]][x].name+"</option>";
+      }
+     }
+   }
+   $('#master-category').html(category);
+   $('#master-bank').html(banks);
+  })
+}
+function getMasterCat(data){
+  category=data.options[data.selectedIndex].text;
+  $('#data-label').text(category+':');
+  console.log(data.value);
+  $('#master-data').html('');
+  $('.master-data').removeClass('d-none');
+  switch(category){
+    case 'customer':
+    url="{{URL::to('admin/')}}"+'/search_customer';
+    method='post';
+    break;
+    case 'supplier':
+    url="{{URL::to('admin/')}}"+'/search_supplier';
+    method='post';
+    break;
+    default :
+    url="{{URL::to('admin/')}}"+'/relation_search/'+data.value;
+    method='get';
+    break;
+  }
+  console.log(category);
+  $('#master-data').select2({
+    theme:'bootstrap4',
+    placeholder:'Select '+category+'....',
+    allowClear:true,
+    ajax:{
+      url:url,
+      type:method,
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
+  })
+}
+function MasterAjaxRequest(){
+    $('.invalid-feedback').hide();
+    $('input').css('border','1px solid rgb(209,211,226)');
+    $('select').css('border','1px solid rgb(209,211,226)');
+    let main_date=$('#master-date').val();
+    let main_category=$('#master-category option:selected').text();
+    let main_data=$('#master-data').val();
+    let main_payment_type=$('#master-payment_type').val();
+    let main_bank=$('#master-bank').val();
+    let main_ammount=$('#master-ammount').val();
+    let formData= new FormData();
+    console.log(main_category);
+    formData.append('date',main_date);
+    formData.append('category',main_category);
+    formData.append('data',main_data);
+    formData.append('payment_type',main_payment_type);
+    formData.append('bank',main_bank);
+    formData.append('ammount',main_ammount);
+    //axios post request
+  axios.post('/admin/voucer',formData)
+  .then(function (response){
+    console.log(response);
+    if (response.data.message=='success') {
+      window.toastr.success('Purchase Added Success');
+      $('.data-table').DataTable().ajax.reload();
+      document.getElementById('myForm').reset();
+    }
+    var keys=Object.keys(response.data[0]);
+    for(var i=0; i<keys.length;i++){
+        $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+        $('#'+keys[i]).css('border','1px solid red');
+        $('#'+keys[i]+'_msg').show();
+      }
+  })
+   .catch(function (error) {
+    console.log(error.request.response);
+  });
+ }
+// $('select').select2({
+//   placeholder:'select',
+//   theme:"bootstrap4",
+// })
+ $('#master-date').daterangepicker({
+ showDropdowns:true,
+ singleDatePicker: true,
+ locale: {
+    format: 'DD-MM-YYYY',
+  },
+  minDate: '01-01-1950',
+  maxDate: '01-01-2050'
 });
 </script>
 </body>

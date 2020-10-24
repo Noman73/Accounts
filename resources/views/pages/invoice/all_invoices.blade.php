@@ -80,7 +80,7 @@
         processing:true,
         serverSide:true,
         ajax:{
-          url:"{{ URL::to('/admin/all-invoices') }}"
+          url:"{{ URL::to('/admin/all_invoice') }}"
         },
         columns:[
           {

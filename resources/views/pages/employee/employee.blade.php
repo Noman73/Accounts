@@ -33,7 +33,7 @@
         </button>
 
         <!-- Modal -->
-        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="Modalx">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
@@ -213,12 +213,12 @@
    }
  //ajax request from employee.js
 function addNew(){
-  $('.modal').modal('show');
+  $('#Modalx').modal('show');
   $('.modal-title').text('Add New Employee');
   $('#id').val('');
  }
  $(document).on('click','.edit',function(){
-    $('.modal').modal('show');
+    $('#Modalx').modal('show');
     $('.modal-title').text('Emplyee Update');
     let id=$(this).data('id');
     $('#id').val(id);
@@ -276,7 +276,7 @@ function ajaxRequest(id){
           if (response.data.message=='success') {
             window.toastr.success('Banks Added Success');
             $('.data-table').DataTable().ajax.reload();
-            $('.modal').modal('hide');
+            $('#Modalx').modal('hide');
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -295,7 +295,7 @@ function ajaxRequest(id){
           if (response.data.message=='success') {
             window.toastr.success('Banks Added Success');
             $('.data-table').DataTable().ajax.reload();
-            $('.modal').modal('hide');
+            $('#Modalx').modal('hide');
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){

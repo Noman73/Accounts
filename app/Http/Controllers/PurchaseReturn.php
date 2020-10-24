@@ -7,6 +7,7 @@ use Validator;
 use Auth;
 use App\Invpurchasebacks;
 use App\Purchasebacks;
+use DB;
 class PurchaseReturn extends Controller
 {
     public function __construct(){

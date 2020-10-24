@@ -6,24 +6,23 @@
       <h5 class="m-0 font-weight-bold">Manage Category</h5>
      </div>
     <div class="card-body px-3 px-md-5">
-		  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+		  	<button type="button" class="btn btn-primary" onclick="addNew()">
           Add New<i class="fas fa-plus"></i>
         </button>
-
         <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" id="Modalx">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add 
-                New Category</h5>
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ModalClose()">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <!--modal body-->
               <div class="modal-body">
-                <form action="" id="myForm">
+                <form id="myForm">
+                  <input type="hidden" id="id">
                   <div class="form-group">
                     <label class="font-weight-bold">Name:</label>
                     <input class="form-control form-control-sm" id="name"  type="text" placeholder="Enter Category Name...">
@@ -35,7 +34,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="ModalClose()" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="ajaxRequest()">Save changes</button>
+                <button type="button" class="btn btn-primary submit" onclick="ajaxRequest()">Save</button>
               </div>
             </div>
           </div>
@@ -50,7 +49,8 @@
                         <th>No.</th>
                         <th>Category Name</th>
                         <th>Created By</th>
-                    </tr>
+                        <th>Action</th>
+                     </tr>
                     </thead>
                     <tbody>
                     </tbody>
@@ -89,36 +89,116 @@
            {
             data:'username',
             name:'username',
+          },
+          {
+            data:'action',
+            name:'action',
           }
         ]
     });
+function addNew(){
+document.getElementById('myForm').reset();
+$('#Modalx').modal('show');
+$('#id').val('');
+$('#exampleModalLabel').text('Add New Category');
+$('.submit').text('Save');
+}
+ $(document).on('click','.edit',function(){
+  $('#exampleModalLabel').text('Update Category');
+  $('.submit').text('Update');
+  $('#Modalx').modal('show');
+  id=$(this).data('id');
+  $('#id').val(id);
+  axios.get('admin/category_get/'+id)
+  .then(function(response){
+    var keys=Object.keys(response.data);
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i]=='name'){
+      $('#name').val(response.data[keys[i]]);
+      }    
+    }
+  })
+})
+ $('table').on('click','.delete',function(){
+     Swal.fire({
+  title: "Are you sure?",
+  text: "Once deleted, you will not be able to recover this imaginary file!",
+  icon: "warning",
+  showCancelButton: true,
+  // dangerMode: true,
+  confirmButtonColor: "#DD6B55",
+  cancelButtonText: "CANCEL",
+  confirmButtonText: "CONFIRM",
+})
+.then((isConfirmed) => {
+  if (isConfirmed.isConfirmed) {
+  var id=$(this).data('id');
+    console.log(id);
+    axios.delete('/admin/category/'+id,{_method:'DELETE'})
+      .then((res)=>{
+        console.log(res);
+        if (res.data.message=='success') {
+          window.toastr.success('Product Type Deleted Success');
+          $('.data-table').DataTable().ajax.reload();
+        }
+      })
+      .catch((error)=>{
+        console.log(error.request);
+      })
+  }
+});
+})
  //ajax request from employee.js
 function ajaxRequest(){
+  $('.submit').addClass('disabled').attr('disabled',true);
     $('.invalid-feedback').hide();
     $('input').css('border','1px solid rgb(209,211,226)');
     $('select').css('border','1px solid rgb(209,211,226)');
     let name=$('#name').val();
     let formData=new FormData();
-    formData.append('name',name); 
+    formData.append('name',name);
+    let id=$('#id').val();
     //axios post request
-  axios.post('/admin/category',formData)
-  .then(function (response){
-    console.log(response);
-    if (response.data.message=='success') {
-      window.toastr.success('Category Added Success');
-      $('.data-table').DataTable().ajax.reload();
+    if (!id) {
+        axios.post('/admin/category',formData)
+        .then(function (response){
+        console.log(response);
+        if (response.data.message=='success') {
+          window.toastr.success('Category Added Success');
+          $('.data-table').DataTable().ajax.reload();
+          $('.submit').removeClass('disabled').attr('disabled',false);
+        }
+        var keys=Object.keys(response.data[0]);
+        for(var i=0; i<keys.length;i++){
+            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]).css('border','1px solid red');
+            $('#'+keys[i]+'_msg').show();
+          }
+        })
+        .catch(function (error) {
+        console.log(error.request);
+        });
+    }else{
+      axios.post('/admin/category/'+id,formData)
+        .then(function (response){
+        console.log(response);
+        if (response.data.message=='success') {
+          window.toastr.success('Category Updated Success');
+          $('.data-table').DataTable().ajax.reload();
+          $('.submit').removeClass('disabled').attr('disabled',false);
+        }
+        var keys=Object.keys(response.data[0]);
+        for(var i=0; i<keys.length;i++){
+            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]).css('border','1px solid red');
+            $('#'+keys[i]+'_msg').show();
+          }
+        })
+        .catch(function (error) {
+        console.log(error.request);
+        }); 
     }
-    var keys=Object.keys(response.data[0]);
-    for(var i=0; i<keys.length;i++){
-        $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
-        $('#'+keys[i]).css('border','1px solid red');
-        $('#'+keys[i]+'_msg').show();
-      }
-  })
-   .catch(function (error) {
-    console.log(error.request);
-  });
-
+  
  }
  function ModalClose(){
   document.getElementById('myForm').reset();

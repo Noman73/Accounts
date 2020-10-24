@@ -88,10 +88,10 @@ function Request(){
        html+="<tr style='text-align:center;font-size:10px;height:12px;'>"
        html+="<th width='10%'>ID</th>"
        html+="<th width='20%'>Date</th>"
-       html+="<th width='10%'>Inv-ID</th>"
+       html+="<th width='10%'>Category</th>"
        html+="<th width='20%'>Name</th>"
-       html+="<th width='20%'>Total</th>"
-       html+="<th width='20%'>Total Payable</th>"
+       html+="<th width='20%'>Debit</th>"
+       html+="<th width='20%'>Credit</th>"
        html+='</tr>'
        html+="</thead>"
        html+="<tbody style='font-size:8px;text-align:center;'>"

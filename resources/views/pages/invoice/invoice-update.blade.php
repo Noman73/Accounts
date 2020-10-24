@@ -253,7 +253,13 @@ function Select2(){
                 }
             },
             processResults:function(response){
-              console.log(response);
+              item=$("select[name='item[]'] option:selected")
+                  .map(function(){return $(this).val();}).get();
+               res=response.map(function(currentValue, index, arr){
+                if (item.includes(currentValue.id)){
+                  response[index]['disabled']=true;
+                }
+              });
               return {
                 results:response,
               }
@@ -350,7 +356,13 @@ function addItem(){
           }
       },
       processResults:function(response){
-        console.log(response);
+        item=$("select[name='item[]'] option:selected")
+                  .map(function(){return $(this).val();}).get();
+               res=response.map(function(currentValue, index, arr){
+                if (item.includes(currentValue.id)){
+                  response[index]['disabled']=true;
+                }
+              });
         return {
           results:response,
         }
@@ -463,7 +475,7 @@ function totalCalculation(){
     }
     total_payableX=(total_payable*discount)/100;
     vat=(total_payable*vat)/100;
-    $('#total_payable').val((total_payable-total_payableX)+labour+vat);
+    $('#total_payable').val(((total_payable-total_payableX)+labour+vat).toFixed(2));
   }
 }
 function calculation(){
@@ -608,7 +620,7 @@ if (isValid==true) {
     axios.post('admin/invoice/'+invoice.id,formData)
     .then(function(response){
       console.log(response);
-      if (response.data.message=='success') {
+      if (response.data.message==='success') {
         $('.buffer').addClass('d-none');
         showModal();
       }

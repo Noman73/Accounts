@@ -18,11 +18,11 @@ class InvoiceController extends Controller
     	return view('pages.invoice.invoice');
     }
     public function insertInvoice(Request $r){
-    	$data['product']=explode(',',$r->product[0]);
-    	$data['qantities']=explode(',',$r->qantities[0]);
-    	$data['prices']=explode(',',$r->prices[0]);
+    	$data['product']=array_combine(range(1,count(explode(',',$r->product[0]))),explode(',',$r->product[0]));
+    	$data['qantities']=array_combine(range(1,count(explode(',',$r->qantities[0]))),explode(',',$r->qantities[0]));
+    	$data['prices']=array_combine(range(1,count(explode(',',$r->prices[0]))),explode(',',$r->prices[0]));
     	$data['customer']=$r->customer;
-    	$data['date']=strtotime(strval($r->date));
+    	$data['date']=$r->date;
     	$data['total_payable']=$r->total_payable;
     	$data['total_item']=$r->total_item;
     	$data['discount']=$r->discount;
@@ -34,21 +34,21 @@ class InvoiceController extends Controller
     		'product'=>'required|array',
     		'product.*'=>'required|distinct|regex:/^([0-9]+)$/',
     		'qantities'=>'required|array',
-    		'qantities.*'=>'required|regex:/^([0-9]+)$/',
+    		'qantities.*'=>'required|regex:/^([0-9.]+)$/',
     		'prices'=>'required|array',
-    		'prices.*'=>'required|regex:/^([0-9]+)$/',
+    		'prices.*'=>'required|regex:/^([0-9.]+)$/',
     		'customer'=>'required|regex:/^([0-9]+)$/',
-    		'date'=>'required|max:10',
-    		'total_payable'=>'required|max:10',
-    		'total_item'=>'required|max:10',
-    		'discount'=>'nullable|max:15',
-    		'vat'=>'nullable|max:15',
-    		'labour'=>'nullable|max:15',
-    		'total'=>'required|max:15',
+    		'date'=>'required|max:10|date_format:d-m-Y',
+    		'total_payable'=>'required|max:10|regex:/^([0-9.]+)$/',
+    		'total_item'=>'required|max:10|regex:/^([0-9.]+)$/',
+    		'discount'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+    		'vat'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+    		'labour'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+    		'total'=>'required|max:15|regex:/^([0-9.]+)$/',
     	]);
     	if ($validator->passes()) {
     		$invoice=new Invoice;
-    		$invoice->dates=$data['date'];
+    		$invoice->dates=strtotime(strval($data['date']));
     		$invoice->customer_id=$data['customer'];
     		$invoice->total_item=$data['total_item'];
     		$invoice->discount=$data['discount'];
@@ -66,20 +66,20 @@ class InvoiceController extends Controller
     			for ($i=0; $i <=$length; $i++) {
 	    			$stmt=new Sale();
 	                $stmt->invoice_id=$inv_id;
-	    			$stmt->dates=$data['date'];
+	    			$stmt->dates=strtotime(strval($data['date']));
 	    			$stmt->customer_id=$r->customer;
-	    			$stmt->product_id=$data['product'][$i];
-	    			$stmt->qantity=$data['qantities'][$i];
-	    			$stmt->price=$data['prices'][$i];
+	    			$stmt->product_id=$data['product'][$i+1];
+	    			$stmt->qantity=$data['qantities'][$i+1];
+	    			$stmt->price=$data['prices'][$i+1];
 	    			$stmt->user_id=$user_id;
-	                $stmt->increment_id=$this->Increment($i)+1;
+	                $stmt->increment_id=$this->Increment()+1;
 	    			$stmt->save();
     			}
     			if ($stmt=true) {
     				$increment_id=$this->Increment()+1;
     				$inv=Invoice::where('id',$inv_id)->update(['increment_id'=>$increment_id]);
     				if ($inv=true) {
-    					return ['message'=>'success'];
+    					return ['message'=>'success','id'=>$inv_id];
     				}
     			}
 	    	}
@@ -123,12 +123,12 @@ class InvoiceController extends Controller
         return view('pages.invoice.invoice-update',compact('invoice','sales'));
     }
     public function Update(Request $r,$id){
-        $data['product']=explode(',',$r->product[0]);
-        $data['row']=explode(',',$r->row[0]);
-        $data['qantities']=explode(',',$r->qantities[0]);
-        $data['prices']=explode(',',$r->prices[0]);
+        $data['row']=array_combine(range(1,count(explode(',',$r->row[0]))),explode(',',$r->row[0]));
+        $data['product']=array_combine(range(1,count(explode(',',$r->product[0]))),explode(',',$r->product[0]));
+        $data['qantities']=array_combine(range(1,count(explode(',',$r->qantities[0]))),explode(',',$r->qantities[0]));
+        $data['prices']=array_combine(range(1,count(explode(',',$r->prices[0]))),explode(',',$r->prices[0]));
         $data['customer']=$r->customer;
-        $data['date']=strtotime(strval($r->date));
+        $data['date']=$r->date;
         $data['total_payable']=$r->total_payable;
         $data['total_item']=$r->total_item;
         $data['discount']=$r->discount;
@@ -137,6 +137,8 @@ class InvoiceController extends Controller
         $data['total']=$r->total;
         // return $r->all();
         $validator=Validator::make($data,[
+            'row' => 'required|array',
+            'row.*' => 'required|distinct|regex:/^([0-9]+)$/',
             'product'=>'required|array',
             'product.*'=>'required|distinct|regex:/^([0-9]+)$/',
             'qantities'=>'required|array',
@@ -144,13 +146,13 @@ class InvoiceController extends Controller
             'prices'=>'required|array',
             'prices.*'=>'required|regex:/^([0-9.]+)$/',
             'customer'=>'required|regex:/^([0-9]+)$/',
-            'date'=>'required|max:10',
-            'total_payable'=>'required|max:10',
-            'total_item'=>'required|max:10',
-            'discount'=>'nullable|max:15',
-            'vat'=>'nullable|max:15',
-            'labour'=>'nullable|max:15',
-            'total'=>'required|max:15',
+            'date'=>'required|max:10|date_format:d-m-Y',
+            'total_payable'=>'required|max:10|regex:/^([0-9.]+)$/',
+            'total_item'=>'required|max:10|regex:/^([0-9.]+)$/',
+            'discount'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+            'vat'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+            'labour'=>'nullable|max:15|regex:/^([0-9.]+)$/',
+            'total'=>'required|max:15|regex:/^([0-9.]+)$/',
         ]);
         if ($validator->passes()) {
             $invoice=Invoice::find($id);
@@ -162,7 +164,7 @@ class InvoiceController extends Controller
             $invoice->labour_cost=$data['labour'];
             $invoice->total_payable=$data['total_payable'];
             $invoice->total=$data['total'];
-            $invoice->micro_time=$this->Increment();
+            $invoice->increment_id=$this->Increment();
             $invoice->user_id=Auth::user()->id;
             $invoice->save();
             $inv_id=$invoice->id;
@@ -170,14 +172,14 @@ class InvoiceController extends Controller
             if ($invoice=true) {
                     $length=intval($data['total_item'])-1;
                 for ($i=0; $i <=$length; $i++){
-                    if ($data['row'][$i]!=0) {
-                        $stmt=Sale::find($data['row'][$i]);
+                    if ($data['row'][$i+1]!=0){
+                        $stmt=Sale::find($data['row'][$i+1]);
                         $stmt->invoice_id=$inv_id;
                         $stmt->dates=$data['date'];
                         $stmt->customer_id=$r->customer;
-                        $stmt->product_id=$data['product'][$i];
-                        $stmt->qantity=$data['qantities'][$i];
-                        $stmt->price=$data['prices'][$i];
+                        $stmt->product_id=$data['product'][$i+1];
+                        $stmt->qantity=$data['qantities'][$i+1];
+                        $stmt->price=$data['prices'][$i+1];
                         $stmt->user_id=$user_id;
                         $stmt->increment_id=$this->Increment()+1;
                         $stmt->save();
@@ -186,9 +188,9 @@ class InvoiceController extends Controller
                         $stmt->invoice_id=$inv_id;
                         $stmt->dates=$data['date'];
                         $stmt->customer_id=$r->customer;
-                        $stmt->product_id=$data['product'][$i];
-                        $stmt->qantity=$data['qantities'][$i];
-                        $stmt->price=$data['prices'][$i];
+                        $stmt->product_id=$data['product'][$i+1];
+                        $stmt->qantity=$data['qantities'][$i+1];
+                        $stmt->price=$data['prices'][$i+1];
                         $stmt->user_id=$user_id;
                         $stmt->increment_id=$this->Increment()+1;
                         $stmt->save();
@@ -198,14 +200,14 @@ class InvoiceController extends Controller
                     $increment_id=$this->Increment()+1;
                     $inv=Invoice::where('id',$inv_id)->update(['increment_id'=>$increment_id]);
                     if ($inv=true) {
-                        return ['message'=>'success'];
+                        return ['message'=>'success','id'=>$inv_id];
                     }
                 }
             }
         }
         return response()->json([$validator->getMessageBag()]);
     }
-    public function Increment($data=null){
+    public function Increment(){
        $data=DB::select("
           SELECT 
               (SELECT max(increment_id) from voucers) as voucer_id,

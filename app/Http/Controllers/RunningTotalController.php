@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use Validator;
 class RunningTotalController extends Controller
 {
     public function __construct(){
@@ -14,7 +15,13 @@ class RunningTotalController extends Controller
     	return view('pages.reports.running_total',compact('categories'));
     }
     public function CreateRunningTotal(Request $r){
-
+        $validator=Validator::make($r->all(),[
+          'fromDate' =>'required|date_format:d-m-Y',
+          'toDate' =>'required|date_format:d-m-Y',
+          'id' =>'required|regex:/^([0-9]+)$/',
+        ]);
+        if ($validator->passes()) {
+        
  		$fromDate=strtotime(strval($r->fromDate));
  		$toDate=strtotime(strval($r->toDate));
         	if($r->category){
@@ -55,7 +62,7 @@ from(
             $dabit=0;
           }
             $get=DB::select("
-              select
+              SELECT
                      t1.dates,
                      t1.datetime,
                      t1.product_name,
@@ -71,14 +78,14 @@ from(
               select 
                      sales.dates,
                      sales.increment_id as datetime,
-                     products.product_name,
+                     IFNULL(products.product_name,'deleted') as product_name,
                      '' as voucer_id,
                      sales.qantity,
                      sales.price,
                      0 as debit,
                      (cast(sales.qantity*sales.price as decimal(12,2))) as credit 
                         FROM sales
-                        inner join products 
+                        left join products 
                         ON products.id=sales.product_id
                           WHERE sales.customer_id=:id
                           and sales.dates>=:fromDate and sales.dates<=:toDate
@@ -143,30 +150,27 @@ from(
             break;
             case 'supplier':
            $previous=DB::select("
-              select 
-t.purchase,t.invoice,t.purchasebacks,t.invoicebacks,t.Deposit,t.Expence,((t.purchase+t.invoice)-(t.purchasebacks+t.invoicebacks))-(t.Deposit-t.Expence) as total
+              SELECT 
+(t.total_purchase+t.Deposit)-(t.total_purchase_backs+t.Expence) as total
 from(
-    select ifnull((select sum(qantity*price) from purchases where supplier_id=:id and dates<:fromDate),0) as purchase,
-    ifnull((select sum(ifnull(transport,0)+ifnull(labour_cost,0)) from invpurchases where supplier_id=:id and dates<:fromDate),0) as invoice,
-    ifnull((select sum(qantity*price) from purchasebacks where supplier_id=:id and dates<:fromDate),0) as purchasebacks,
-    ifnull((select sum(ifnull(transport,0)+ifnull(labour_cost,0))-(total*ifnull(fine,0))/100 from invpurchasebacks where supplier_id=:id and dates<:fromDate),0) as invoicebacks,
-    ifnull(sum(IF(payment_type='Deposit',ammount,0)),0) as Deposit,
-    ifnull(sum(IF(payment_type='Expence',ammount,0)),0) as Expence
-    from voucers where name='supplier' and name_data_id=:id and dates<:fromDate
+SELECT
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchases where supplier_id=:id and dates<:fromDate),0) as total_purchase,
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchasebacks where supplier_id=:id and dates<:fromDate),0) as total_purchase_backs,
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence
+    from voucers where category='supplier' and data_id=:id and dates<:fromDate
 ) t",['id'=>$r->id,'fromDate'=>$fromDate]);
       $current_blnce=DB::select("
-              select 
-t.purchase,t.invoice,t.purchasebacks,t.invoicebacks,t.Deposit,t.Expence,((t.purchase+t.invoice)-(t.purchasebacks+t.invoicebacks))-(t.Deposit-t.Expence) as total
+            SELECT 
+(t.total_purchase+t.Deposit)-(t.total_purchase_backs+t.Expence) as total
 from(
-    select ifnull((select sum(qantity*price) from purchases where supplier_id=:id),0) as purchase,
-    ifnull((select sum(ifnull(transport,0)+ifnull(labour_cost,0)) from invpurchases where supplier_id=:id),0) as invoice,
-    ifnull((select sum(qantity*price) from purchasebacks where supplier_id=:id),0) as purchasebacks,
-    ifnull((select sum(ifnull(transport,0)+ifnull(labour_cost,0))-(total*ifnull(fine,0))/100 from invpurchasebacks where supplier_id=:id),0) as invoicebacks,
-    ifnull(sum(IF(payment_type='Deposit',ammount,0)),0) as Deposit,
-    ifnull(sum(IF(payment_type='Expence',ammount,0)),0) as Expence
-    from voucers where name='supplier' and name_data_id=:id
-) t",['id'=>$r->id]);
-            if ($previous[0]->total<0) {
+SELECT
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchases where supplier_id=:id),0) as total_purchase,
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchasebacks where supplier_id=:id),0) as total_purchase_backs,
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence
+    from voucers where category='supplier' and data_id=:id) t ",['id'=>$r->id]);
+            if ($previous[0]->total<0){
               $credit=abs($previous[0]->total);
               $dabit=0;
             }else{
@@ -175,8 +179,8 @@ from(
             }
 
              $get=DB::select("
-              select t1.dates,
-                     t1.micro_time,
+              SELECT t1.dates,
+                     t1.increment_id,
                      t1.product_name,
                      t1.voucer_id,
                      t1.qantity,
@@ -184,12 +188,12 @@ from(
                      t1.debit,
                      t1.credit,
                      SUM(cast(COALESCE(t1.debit,0)-COALESCE(t1.credit,0) as decimal(12,2)))
-                     over(order by t1.micro_time)as balance
+                     over(order by t1.increment_id)as balance
               FROM(
               select purchases.dates,
-                     purchases.micro_time,
+                     purchases.increment_id,
                      products.product_name,
-                     null as voucer_id,
+                     '' as voucer_id,
                      purchases.qantity,
                      purchases.price,
                      (cast(purchases.qantity*purchases.price as decimal(12,2))) as debit,
@@ -201,20 +205,20 @@ from(
                           and dates>=:fromDate and dates<=:toDate
                             UNION ALL
               SELECT dates,
-                     micro_time,
+                     increment_id,
                      't-port/lebour',
-                     null,
-                     null,
-                     null,
-                     transport+labour_cost as dabit,
+                     '',
+                     '',
+                     '',
+                     ifnull(transport,0)+ifnull(labour_cost,0) as dabit,
                      0 as credit
                      from invpurchases 
                      where supplier_id=:id and dates>=:fromDate and dates<=:toDate
                      UNION ALL
                select purchasebacks.dates,
-               purchasebacks.micro_time,
+               purchasebacks.increment_id,
                products.product_name,
-               null as voucer_id,
+               '' as voucer_id,
                purchasebacks.qantity,
                purchasebacks.price,
                0 as debit,
@@ -226,39 +230,41 @@ from(
                     and purchasebacks.dates>=:fromDate and purchasebacks.dates<=:toDate
                       UNION ALL
                 SELECT dates,
-                 micro_time,
+                 increment_id,
                  '(t-port+lebour)-fine',
-                 null,
-                 null,
-                 null,
+                 '',
+                 '',
+                 '',
                  cast(ifnull(total*fine/100,0) as decimal(16,2)) as dabit,
                  transport+labour_cost  as credit
                  from invpurchasebacks
                  where supplier_id=:id and dates>=:fromDate and dates<=:toDate
                  UNION ALL
               SELECT dates,
-                     micro_time,
-                     null,
+                     increment_id,
+                     '',
                      id,
-                     null,
-                     null,
-                     (case when payment_type='Expence' then ammount else 0 end) as debit,
-                     (case when payment_type='Deposit' then ammount else 0 end) as credit
+                     '',
+                     '',
+                     ifnull(debit,0) as debit,
+                     ifnull(credit,0) as credit
                       FROM voucers 
-                        WHERE name_data_id=:id and name='supplier'
+                        WHERE data_id=:id and category='supplier'
                         and dates>=:fromDate and dates<=:toDate
                       UNION ALL
-              SELECT 0,
-                     null,
+              SELECT '',
+                     '',
                      'Prev-B',
-                     null,
-                     null,
-                     null,
+                     '',
+                     '',
+                     '',
                      '".$dabit."',
                      '".$credit."'
-              ) t1 order by t1.micro_time",['id'=>$r->id,'fromDate'=>$fromDate,'toDate'=>$toDate]);
+              ) t1 order by t1.increment_id",['id'=>$r->id,'fromDate'=>$fromDate,'toDate'=>$toDate]);
         }
       }
       return response()->json(['get'=>$get,'current_blnce'=>$current_blnce,'fromDate'=>$fromDate,'toDate'=>$toDate,'name'=>$r->name,'category'=>$r->category]);
+    }
+    return response()->json([$validator->getMessageBag()]);
     }
 }

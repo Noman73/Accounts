@@ -35,7 +35,7 @@
     <div class="card-body px-3 px-md-5">
         <!-- Modal -->  
               <!--modal body-->
-              <div class="modal fade bd-example-modal-lg">
+              <div class="modal fade bd-example-modal-lg" id="Modalx">
                 <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
@@ -250,7 +250,7 @@
 $(document).on('click','.edit',function(){
   $('#exampleModalLabel').text('Update Supplier');
   $('.submit').text('Update');
-$('.modal').modal('show');
+$('#Modalx').modal('show');
   id=$(this).data('id');
   $('#id').val(id);
   axios.get('admin/get-customer/'+id)

@@ -5,10 +5,13 @@
 use App\Voucer;
 use App\Information;
 use App\Customer;
+use App\User;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use App\Test;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -71,5 +74,13 @@ $factory->define(Customer::class, function (Faker $faker){
 $factory->define(Test::class, function (Faker $faker){
     return [
         'name' =>$faker->unique()->name,
+    ];
+});
+
+$factory->define(User::class, function (Faker $faker){
+    return [
+        'name' =>'Abduullah al Noman',
+        'email' =>'noman.eng73@gmail.com',
+        'password' =>Hash::make(12345678),
     ];
 });

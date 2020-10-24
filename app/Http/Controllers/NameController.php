@@ -39,4 +39,5 @@ class NameController extends Controller
     	}
     	return response()->json([$validator->getMessageBag()]);
     }
+    
 }

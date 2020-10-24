@@ -18,20 +18,19 @@ class DailyStatementController extends Controller
     	$fromDate=strtotime(strval($r->fromDate));
     	$toDate=strtotime(strval($r->toDate));
         $opening_balance=DB::table('banks')->selectRaw('sum(opening_balance) as opening_balance')->first();
-        $expence=DB::table('voucers')->selectRaw('sum(ammount) as ammount')->where('payment_type','Expence')->first();
-        $deposit=DB::table('voucers')->selectRaw('sum(ammount) as ammount')->where('payment_type','Deposit')->first();
-        $total=($deposit->ammount-$expence->ammount)+$opening_balance->opening_balance;
+        $voucer=DB::table('voucers')->selectRaw('sum(debit) as debit,sum(credit) as credit')->first();
+        $total=($voucer->debit-$voucer->credit)+$opening_balance->opening_balance;
     	$get=DB::select("
     	    		SELECT dates,
-    	    		       name as category,
+    	    		      category,
     	    	CASE WHEN 
-    	    			  voucers.name='customer' THEN  (select name from customers where id=voucers.name_data_id)
+    	    			  voucers.category='customer' THEN  (select name from customers where id=voucers.data_id)
     	          	 WHEN 
-    	          		  voucers.name='supplier' THEN  (select name from suppliers where id=voucers.name_data_id)
+    	          		  voucers.category='supplier' THEN  (select name from suppliers where id=voucers.data_id)
     	          	 ELSE
-    	              	 (select rel_name from namerelations where id=name_data_id) end as name,
-    		   IF(payment_type='Deposit',ammount,0) as Deposit,
-    	       IF(payment_type='Expence',ammount,0) as Expence
+    	              	 (select rel_name from namerelations where id=voucers.data_id) end as name,
+    		   ifnull(debit,0) as Deposit,
+    	       ifnull(credit,0) as Expence
     	             from voucers where dates>=:fromDate and dates<=:toDate
     	    		",['fromDate'=>$fromDate,'toDate'=>$toDate]);
 

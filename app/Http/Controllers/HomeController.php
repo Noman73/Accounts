@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Voucer;
 use App\Invoice;
+use DB;
 class HomeController extends Controller
 {
     /**
@@ -32,5 +33,11 @@ class HomeController extends Controller
         $expence=Voucer::where('dates',strtotime(date('d-m-Y')))->sum('credit');
         $total_sales_ammount=Invoice::where('dates',strtotime(date('d-m-Y')))->sum('total_payable');
         return ['deposit'=>$deposit,'expence'=>$expence,'total_sales'=>$total_sales_ammount];
+    }
+
+    public function getVoucerFormData(){
+        $banks=DB::table('banks')->select('id','name')->get();
+        $category=DB::table('names')->select('id','name')->get();
+        return ['category'=>$category,'banks'=>$banks];
     }
 }

@@ -150,7 +150,7 @@ function ajaxRequest(){
         // $('#test').text(i+=i);
         html+=`<tr style='height:12px;'>
                 <td>`+i+`</td>
-                <td>`+data[i]['dates']+`</td>
+                <td>`+((data[i]['dates']!='') ? dateFormat(new Date(data[i]['dates']*1000)) : '')+`</td>
                 <td>`+data[i]['product_name']+`</td>
                 <td>`+data[i]['voucer_id']+`</td>
                 <td>`+data[i]['qantity']+`</td>
@@ -164,7 +164,7 @@ function ajaxRequest(){
        html+=`<tfoot>
               <tr>
                 <th colspan="6"></th>
-                <th colspan="3" style='text-align:right;'>Current Balance: `+res.data['current_blnce'][0]['total']+`<span id='curr_blnc'></span></th>
+                <th colspan="3" style='text-align:right;'>Current Balance: `+parseFloat(res.data['current_blnce'][0]['total']).toFixed(2)+`<span id='curr_blnc'></span></th>
               </tr>
             </tfoot>`;
       header=`<h6 style='text-align:center;margin-top:10px;'>Ledger Sheet</h6>

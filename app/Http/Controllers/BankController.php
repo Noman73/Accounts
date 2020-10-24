@@ -46,9 +46,10 @@ class BankController extends Controller
         if (request()->ajax()) {
         $total_bal=500;
         $get=DB::select("
-            select id,name,branch,number,(opening_balance+ifnull((select sum(ammount) from voucers where payment_type='Deposit' and banks.id=voucers.bank_id),0))-ifnull((select sum(ammount) from voucers where payment_type='Expence' and banks.id=voucers.bank_id),0) as total from banks
-
+           select id,name,branch,number,(opening_balance+ifnull((select sum(ifnull(debit,0))-sum(ifnull(credit,0)) from voucers where banks.id=voucers.bank_id),0)) as total from banks
             ");
+
+
         return DataTables::of($get)
           ->addIndexColumn()->make(true);
         }
@@ -86,9 +87,22 @@ class BankController extends Controller
         // echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA')."<br>";
         // echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T')."<br>";
         // echo DNS2D::getBarcodePNGPath('4445645656', 'PDF417')."<>";
-return $data=DB::select("
-    SELECT name,phone,(ifnull((select sum(debit-credit) from voucers where category='customer' and data_id=customers.id),0)+ifnull((select sum(total_payable) from invoicebacks where customer_id=customers.id),0))-ifnull((select sum(total_payable) from invoices where customer_id=customers.id),0) as balance from customers
-              ");
+ // $data=DB::select("
+ //    SELECT name,phone,(ifnull((select sum(debit-credit) from voucers where category='customer' and data_id=customers.id),0)+ifnull((select sum(total_payable) from invoicebacks where customer_id=customers.id),0))-ifnull((select sum(total_payable) from invoices where customer_id=customers.id),0) as balance from customers
+ //              ");
 // return json_encode($data);
+
+        // $date='date_format:d-m-Y';
+        // $number='/^([0-9]+)$/'
+        // $data['name']='0Abdulla Al Noman.';
+        // $regex="/^[a-zA-Z]+(?:\s[a-zA-Z]+)+$/";
+        // $validator=Validator::make($data,[
+        //     'name'=> 'required|regex:/^[a-zA-Z]+(?:\s[a-zA-Z0-9.]+)+$/',
+        // ]);
+        // if ($validator->passes()) {
+        //     return 'ok';
+        // }
+        // return response()->json([$validator->getMessageBag()]);
+
     }
 }
