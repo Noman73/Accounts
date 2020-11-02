@@ -133,7 +133,7 @@ function ajaxRequest(){
   let html='';
        html+='<table>'
        html+="<thead>"
-       html+="<tr style='text-align:center;font-size:10px;height:12px;'>"
+       html+="<tr style='text-align:center;font-size:12px;height:12px;'>"
        html+="<th width='5%'>ID</th>"
        html+="<th width='10%'>DATE</th>"
        html+="<th width='15%'>Details</th>"
@@ -145,19 +145,20 @@ function ajaxRequest(){
        html+="<th width='20%'>Balance</th>"
        html+='</tr>'
        html+="</thead>"
-       html+="<tbody style='font-size:8px;text-align:center;'>"
+       html+="<tbody style='font-size:12px;text-align:center;'>"
+       let balance=0;
       for (var i = 0; i < data.length; i++){
         // $('#test').text(i+=i);
         html+=`<tr style='height:12px;'>
-                <td>`+i+`</td>
+                <td>`+(i+1)+`</td>
                 <td>`+((data[i]['dates']!='') ? dateFormat(new Date(data[i]['dates']*1000)) : '')+`</td>
                 <td>`+data[i]['product_name']+`</td>
-                <td>`+data[i]['voucer_id']+`</td>
+                <td>`+data[i]['id']+`</td>
                 <td>`+data[i]['qantity']+`</td>
                 <td>`+data[i]['price']+`</td>
                 <td>`+data[i]['debit']+`</td>
                 <td>`+data[i]['credit']+`</td>
-                <td>`+data[i]['balance']+`</td>
+                <td>`+(balance+=(data[i]['debit']-data[i]['credit']))+`</td>
                </tr>`
       }
        html+="</tbody>"
@@ -167,7 +168,7 @@ function ajaxRequest(){
                 <th colspan="3" style='text-align:right;'>Current Balance: `+parseFloat(res.data['current_blnce'][0]['total']).toFixed(2)+`<span id='curr_blnc'></span></th>
               </tr>
             </tfoot>`;
-      header=`<h6 style='text-align:center;margin-top:10px;'>Ledger Sheet</h6>
+      header=`<h6 style='text-align:center;margin-top:25px;'>Ledger Sheet</h6>
              <strong style='font-size:10px;text-align:center'>`+dateFormat(new Date(res.data.fromDate*1000))+` to `+dateFormat(new Date(res.data.toDate*1000))+`</strong>
                 <div style='text-align:center;font-weight:bold;margin-top:10px;'>`+capitalize(res.data.category)+` : `+res.data.name+`</div>
                 <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` </div>`;
@@ -178,7 +179,7 @@ function ajaxRequest(){
               tableAutoSize:true
             });
     var footer = HtmlToPdfMake(footer);
-        var dd = {info:{title:res.data.name+(new Date()).getTime()},pageMargins:[20,80,20,40],content:val,header:head,footer:footer};
+        var dd = {info:{title:res.data.name+(new Date()).getTime()},pageMargins:[20,100,20,40],content:val,header:head,footer:footer};
     MakePdf.createPdf(dd).open();
   $('.buffer').addClass('d-none');
   // document.getElementById('myForm').reset()

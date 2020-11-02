@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DataTables;
 use Validator;
 use App\Bank;
+use App\Invoice;
 use Auth;
 use DB;
 use DNS1D;
@@ -55,6 +56,10 @@ class BankController extends Controller
         }
        return view('pages.banks.bank');
     }
+    public function getAccount(){
+        $all=Bank::select('id','name')->get();
+        return response()->json($all);
+    }
     public function test(){
         // echo DNS1D::getBarcodeSVG('4445645656', 'C39')."<br>";
         // echo DNS1D::getBarcodeSVG('4445645656', 'C39+')."<br>";
@@ -103,6 +108,8 @@ class BankController extends Controller
         //     return 'ok';
         // }
         // return response()->json([$validator->getMessageBag()]);
-
+        $invoice=Invoice::find(1);
+        $invoice->customer_id='noman';
+        $invoice->payment_id='abdullah';
     }
 }

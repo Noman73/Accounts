@@ -70,7 +70,6 @@ class VoucerController extends Controller
             if ($r->payment_type=='Expence') {
               $voucer->credit=$r->ammount;
             }
-            $voucer->increment_id=$this->Increment()+1;
             $voucer->user_id=Auth::user()->id;
             $voucer->save();
             return ['message'=>'success'];

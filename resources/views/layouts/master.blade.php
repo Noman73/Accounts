@@ -30,6 +30,16 @@
     .input-group{
       margin-top:5px;
     }
+    .nav-user-dropdown{
+      min-width: 230px;
+    }
+    .nav-user-info{
+      line-height: 1.4;
+      padding: 12px;
+      color: #fff;
+      font-size: 13px;
+      border-radius: 2px 2px 0 0;
+    }
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -64,74 +74,29 @@
       <li>
         <a class="nav-link invoice btn font-weight-bold" href="{{URL::to('admin/invoice')}}">New Invoice</a>
       </li>
-      <a class="nav-link" href="{{ route('logout') }}" 
+      <!-- user Dropdown -->
+      <li class="nav-item dropdown nav-user">
+                            <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user-circle"></i></a>
+                            <div class="dropdown-menu dropdown-menu-right nav-user-dropdown" aria-labelledby="navbarDropdownMenuLink2">
+                                <div class="nav-user-info">
+                                    <h5 class="mb-0 text-dark nav-user-name">{{Auth::user()->name}}</h5>
+                                    <span class="status"></span><span class="ml-2 text-success">Available</span>
+                                </div>
+                                <a class="dropdown-item" href="#"><i class="fas fa-user mr-2"></i>Account</a>
+                                <a class="dropdown-item" href="#"><i class="fas fa-cog mr-2"></i>Password Change</a>
+                                <a class="dropdown-item" href="{{ route('logout') }}" 
 
                                     onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-          <i class="fa fa-power-off" aria-hidden="true"></i>
+          <i class="fa fa-power-off mr-2" aria-hidden="true"></i>
           <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
               @csrf
           </form>
+           Logout
         </a>
-
-      <!-- Messages Dropdown Menu -->
-      <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#">
-          <i class="fas fa-comments"></i>
-          <span class="badge badge-danger navbar-badge">3</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-          <a href="#" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <img src="dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">
-                  Brad Diesel
-                  <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                </h3>
-                <p class="text-sm">Call me whenever you can...</p>
-                <p class="text-sm text-muted"><i class="fas fa-clock mr-1"></i> 4 Hours Ago</p>
-              </div>
-            </div>
-            <!-- Message End -->
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <img src="dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">
-                  John Pierce
-                  <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                </h3>
-                <p class="text-sm">I got your message bro</p>
-                <p class="text-sm text-muted"><i class="fas fa-clock mr-1"></i> 4 Hours Ago</p>
-              </div>
-            </div>
-            <!-- Message End -->
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <img src="dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">
-                  Nora Silvester
-                  <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
-                </h3>
-                <p class="text-sm">The subject goes here</p>
-                <p class="text-sm text-muted"><i class="fas fa-clock mr-1"></i>4 Hours Ago</p>
-              </div>
-            </div>
-            <!-- Message End -->
-          </a>
-          <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
         </div>
-      </li>
+    </li>
+     
       <!-- Notifications Dropdown Menu -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -201,7 +166,7 @@
         
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-donate"></i>
               <p>
                 Banks
                 <i class="right fas fa-angle-left"></i>
@@ -219,7 +184,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-file-invoice"></i>
               <p>
                 Bill/Invoice
                 <i class="right fas fa-angle-left"></i>
@@ -248,7 +213,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-user-circle"></i>
               <p>
                 Employee
                 <i class="right fas fa-angle-left"></i>
@@ -265,7 +230,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-user-circle"></i>
               <p>
                 Supplier
                 <i class="right fas fa-angle-left"></i>
@@ -282,7 +247,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-user-circle"></i>
               <p>
                 Customer/Client
                 <i class="right fas fa-angle-left"></i>
@@ -305,7 +270,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fab fa-product-hunt"></i>
               <p>
                 Products
                 <i class="right fas fa-angle-left"></i>
@@ -340,7 +305,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-shopping-cart"></i>
               <p>
                 Purchase
                 <i class="right fas fa-angle-left"></i>
@@ -363,7 +328,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-layer-group"></i>
               <p>
                 Stock
                 <i class="right fas fa-angle-left"></i>
@@ -380,7 +345,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-money-check-alt"></i>
               <p>
                 Create Voucer
                 <i class="right fas fa-angle-left"></i>
@@ -397,7 +362,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-file-alt"></i>
               <p>
                 Custom Report
                 <i class="right fas fa-angle-left"></i>
@@ -420,7 +385,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-poll"></i>
               <p>
                 Reports
                 <i class="right fas fa-angle-left"></i>
@@ -458,6 +423,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{{ URL::to('/admin/cash_details_form') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Cash Details</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{{ URL::to('/admin/sales_report') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>C-W-Sales-Report</p>
@@ -467,7 +438,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-barcode"></i>
               <p>
                 Barcode
                 <i class="right fas fa-angle-left"></i>
@@ -484,7 +455,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-cog"></i>
               <p>
                 Setting
                 <i class="right fas fa-angle-left"></i>
@@ -501,7 +472,7 @@
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-pie"></i>
+              <i class="nav-icon fas fa-database"></i>
               <p>
                 Backup
                 <i class="right fas fa-angle-left"></i>
@@ -756,6 +727,8 @@ function MasterAjaxRequest(){
   minDate: '01-01-1950',
   maxDate: '01-01-2050'
 });
+
+ console.log(n2words(999999999999998))
 </script>
 </body>
 </html>

@@ -8,6 +8,9 @@
   }
 </style>
 @endsection
+@php
+  $info=DB::table('information')->select('company_name','logo','phone','adress')->get()->first();
+@endphp
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
@@ -21,7 +24,7 @@
             <label class="font-weight-bold">Select Customer</label>
             <select class="form-control" id="customer" onchange="getBlnce(this.value)">
             </select>
-            <span class="p-1 d-none" id="balance"></span>
+            <span class="p-1 d-none" id="balance">Balance:<span id='c_bal'></span></span>
           </div>
         </div>
         <div class="col-12 col-md-6">
@@ -51,7 +54,7 @@
         </tbody> 
       </table>
       <button class="btn btn-sm btn-primary mb-3 float-right" id="add_item">+</button>
-      <div class="row footer-form">
+      <div class="row footer-form mt-5">
             <div class="col-12 col-md-4">
                 <table>
                   <tr>
@@ -113,7 +116,36 @@
                             <span class="input-group-text" id="inputGroupPrepend">৳</span>
                           </div>
                       </div>
-                      </td>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-weight-bold">Payment Method:</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                          <select type="text" class="form-control form-control-sm" id="payment_method">
+                            <option value="">--SELECT--</option>
+                          </select>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-weight-bold">Transaction:</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" id="transaction_id" placeholder="X33KDLDFXFKJ">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-weight-bold">Payment Ammount:</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" id="pay">
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="inputGroupPrepend">৳</span>
+                          </div>
+                      </div>
+                    </td>
                   </tr>
                 </table>
                 <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
@@ -153,8 +185,29 @@ $(document).ready(function(){
       cache:true,
     }
   })
+  $('#payment_method').select2({
+    theme:'bootstrap4',
+    placeholder:'select',
+    allowClear:true,
+  })
+getBank()
+
 })
 
+function getBank(){
+  axios.get('admin/get_account')
+  .then((response)=>{
+    console.log(response)
+    html=''
+    response.data.forEach((data)=>{
+        html+='<option value='+data.id+'>'+data.name+'</option>'
+    })
+    $('#payment_method').html(html);
+  })
+  .catch((error)=>{
+    console.log(error);
+  })
+}
 function getBlnce(id){
   if (id=='' || id==null || id==NaN) {
       $('#balance').addClass('d-none');
@@ -163,20 +216,21 @@ function getBlnce(id){
   axios.get('admin/customer_balance/'+id)
   .then(function(response){
     console.log(response);
-    if (response.data[0].total){
-        total=response.data[0].total;
+    total=response.data[0].total;
+     switch(true){
+        case total>=0:
+        $('#c_bal').text(total);
         $('#balance').removeClass('d-none');
-        $('#balance').text('Balance:'+total);
-        if (total>0){
-          $('#balance').removeClass('bg-danger');
-          $('#balance').addClass('bg-success');
-        }else if(total==null){
-          $('#balance').text('Balance:'+0.00);
-        }else{
-          $('#balance').removeClass('bg-success');
-          $('#balance').addClass('bg-danger');
-        }
-    }
+        $('#balance').removeClass('bg-danger');
+        $('#balance').addClass('bg-success');
+        break;
+        case total<0:
+        $('#c_bal').text(total);
+        $('#balance').removeClass('d-none');
+        $('#balance').removeClass('bg-success');
+        $('#balance').addClass('bg-danger');
+        break;
+     }
   })
 }
  var count=0;
@@ -361,6 +415,9 @@ function calculation(){
 $(document).on('keyup','.qantity',function(){
   calculation();
 })
+$(document).on('keyup','.price',function(){
+  calculation();
+})
 $(document).on('keyup','#discount',function(){
   totalCalculation()
 });
@@ -385,12 +442,19 @@ function CreatePdf(inv_id){
       total = $("input[name='total[]']")
                   .map(function(){return $(this).val();}).get();
                   console.log(products.length);
+      totalx=$('#final_total').val();
+      total_item=$('#total_item').val();
+      discount=$('#discount').val();
+      vat=$('#vat').val();
+      labour=$('#labour').val();
+      total_payable=$('#total_payable').val();
+      pay=$('#pay').val();
       x=[{product:products,qantities,prices,total}];
       html=`
       <table style='font-weight:bold;'>
-        <tr style='border:none;'><td>Invoice ID</td><td> : `+inv_id+`</td></tr>
+        <tr style='border:none;' bgcolor='#4395D1'><td>Invoice ID</td><td> : `+inv_id+`</td></tr>
         <tr style='border:none;'><td>Date</td><td> : `+$('#date').val()+`</td></tr>
-        <tr style='border:none;'><td>Customer</td><td> : `+$('#customer').text()+`</td></tr>
+        <tr style='border:none;'><td>Customer</td><td> : `+$('#customer option:selected').text()+`</td></tr>
       </table>
       <h6 style='text-align:center;font-size:15px'>Product List</h6>
       <table style='font-size:10px;'>
@@ -412,16 +476,26 @@ function CreatePdf(inv_id){
       }
       html+=`</table>
         <table>
-            <tr style='border:none;'><td>Total</td><td> : `+$('#final_total').val()+`</td></tr>
-            <tr style='border:none;'><td>Total Item</td><td> : `+$('#total_item').val()+`</td></tr>
-            <tr style='border:none;'><td>Discount</td><td> : `+$('#discount').val()+`</td></tr>
-            <tr style='border:none;'><td>vat</td><td> : `+$('#vat').val()+`</td></tr>
-            <tr style='border:none;'><td>Labour Cost</td><td> : `+$('#labour').val()+`</td></tr>
-            <tr style='border:none;'><td>Total Payable</td><td> : `+$('#total_payable').val()+`</td></tr>
+            <tr style='border:none;'><td>Total</td><td> : `+totalx+` /=</td></tr>
+            <tr style='border:none;'><td>Total Item</td><td> : `+total_item+`</td></tr>
+            <tr style='border:none;'><td>Discount</td><td> : `+(discount ? discount :0 )+` %</td></tr>
+            <tr style='border:none;'><td>vat</td><td> : `+(vat ? vat : 0)+` %</td></tr>
+            <tr style='border:none;'><td>Labour Cost</td><td> : `+(labour ? labour :0)+` /=</td></tr>
+            <tr style='border:none;'><td>Total Payable</td><td> : `+(total_payable ? total_payable : 0)+` /=</td></tr>
+            <tr style='border:none;'><td>Payment</td><td> : `+(pay ? pay : 0)+` /=</td></tr>
         </table>
-
+        <h5 style='background-color:black;color:white;text-align:center;padding:10px;'>
+        `+PaymentCheck(total_payable,pay)+`
+        </h5>
+        <h5 style='background-color:black;color:white;text-align:center;padding:10px;'>
+        Balance :`+(parseFloat($('#c_bal').text())-(parseFloat(total_payable)-parseFloat(pay)))+`
+        </h5>
       `;
-      header=`<h6 style='text-align:center;margin-top:10px;'>Customer Invoice</h6>
+      header=`<div style='text-align:center;line-height:0.1;'>
+                  <h6 style='margin-top:30px;line-height:0.5;'>`+'{{$info->company_name}}'+`</h6>
+                  <p style-'font-size:12px;'>`+'{{$info->adress}}'+`</p>
+                  <p style-'font-size:12px;'>Mobile:`+'{{$info->phone}}'+`</p>
+              </div>
                <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` 
                 </div>`;
       footer=`<div style='margin-top:50px;'><p style='text-align:center;font-size:10px;color:#808080;'>Powered By : DevTunes Technology || 01731186740</p></div>`
@@ -429,13 +503,35 @@ function CreatePdf(inv_id){
     var val = HtmlToPdfMake(html,{
               tableAutoSize:true
             });
+    val[0].table.body[0][0].fillColor='#4395D1';
     var header = HtmlToPdfMake(header,{
               // tableAutoSize:true
             });
     var footer = HtmlToPdfMake(footer);
-        var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,80,20,40],pageSize:'A5',content:val,header:header,footer:footer};
+        var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,100,20,40],pageSize:'A5',content:val,header:header,footer:footer};
     MakePdf.createPdf(dd).open();
     }
+    function PaymentCheck(payable,pay){
+      payablex=parseInt(payable)
+      payx=parseInt(pay)
+      switch(true){
+        case payablex===payx:
+        return 'Paid';
+        break;
+        case payablex<payx:
+        return 'Over Paid';
+        break;
+        case payablex>payx:
+        t=(parseFloat(payable)-parseFloat(pay)).toFixed(2)
+        ta=t.toString().split('.');
+        return 'Due:'+t+'/= ('+n2words(ta[0])+' point '+n2words(ta[1])+')';
+        break;
+      }
+    }
+    // function WordConv(num){
+    //   num=num.toString().split('.');
+    //   return (n2words(num[0]))+" point "+(n2words(num[1]))
+    // }
   }
 // validate all fields
 function Validate(){
@@ -489,6 +585,9 @@ if (isValid==true) {
    vat=$('#vat').val();
    labour=$('#labour').val();
    total=$('#final_total').val();
+   payment_method=$('#payment_method').val();
+   transaction=$('#transaction_id').val();
+   pay=$('#pay').val();
     formData=new FormData();
     formData.append('qantities[]',qantities);
     formData.append('prices[]',prices);
@@ -501,6 +600,9 @@ if (isValid==true) {
     formData.append('vat',vat);
     formData.append('labour',labour);
     formData.append('total',total);
+    formData.append('payment_method',payment_method);
+    formData.append('transaction',transaction);
+    formData.append('pay',pay);
     axios.post('admin/invoice',formData)
     .then(function(response){
       console.log(response.data);
@@ -522,8 +624,8 @@ if (isValid==true) {
           focusConfirm: false,
           confirmButtonText:'Ok',
         })
-      }else if(response.data.message==='success'){
-        window.toastr.success('Invoice Added Success');
+      }else if(response.data.message){
+        window.toastr.success(response.data.message);
         CreatePdf(response.data.id);
       }
     })

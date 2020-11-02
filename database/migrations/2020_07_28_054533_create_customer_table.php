@@ -17,7 +17,7 @@ class CreateCustomerTable extends Migration
             $table->bigIncrements('id');
             $table->string('company_name',100)->nullable();
             $table->string('name',100);
-            $table->decimal('previous_due',16,2)->default(0);
+            $table->decimal('opening_balance',16,2)->default(0);
             $table->decimal('maximum_due',16,2)->default(500);
             $table->string('phone1',25)->unique();
             $table->string('phone2',25)->nullable()->unique();

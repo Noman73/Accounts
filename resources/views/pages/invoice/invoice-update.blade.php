@@ -549,7 +549,7 @@ function showModal(){
       $('#report_total_payable').text(' :'+$('#total_payable').val());
       $('#report_customer').text(' :'+$('#customer option:selected').text());
       $('#report_previous_due').text(' :');
-      $('.modal').modal('show');
+      // $('.modal').modal('show');
   }
 // validate all fields
 function Validate(){
@@ -620,7 +620,9 @@ if (isValid==true) {
     axios.post('admin/invoice/'+invoice.id,formData)
     .then(function(response){
       console.log(response);
-      if (response.data.message==='success') {
+      if (response.data.message==='success'){
+        window.toastr.success('Invoice Updated Success');
+        window.location="{{URL::to('admin/all_invoice')}}"
         $('.buffer').addClass('d-none');
         showModal();
       }

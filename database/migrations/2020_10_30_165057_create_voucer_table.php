@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVoucersTable extends Migration
+class CreateVoucerTable extends Migration
 {
     /**
      * Run the migrations.
@@ -19,11 +19,13 @@ class CreateVoucersTable extends Migration
             $table->string('dates',16);
             $table->string('category',80);
             $table->unsignedInteger('data_id');
+            $table->string('transaction')->unique()->nullable();
             $table->decimal('debit',16,2)->default(false);
             $table->decimal('credit',16,2)->default(false);
-            $table->unsignedBigInteger('increment_id');
+            $table->unsignedBigInteger('invoice_id')->nullable();
             $table->unsignedInteger('user_id');
             $table->timestamps();
+            $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 

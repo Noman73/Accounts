@@ -65,7 +65,7 @@ class InfoController extends Controller
                 if (isset($photo)) {
                    Storage::delete('public/customer/'.$photo->photo);
                 }
-                return ['message'=>'success'];
+                return ['message'=>'success','sms'=>$r->sms_setting];
             }
     	}
     	return response()->json([$validator->getMessageBag()]);

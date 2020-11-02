@@ -77,13 +77,22 @@
                    </div>
                  </div>
                </div>
-               <div class="input-group">
-                 <label class="control-label col-sm-2 text-lg-right" for="name">Previous Due :</label>
-                 <div class="col-sm-10">
-                   <input type="text" class="form-control form-control-sm bg-danger" id="previous_due" placeholder="Enter Previous Due....">
-                   <div id="previous_due_msg" class="invalid-feedback">
-                   </div>
-                 </div>
+               <div class="input-group input-group-sm">
+                  <label class="control-label col-sm-2 text-lg-right" for="name">Opening Balance :</label>
+                  <div class="col-sm-8">
+                      <input type="text" class="form-control form-control-sm" id="opening_balance" placeholder="Enter Opening Balance....">
+                      
+                      <div id="opening_balance_msg" class="invalid-feedback">
+                      </div>
+                  </div>
+                  <div class='col-sm-2'>
+                    <select type="text" class='form-control form-control-sm' id='balance_type'>
+                        <option value="1">Balance</option>
+                        <option value="0">Due</option>
+                    </select>
+                    <div id="opening_balance_msg" class="invalid-feedback">
+                      </div>
+                  </div>
                </div>
                <div class="input-group">
                  <label class="control-label col-sm-2 text-lg-right" for="name">Maximum Due :</label>
@@ -210,7 +219,8 @@ function ajaxRequest(){
     $('select').css('border','1px solid rgb(209,211,226)');
     let company_name=$('#company_name').val();
     let client_name=$('#name').val();
-    let previous_due=$('#previous_due').val();
+    let balance=$('#opening_balance').val();
+    let balance_type=$('#balance_type').val();
     let maximum_due=$('#maximum_due').val();
     let phone1=$('#phone1').val();
     let phone2=$('#phone2').val();
@@ -226,7 +236,8 @@ function ajaxRequest(){
     let formData= new FormData();
     formData.append('company_name',company_name);
     formData.append('name',client_name);
-    formData.append('previous_due',previous_due);
+    formData.append('opening_balance',balance);
+    formData.append('balance_type',balance_type);
     formData.append('maximum_due',maximum_due);
     formData.append('phone1',phone1);
     formData.append('phone2',phone2);

@@ -18,9 +18,9 @@ class CustomerController extends Controller
         return view('pages.customer.customer');
     }
     public function CreateNew(Request $r){
-    	$array=$r->all();
-		if ($array['previous_due']===null) {
-			$array['previous_due']=0;
+        $array=$r->all();
+		if ($array['opening_balance']===null) {
+			$array['opening_balance']=0;
 		}
 		if ($array['maximum_due']===null) {
 			$array['maximum_due']=500;
@@ -31,8 +31,9 @@ class CustomerController extends Controller
     	$validator = Validator::make($array,[
         'company_name'      => "nullable|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
         'name'              => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
-        'previous_due'      => 'nullable|max:15|regex:/^([0-9.]+)$/',
-        'maximum_due'     	=> 'nullable|max:15|regex:/^([0-9.]+)$/',
+        'opening_balance'   => 'nullable|max:19|regex:/^([0-9.]+)$/',
+        'balance_type'      => 'required|max:1|regex:/^([0-1]+)$/',
+        'maximum_due'     	=> 'nullable|max:16|regex:/^([0-9.]+)$/',
         'phone1'     		=> 'required|max:20|unique:customers,phone1|regex:/^([0-9]+)$/', 
         'phone2'     		=> 'nullable|max:20|unique:customers,phone2|regex:/^([0-9]+)$/',
         'email'     		=> 'nullable|max:100|email|unique:customers,email',
@@ -50,8 +51,12 @@ class CustomerController extends Controller
     if ($validator->passes()) {
     	$customer= new Customer;
         $customer->company_name     =$array['company_name'];
-		$customer->name      		=$array['name'];
-		$customer->previous_due     =$array['previous_due'];
+        $customer->name      		=$array['name'];
+        if(intval($array['balance_type'])===0){
+            $customer->opening_balance  =-($array['opening_balance']);
+        }elseif(intval($array['balance_type'])===1){
+            $customer->opening_balance  =$array['opening_balance'];
+        }
 		$customer->maximum_due      =$array['maximum_due'];
 		$customer->phone1       	=$array['phone1'];
 		$customer->phone2         	=$array['phone2'];
@@ -90,16 +95,14 @@ class CustomerController extends Controller
         if (!preg_match("/[^0-9]/",$id)){
            $get=DB::select("
             SELECT
-    cast(((t.Deposit+t.rtrnPrice+t.previous_due)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
+    cast(((t.Deposit+t.total_payablebacks)-(t.Expence+t.total_payable+t.prev_due)) as decimal(16,2)) as total
 from(
     select 
-    sum(IFNULL(debit,0)) as Deposit,
-    sum(IFNULL(credit,0)) as Expence,       
-    ifnull((select SUM(qantity*price) from sales where customer_id=:id),0) as salePrice,
-    ifnull((select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id),0) as invoice,
-    ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id),0) as rtrnPrice,
-    ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id),0) as rtrnInvoice,
-    (select previous_due from customers where id=:id) as previous_due
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence,        
+    ifnull((select SUM(total_payable) from invoices where customer_id=:id ),0) as total_payable,
+    ifnull((select SUM(total_payable) from invoicebacks where customer_id=:id),0) as total_payablebacks,
+    (select previous_due from customers where id=:id) as prev_due
     from voucers where category='customer' and data_id=:id
     ) t",['id'=>$id]);
            return $get;

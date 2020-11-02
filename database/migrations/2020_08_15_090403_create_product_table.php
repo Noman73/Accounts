@@ -18,7 +18,7 @@ class CreateProductTable extends Migration
             $table->string('product_name',150);
             $table->integer('category');
             $table->integer('child_category');
-            $table->string('product_code',100)->nullable();
+            $table->string('product_code',100)->nullable()->unique();
             $table->string('model_no',100)->nullable();
             $table->string('warranty',100)->nullable();
             $table->string('product_type',100)->nullable();

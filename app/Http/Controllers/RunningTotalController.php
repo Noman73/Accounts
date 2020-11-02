@@ -19,9 +19,9 @@ class RunningTotalController extends Controller
           'fromDate' =>'required|date_format:d-m-Y',
           'toDate' =>'required|date_format:d-m-Y',
           'id' =>'required|regex:/^([0-9]+)$/',
+          // 'category' =>'required|regex:/^([0-9]+)$/',
         ]);
         if ($validator->passes()) {
-        
  		$fromDate=strtotime(strval($r->fromDate));
  		$toDate=strtotime(strval($r->toDate));
         	if($r->category){
@@ -29,28 +29,26 @@ class RunningTotalController extends Controller
           case 'customer':
        $previous=DB::select("
            SELECT
-    t.Deposit,t.Expence,t.salePrice,t.invoice,cast(((t.Deposit+t.rtrnPrice)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
+    cast(((t.Deposit+t.total_payablebacks)-(t.Expence+t.total_payable+t.prev_due)) as decimal(16,2)) as total
 from(
     select 
-    sum(ifnull(debit,0)) as Deposit,
-    sum(ifnull(credit,0)) as Expence,        
-    ifnull((select SUM(qantity*price) from sales where customer_id=:id and dates<:fromDate),0) as salePrice,
-    (select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id and dates<:fromDate) as invoice,
-    ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id and dates<:fromDate),0) as rtrnPrice,
-    ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id and dates<:fromDate),0) as rtrnInvoice
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence,        
+    ifnull((select SUM(total_payable) from invoices where customer_id=:id and action_id=1 and dates<:fromDate),0) as total_payable,
+    ifnull((select SUM(total_payable) from invoices where customer_id=:id and action_id=2 and dates<:fromDate),0) as total_payablebacks,
+    (select previous_due from customers where id=:id) as prev_due 
     from voucers where category='customer' and data_id=:id and dates<:fromDate
     ) t",['id'=>$r->id,'fromDate'=>$fromDate]);
      $current_blnce=DB::select("
             SELECT
-    t.Deposit,t.Expence,t.salePrice,t.invoice,cast(((t.Deposit+t.rtrnPrice)-(t.Expence+t.rtrnInvoice))-(t.salePrice+t.invoice) as decimal(16,2)) as total
+    cast(((t.Deposit+t.total_payablebacks)-(t.Expence+t.total_payable+t.prev_due)) as decimal(16,2)) as total
 from(
     select 
-    sum(ifnull(debit,0)) as Deposit,
-    sum(ifnull(credit,0)) as Expence,      
-    ifnull((select SUM(qantity*price) from sales where customer_id=:id),0) as salePrice,
-    (select (SUM((((total*ifnull(vat,0))/100)))+SUM(ifnull(labour_cost,0)))-sum(total*ifnull(discount,0)/100) from invoices where customer_id=:id) as invoice,
-    ifnull((select SUM(qantity*price) from salesbacks where customer_id=:id),0) as rtrnPrice,
-    ifnull((select SUM(total*ifnull(fine,0))/100 from invoicebacks where customer_id=:id),0) as rtrnInvoice
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence,
+    ifnull((select SUM(total_payable) from invoices where customer_id=:id and action_id=1),0) as total_payable,
+    ifnull((select SUM(total_payable) from invoices where customer_id=:id and action_id=2),0) as total_payablebacks,
+    (select previous_due from customers where id=:id) as prev_due
     from voucers where category='customer' and data_id=:id
     ) t",['id'=>$r->id]);
           if ($previous[0]->total>0) {
@@ -64,37 +62,34 @@ from(
             $get=DB::select("
               SELECT
                      t1.dates,
-                     t1.datetime,
+                     t1.invoice_id,
                      t1.product_name,
-                     t1.voucer_id,
+                     t1.id,
                      t1.qantity,
                      t1.price,
                      t1.debit,
-                     t1.credit,
-                    
-                     SUM(cast(COALESCE(t1.debit,0)-COALESCE(t1.credit,0) as decimal(12,2))) 
-                     over(order by t1.dates,t1.datetime) balance
+                     t1.credit
               FROM(
               select 
                      sales.dates,
-                     sales.increment_id as datetime,
-                     IFNULL(products.product_name,'deleted') as product_name,
-                     '' as voucer_id,
+                     sales.invoice_id,
+                     products.product_name as product_name,
+                     concat('INV-',sales.invoice_id) as id,
                      sales.qantity,
                      sales.price,
                      0 as debit,
                      (cast(sales.qantity*sales.price as decimal(12,2))) as credit 
                         FROM sales
-                        left join products 
+                        inner join products 
                         ON products.id=sales.product_id
-                          WHERE sales.customer_id=:id
+                          WHERE sales.customer_id=:id and action_id=1
                           and sales.dates>=:fromDate and sales.dates<=:toDate
                             UNION ALL
               SELECT 
-                     dates,
-                     increment_id,
+                     dates+0.2,
                      '',
-                     id,
+                     '',
+                     concat('V-',id),
                      '',
                      '',
                      ifnull(debit,0) as debit,
@@ -114,39 +109,40 @@ from(
                           UNION ALL
               SELECT 
                       dates,
-                      increment_id,
+                      id+0.1,
                       '(vat+lbr)-dis',
-                      '',
+                      concat('INV-',id),
                       '',
                       '',
                       cast(ifnull((total*discount)/100,0) as decimal(16,2)) as debit,
                       cast(ifnull((total*vat)/100,0)+ifnull(labour_cost,0) as decimal(14,2)) as credit
-                  from invoices where customer_id=:id 
+                  from invoices 
+                      where customer_id=:id and action_id=1
                     and  dates>=:fromDate and dates<=:toDate
                     UNION ALL
               SELECT 
                     dates,
-                    increment_id,
+                    sales.invoice_id,
                     products.product_name,
-                    '',
-                    salesbacks.qantity,
-                    salesbacks.price,
-                    (cast(salesbacks.qantity*salesbacks.price as decimal(12,2))) as dabit,
+                    concat('RINV-',sales.invoice_id),
+                    sales.qantity,
+                    sales.price,
+                    (cast(sales.qantity*sales.price as decimal(12,2))) as dabit,
                     0 as credit
-                    from salesbacks inner join products on products.id=salesbacks.product_id
-                    where salesbacks.customer_id=:id and dates >=:fromDate and dates<=:toDate
+                    from sales inner join products on products.id=sales.product_id
+                    where sales.customer_id=:id and action_id=2 and dates >=:fromDate and dates<=:toDate
                     UNION ALL
               SELECT 
                     dates,
-                    increment_id,
+                    id+0.1,
                     'fine',
-                    '',
+                    concat('RINV-',id),
                     '',
                     '',
                     0 as credit,
                     ifnull(total*fine/100,0) as dabit
-                    from invoicebacks where customer_id=:id and dates>=:fromDate and dates<=:toDate
-              ) t1 order by t1.dates,t1.datetime",['id'=>$r->id,'fromDate'=>$fromDate,'toDate'=>$toDate]);
+                    from invoices where customer_id=:id and action_id=2 and dates>=:fromDate and dates<=:toDate
+              ) t1 order by t1.dates,t1.invoice_id",['id'=>$r->id,'fromDate'=>$fromDate,'toDate'=>$toDate]);
             break;
             case 'supplier':
            $previous=DB::select("
@@ -180,18 +176,14 @@ SELECT
 
              $get=DB::select("
               SELECT t1.dates,
-                     t1.increment_id,
                      t1.product_name,
                      t1.voucer_id,
                      t1.qantity,
                      t1.price,
                      t1.debit,
                      t1.credit,
-                     SUM(cast(COALESCE(t1.debit,0)-COALESCE(t1.credit,0) as decimal(12,2)))
-                     over(order by t1.increment_id)as balance
               FROM(
               select purchases.dates,
-                     purchases.increment_id,
                      products.product_name,
                      '' as voucer_id,
                      purchases.qantity,
@@ -205,7 +197,6 @@ SELECT
                           and dates>=:fromDate and dates<=:toDate
                             UNION ALL
               SELECT dates,
-                     increment_id,
                      't-port/lebour',
                      '',
                      '',
@@ -216,7 +207,6 @@ SELECT
                      where supplier_id=:id and dates>=:fromDate and dates<=:toDate
                      UNION ALL
                select purchasebacks.dates,
-               purchasebacks.increment_id,
                products.product_name,
                '' as voucer_id,
                purchasebacks.qantity,
@@ -230,7 +220,6 @@ SELECT
                     and purchasebacks.dates>=:fromDate and purchasebacks.dates<=:toDate
                       UNION ALL
                 SELECT dates,
-                 increment_id,
                  '(t-port+lebour)-fine',
                  '',
                  '',
@@ -241,7 +230,6 @@ SELECT
                  where supplier_id=:id and dates>=:fromDate and dates<=:toDate
                  UNION ALL
               SELECT dates,
-                     increment_id,
                      '',
                      id,
                      '',
@@ -253,7 +241,6 @@ SELECT
                         and dates>=:fromDate and dates<=:toDate
                       UNION ALL
               SELECT '',
-                     '',
                      'Prev-B',
                      '',
                      '',

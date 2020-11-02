@@ -34,8 +34,8 @@
     {{$info->company_name}}
   </h1>
 <div class="login-box">
-  <div class="login-logo">
-    <a href="#"><img src="{{asset('storage/logo/'.$info->logo)}}" alt=""></a>
+  <div class="login-logo clearfix">
+    <a href="#"><img class="rounded" height="100px" width="auto" src="{{asset('storage/logo/'.$info->logo)}}" alt=""></a>
   </div>
   <!-- /.login-logo -->
   <div class="card">

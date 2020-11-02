@@ -125,22 +125,6 @@
           reader.readAsDataURL(input.files[0]);
       }
    }
-
-$(document).on('click','.edit',function(){
-  $('#exampleModalLabel').text('Update Supplier');
-  $('.submit').text('Update');
-$('.modal').modal('show');
-  id=$(this).data('id');
-  $('#id').val(id);
-  axios.get('admin/get-customer/'+id)
-  .then(function(response){
-    var keys=Object.keys(response.data[0]);
-    console.log(response.data[0])
-    for (var i = 0; i < keys.length; i++) {
-      $('#'+keys[i]).val(response.data[0][keys[i]])
-    }
-  })
-})
  //ajax request from employee.js
 function ajaxRequest(){
     $('.invalid-feedback').hide();
@@ -219,20 +203,7 @@ $('table').on('click','.delete',function(){
   confirmButtonText: "CONFIRM",
 })
 .then((isConfirmed) => {
-  if (isConfirmed.isConfirmed) {
-  var id=$(this).data('id');
-    console.log(id);
-    axios.delete('/admin/customer/'+id,{_method:'DELETE'})
-      .then((res)=>{
-        if (res.data.message=='success') {
-          window.toastr.success('Supplier Deleted Success');
-          $('.data-table').DataTable().ajax.reload();
-        }
-      })
-      .catch((error)=>{
-        console.log(error.request);
-      })
-  }
+  return false;
 });
  })
    function ModalClose(){

@@ -21,9 +21,10 @@ class CreateSaleTable extends Migration
             $table->unsignedInteger('product_id');
             $table->decimal('qantity',16,2);
             $table->decimal('price',16,2);
-            $table->unsignedBigInteger('increment_id');
+            $table->unsignedTinyInteger('action_id');
             $table->unsignedInteger('user_id');
             $table->timestamps();
+             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
     }
 

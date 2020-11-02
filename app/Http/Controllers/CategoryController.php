@@ -67,15 +67,15 @@ class CategoryController extends Controller
         }
     }
 
-    public function Update($id=null){
+    public function Update(Request $r,$id=null){
          $validator=Validator::make($r->all(),[
-            "product_type"=>'required|max:100|min:2|regex:/^([a-zA-Z0-9 ]+)$/',
+            "name"=>'required|max:100|min:1|regex:/^([a-zA-Z0-9 ]+)$/',
         ]);
         if ($validator->passes()) {
             $category=Category::find($id);
             $category->name=$r->name;
             $category->user_id=Auth::user()->id;
-            $save=$type->save();
+            $save=$category->save();
             if ($save){
                 $notification=new Notification;
                 $notification->details='Category <strong>'.$r->name.'('.$id.')</strong>'.' Updated by <strong>'.Auth::user()->name.'('.Auth::user()->id.')</strong>';

@@ -49,6 +49,24 @@
                     </div>
                   </div>
                   <div class="form-group">
+                    <label for="opening_balance" class="font-weight-bold">Opening Balance:</label>
+                    <div class='row'>
+                      <div class='col-sm-9'>
+                          <input class="form-control form-control-sm" id="opening_balance"  type="text" placeholder="Enter Opening Balance....">
+                          <div id="opening_balance_msg" class="invalid-feedback">
+                          </div>
+                        </div>
+                        <div class='col-sm-3'>
+                          <select class="form-control form-control-sm" id="balance_type" >
+                          <option value="1">Balance</option>
+                          <option value="0">Due</option>
+                          </select>
+                          <div id="balance_type_msg" class="invalid-feedback">
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="form-group">
                     <label for="adress" class="font-weight-bold">Supplier Type:</label>
                     <select class="form-control form-control-sm" id="supplier_type">
                       <option value="">--select--</option>
@@ -168,12 +186,16 @@ function ajaxRequest(id){
     let email=$('#email').val();
     let adress=$('#adress').val();
     let phone=$('#phone').val();
+    let opening_balance=$('#opening_balance').val();
+    let balance_type=$('#balance_type').val();
     let supplierType=$('#supplier_type').val();
     let formData= new FormData();
     formData.append('name',name);
     formData.append('email',email);
     formData.append('adress',adress);
     formData.append('phone',phone);
+    formData.append('opening_balance',opening_balance);
+    formData.append('balance_type',balance_type);
     formData.append('supplier_type',supplierType);
     //axios post request
     if (!id){

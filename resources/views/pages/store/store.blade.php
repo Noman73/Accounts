@@ -61,7 +61,7 @@
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="inputGroup-sizing-sm">৳</span>
                   </div>
-                  <input type="text" class="form-control form-control-sm" id="balance" placeholder="Enter Opening Balance..." aria-label="Small" aria-describedby="inputGroup-sizing-sm">
+                  <input type="text" class="form-control" id="balance" placeholder="Enter Opening Balance..." aria-label="Small" aria-describedby="inputGroup-sizing-sm">
                   <div id="balance_msg" class="invalid-feedback">
                   </div>
                </div>

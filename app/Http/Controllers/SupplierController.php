@@ -32,10 +32,16 @@ class SupplierController extends Controller
         return view('pages.Supplier.supplier');
     }
     public function insertSupplier(Request $r){
+
+        if($r->opening_balance===null){
+            $r->opening_balance=0;
+        }
     	$validator = Validator::make($r->all(),[
-        'name'       		=> 'required|max:50|regex:/^[a-zA-Z]+(?:\s[a-zA-Z0-9.]+)+$/',
+        'name'       		=> "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
         'email'     		=> 'nullable|max:30|email|unique:suppliers,email',
         'phone'     		=> 'required|max:20',
+        'opening_balance'   => 'nullable|max:19|regex:/^([0-9.]+)$/',
+        'balance_type'      => 'required|max:1|regex:/^([0-1]+)$/',
         'adress'    		=> 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
         'supplier_type'     => 'required|max:50|regex:/^([a-zA-Z0-9]+)$/'
         ]);
@@ -47,6 +53,17 @@ class SupplierController extends Controller
         $supplier->email             = $r->email;
         $supplier->phone             = $r->phone;
         $supplier->adress   		 = $r->adress;
+        if($r->balance_type!==null){
+          switch($r->balance_type){
+              case 0:
+                $supplier->opening_balance=-($r->opening_balance);
+              break;
+              case 1:
+                $supplier->opening_balance=$r->opening_balance;
+              break;
+          }
+        }
+        
         $supplier->supplier_type   	 = $r->supplier_type;
         $supplier->users_id   		 = Auth::user()->id;
         $supplier->save();
@@ -68,7 +85,7 @@ class SupplierController extends Controller
     public function UpdateSupplier($id,Request $r){
         // return $id;
         $validator = Validator::make($r->all(),[
-        'name'              => 'required|max:50|regex:/^[a-zA-Z]+(?:\s[a-zA-Z0-9.]+)+$/',
+        'name'              => "required|max:50|regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
         'email'             => 'nullable|max:30|email|unique:suppliers,email,'.$id,
         'phone'             => 'required|max:20',
         'adress'            => 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
