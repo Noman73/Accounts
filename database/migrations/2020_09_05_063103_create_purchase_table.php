@@ -19,6 +19,7 @@ class CreatePurchaseTable extends Migration
             $table->string('dates',30);            
             $table->unsignedInteger('supplier_id');
             $table->unsignedInteger('product_id');
+            $table->unsignedInteger('store_id');
             $table->decimal('qantity',16,2);
             $table->decimal('price',16,2);
             $table->unsignedBigInteger('increment_id');

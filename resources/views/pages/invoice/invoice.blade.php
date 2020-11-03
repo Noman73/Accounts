@@ -26,6 +26,12 @@
             </select>
             <span class="p-1 d-none" id="balance">Balance:<span id='c_bal'></span></span>
           </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Select Tranport</label>
+            <select class="form-control" id="transport">
+            </select>
+            <span class="p-1 d-none" id="balance">Balance:<span id='c_bal'></span></span>
+          </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="form-group float-right">
@@ -40,9 +46,10 @@
             <thead>
                   <tr>
                         <th class="text-center" width="20%">Product</th>
-                        <th class="text-center" width="15%">Avl.Qty</th>
-                        <th class="text-center" width="15%">qantity</th>
-                        <th class="text-center" width="20%">price</th>
+                        <th class="text-center" width="15%">Store</th>
+                        <th class="text-center" width="10%">Avl.Qty</th>
+                        <th class="text-center" width="10%">qantity</th>
+                        <th class="text-center" width="15%">price</th>
                         <th class="text-center" width="15%">total</th>
                         <th class="text-center" width="15%">Action</th>
                   </tr>
@@ -185,6 +192,29 @@ $(document).ready(function(){
       cache:true,
     }
   })
+  $('#transport').select2({
+    theme:'bootstrap4',
+    placeholder:'select',
+    allowClear:true,
+    ajax:{
+      url:"{{URL::to('admin/search_customer')}}",
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
+  })
   $('#payment_method').select2({
     theme:'bootstrap4',
     placeholder:'select',
@@ -239,6 +269,7 @@ function addItem(){
   count=count+1;
   var html='<tr>';
       html+="<td><select class='form-control form-control-sm item' type='text' name='item[]' id='item"+count+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
+      html+="<td><select class='form-control form-control-sm store' type='text' name='store[]' id='store"+count+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
       html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='av_qty[]' disabled id='av_qty"+count+"'></td>";
       html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='qantity[]' id='qantity"+count+"'></td>";
       html+="<td><input class='form-control form-control-sm text-right price'  type='text' placeholder='0.00' name='price[]' id='price"+count+"'></td>";
@@ -270,6 +301,29 @@ function addItem(){
             response[index]['disabled']=true;
           }
         });
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
+  })
+  $('#store'+count).select2({
+      theme:"bootstrap4",
+      allowClear:true,
+      placeholder:'select',
+      ajax:{
+      url:"{{URL::to('admin/get_store')}}",
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:'{{csrf_token()}}',
+          }
+      },
+      processResults:function(response){
         return {
           results:response,
         }
@@ -317,7 +371,7 @@ $('body').on('select2:select',"select[name='item[]']", function (e){
  axios.get('admin/product_price_by_id/'+id)
       .then(function(response){
         console.log(response.data);
-            this_cat.parent().next().next().next().children("[name='price[]']").val(response.data);
+            this_cat.parent().next().next().next().next().children("[name='price[]']").val(response.data);
           })
           .catch(function(error){
           console.log(error.request);
@@ -409,9 +463,6 @@ function calculation(){
      }
    }
 }
-
-
-
 $(document).on('keyup','.qantity',function(){
   calculation();
 })
@@ -546,6 +597,13 @@ $("input[name='qantity[]']").each(function(){
 if ($(this).val()=='') {
   isValid=false;
   
+  $(this).addClass('is-invalid');
+}
+})
+$("input[name='store[]']").each(function(){
+  $(this).removeClass('is-invalid');
+if ($(this).val()=='') {
+  isValid=false;
   $(this).addClass('is-invalid');
 }
 })

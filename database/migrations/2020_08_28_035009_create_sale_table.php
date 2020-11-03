@@ -19,6 +19,7 @@ class CreateSaleTable extends Migration
             $table->string('dates',30);            
             $table->unsignedInteger('customer_id');
             $table->unsignedInteger('product_id');
+            $table->unsignedInteger('store_id');
             $table->decimal('qantity',16,2);
             $table->decimal('price',16,2);
             $table->unsignedTinyInteger('action_id');

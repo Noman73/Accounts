@@ -49,8 +49,6 @@ class BankController extends Controller
         $get=DB::select("
            select id,name,branch,number,(opening_balance+ifnull((select sum(ifnull(debit,0))-sum(ifnull(credit,0)) from voucers where banks.id=voucers.bank_id),0)) as total from banks
             ");
-
-
         return DataTables::of($get)
           ->addIndexColumn()->make(true);
         }
@@ -59,6 +57,15 @@ class BankController extends Controller
     public function getAccount(){
         $all=Bank::select('id','name')->get();
         return response()->json($all);
+    }
+    public function getBanks(Request $r){
+        if (!preg_match("/[^a-zA-Z0-9. ]/", $r->searchTerm)) {
+            $data=DB::select("SELECT id,name from banks where name like '%".$r->searchTerm."%' limit 10");
+            foreach ($data as $value){
+                $set_data[]=['id'=>$value->id,'text'=>$value->name];
+            }
+            return $set_data;
+        }
     }
     public function test(){
         // echo DNS1D::getBarcodeSVG('4445645656', 'C39')."<br>";
@@ -108,8 +115,8 @@ class BankController extends Controller
         //     return 'ok';
         // }
         // return response()->json([$validator->getMessageBag()]);
-        $invoice=Invoice::find(1);
-        $invoice->customer_id='noman';
-        $invoice->payment_id='abdullah';
+       return  $get=DB::select("
+               select id,name,adress,capacity,type,stutus from stores
+                ");
     }
 }

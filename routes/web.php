@@ -24,6 +24,7 @@ Route::post('/admin/banks', 'BankController@insertBank');
 Route::get('/admin/all_banks', 'BankController@allBanks');
 Route::get('/admin/test','BankController@test');
 Route::get('/admin/get_account','BankController@getAccount');
+Route::post('/admin/get_banks','BankController@getBanks');
 
 // Employee routes
 Route::get('/admin/employee', 'EmployeeController@ManageEmployee');
@@ -140,6 +141,17 @@ Route::get('admin/getbuyerbalanceform','BuyerReportController@BuyerBlnceForm');
 // cash Details controller
 Route::get('/admin/cash_details_form','CashDetailsController@Form');
 Route::get('/admin/cash_details','CashDetailsController@cashDetails');
+// store routes
+Route::get('/admin/store','StoreController@Form');
+Route::post('/admin/store','StoreController@Create');
+Route::post('/admin/get_store','StoreController@getStore');
+// fund transter Route
+Route::get('/admin/fund_transfer','FundTransferController@Form');
+Route::post('/admin/fund_transfer','FundTransferController@Transfer');
+// transport route 
+Route::get('/admin/transport','TransportController@Form');
+Route::post('/admin/transport','TransportController@Create');
+
 // test controller route
 Route::get('admin/testpage','TestController@page');
 Route::post('admin/testpage','TestController@test');

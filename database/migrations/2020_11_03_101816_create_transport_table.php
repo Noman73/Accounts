@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStoreTable extends Migration
+class CreateTransportTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateStoreTable extends Migration
      */
     public function up()
     {
-        Schema::create('stores', function (Blueprint $table) {
+        Schema::create('transports', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name',100);
+            $table->string('phone',20)->nullable();
             $table->string('adress',200)->nullable();
-            $table->decimal('capacity',20,2)->nullable();
-            $table->string('type',100)->nullable();
-            $table->boolean('status',100)->default(true);
-            $table->unsignedBigInteger('user_id')->default(true);
+            $table->string('driver_phone',20)->nullable();
+            $table->string('type',100);
+            $table->boolean('status');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
     }
@@ -32,6 +33,6 @@ class CreateStoreTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('stores');
+        Schema::dropIfExists('transports');
     }
 }
