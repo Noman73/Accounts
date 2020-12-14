@@ -30,10 +30,16 @@
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">All Customer</h5>
+      <h5 class="m-0 font-weight-bold">All Invoices</h5>
      </div>
     <div class="card-body px-3 px-md-5">
-        <!-- Modal -->  
+        <!-- Modal --> 
+        <a class="btn btn-primary text-light font-weight-bold mb-2" href="{{URL::to('admin/invoice')}}">
+          New Invoice<i class="ml-1 fas fa-plus"></i>
+        </a>
+        <a class="btn btn-primary text-light font-weight-bold mb-2 float-right" href="{{URL::to('admin/invoice')}}">
+          Sales Return<i class="ml-1 fas fa-plus"></i>
+        </a>
               <!--modal body-->
               <div class="modal fade bd-example-modal-lg">
                 <div class="modal-dialog modal-lg" role="document">
@@ -61,7 +67,7 @@
               <th>ID</th>
               <th>Date</th>
               <th>Customer Name</th>
-              <th>Total Item</th>
+              <th>Type</th>
               <th>Total Payable</th>
               <th>Total</th>
               <th>Action</th>
@@ -98,8 +104,8 @@
             name:'name',
           },
           {
-            data:'total_item',
-            name:'total_item',
+            data:'type',
+            name:'type',
           },
           {
             data:'total_payable',

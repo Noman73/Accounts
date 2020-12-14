@@ -2,9 +2,13 @@
 @section('content')
 @section('link')
 <style>
-  #date{
+  /*#date{
     margin:0 auto;
-  }
+  }*/
+  .ml{
+  margin-left:1px;
+  margin-right:1px;
+ }
   #submit{
     margin:0 auto;
     margin-top: 20px;
@@ -22,16 +26,33 @@
      </div>
     <div class="card-body px-3 px-md-5">
       <form>
-        <div class="input-group input-group-sm col-md-4 col-12" id="date">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-sm">from</span>
+        <div class="input-group">
+         <label class="control-label col-sm-2 text-lg-right" for="type">Type :</label>
+         <div class="col-sm-9">
+            <select class="form-control form-control-sm" name="type" id="type">
+            <option value="0">Normal Sale</option>
+            <option value="1">Advance Sale</option>
+            <option value="2">Sales Return</option>
+            <option value="3">Installment</option>
+              
+          </select>
+             <div id="type_msg" class="invalid-feedback">
+             </div>
           </div>
-          <input class="form-control" name="fromDate" id="fromDate">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-sm">To</span>
-          </div>
-          <input class="form-control" name="toDate" id="toDate">
+       </div>
+       <div class="row ml mt-1">       
+        <label class="col-sm-2 text-lg-right">Date :</label>
+        <div class="input-group input-group-sm col-sm-9" id="date">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-sm">from :</span>
+            </div>
+            <input class="form-control form-control-sm" name="fromDate" id="fromDate">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-sm">To :</span>
+            </div>
+            <input class="form-control form-control-sm" name="toDate" id="toDate">
         </div>
+      </div>
       </form>
         <div class="col-md-2" id="submit">
           <button class="btn btn-sm btn-primary" onclick="Request()">Create Report</button>
@@ -74,14 +95,15 @@ $('#toDate').daterangepicker({
 function Request(){
   fromDate=$('#fromDate').val()
   toDate=$('#toDate').val()
-  axios.post('/admin/invoice_summery',{fromDate:fromDate,toDate:toDate})
+  type=$('#type').val()
+  axios.post('/admin/invoice_summery',{fromDate:fromDate,toDate:toDate,type:type})
   .then((res)=>{
     console.log(res)
     data=res.data.get;
     let html='';
        html+='<table>'
        html+="<thead>"
-       html+="<tr style='text-align:center;font-size:10px;height:12px;'>"
+       html+="<tr style='text-align:center;font-size:12px;height:12px;'>"
        html+="<th width='10%'>ID</th>"
        html+="<th width='20%'>Date</th>"
        html+="<th width='10%'>Inv-ID</th>"
@@ -90,7 +112,7 @@ function Request(){
        html+="<th width='20%'>Total Payable</th>"
        html+='</tr>'
        html+="</thead>"
-       html+="<tbody style='font-size:8px;text-align:center;'>"
+       html+="<tbody style='font-size:12px;text-align:center;'>"
        total=0;
       for (var i = 0; i < data.length; i++){
         html+=`<tr style='height:12px;'>
@@ -110,7 +132,8 @@ function Request(){
                 <th colspan="2" style='text-align:right'>Total: `+total.toFixed(2)+`</th>
               </tr>
             </tfoot>`;
-      header=`<h6 style='text-align:center;margin-top:10px;'>Invoice Summery Sheet</h6>
+      header=`<h5 style='text-align:center;margin-top:30px;'>Invoice Summery Sheet</h5>
+              <h6 style='text-align:center;'>`+$('#type option:selected').text()+`</h6>
              <strong style='font-size:10px;text-align:center'>`+dateFormat(new Date(res.data.fromDate*1000))+` to `+dateFormat(new Date(res.data.toDate*1000))+`</strong>
              <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` </div>`;
       footer=`<div><p style='text-align:center;font-size:10px;'>DevTunes Technology || 01731186740</p></div>`
@@ -120,7 +143,7 @@ function Request(){
               tableAutoSize:true
             });
     var footer = HtmlToPdfMake(footer);
-        var dd = {pageMargins:[20,80,20,40],content:val,header:head,footer:footer};
+        var dd = {pageMargins:[20,100,20,40],content:val,header:head,footer:footer};
     MakePdf.createPdf(dd).open();
   $('.buffer').addClass('d-none');
   // document.getElementById('myForm').reset()

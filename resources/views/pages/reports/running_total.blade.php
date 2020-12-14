@@ -91,6 +91,7 @@ function getName(data){
   $('#name').select2({
     theme:'bootstrap4',
     placeholder:'select',
+    allowClear:true,
     ajax:{
       url:dataURL,
       type:'post',
@@ -117,13 +118,12 @@ function ajaxRequest(){
   $('.submit').attr('disabled',true);
   let category=$('#category').val();
   let id=$('#name').val();
-  let name=$('#name').text();
+  let name=$('#name option:selected').text();
   let fromDate=$('#fromDate').val();
   let toDate=$('#toDate').val();
   let formData=new FormData();
   formData.append('category',category);
   formData.append('id',id);
-  formData.append('name',name);
   formData.append('fromDate',fromDate);
   formData.append('toDate',toDate);
   axios.post('admin/running-total',formData)
@@ -154,11 +154,11 @@ function ajaxRequest(){
                 <td>`+((data[i]['dates']!='') ? dateFormat(new Date(data[i]['dates']*1000)) : '')+`</td>
                 <td>`+data[i]['product_name']+`</td>
                 <td>`+data[i]['id']+`</td>
-                <td>`+data[i]['qantity']+`</td>
+                <td>`+data[i]['deb_qantity']+`</td>
                 <td>`+data[i]['price']+`</td>
                 <td>`+data[i]['debit']+`</td>
                 <td>`+data[i]['credit']+`</td>
-                <td>`+(balance+=(data[i]['debit']-data[i]['credit']))+`</td>
+                <td>`+((balance+=(data[i]['debit']-data[i]['credit'])).toFixed(2))+`</td>
                </tr>`
       }
        html+="</tbody>"
@@ -170,7 +170,7 @@ function ajaxRequest(){
             </tfoot>`;
       header=`<h6 style='text-align:center;margin-top:25px;'>Ledger Sheet</h6>
              <strong style='font-size:10px;text-align:center'>`+dateFormat(new Date(res.data.fromDate*1000))+` to `+dateFormat(new Date(res.data.toDate*1000))+`</strong>
-                <div style='text-align:center;font-weight:bold;margin-top:10px;'>`+capitalize(res.data.category)+` : `+res.data.name+`</div>
+                <div style='text-align:center;font-weight:bold;margin-top:10px;'>`+capitalize(category)+` : `+name+`</div>
                 <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` </div>`;
       footer=`<div style='margin-top:50px;'><p style='text-align:center;font-size:10px;color:#808080;'>DevTunes Technology || 01731186740</p></div>`
 
@@ -219,6 +219,8 @@ function ajaxRequest(){
   })
  $('#category').select2({
   theme:"bootstrap4",
+  placeholder:"select",
+  allowClear:true,
  })
  function capitalize(s){
     return s[0].toUpperCase() + s.slice(1);

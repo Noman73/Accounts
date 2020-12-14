@@ -15,7 +15,10 @@ class ProductController extends Controller
     	$this->middleware('auth');
     }
     public function ManageProduct(){
-    	$category=DB::table('categories')->select('id','name')->get();
+    	$categories=DB::table('categories')->select('id','name')->get();
+      foreach ($categories as  $value) {
+        $category[]=['id'=>$value->id,'text'=>$value->name];
+      }
     	$ptype=DB::table('ptypes')->select('id','name')->get();
     	if (request()->ajax()){
             $get=DB::select("select products.id as p_id,products.product_name as product_name,child_categories.name as name,products.photo as photo from products inner join child_categories on child_categories.id=products.child_category");
@@ -38,11 +41,11 @@ class ProductController extends Controller
     }
     public function insertProduct(Request $r){
     	$validator=Validator::make($r->all(),[
-    		'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+    		'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9']+(([',. -][a-zA-Z0-9'' ])?[a-zA-Z0-9' ]*)*$/",
     		'category'        =>   'required|max:10|regex:/^([0-9]+)$/',
     		'child_category'  =>   'required|max:10|regex:/^([0-9]+)$/',
     		'product_code'    =>   'nullable|max:30|regex:/^([0-9]+)$/',
-    		'model_no' 		    =>   'nullable|max:10|regex:/^([a-zA-Z0-9]+)$/',
+    		'model_no' 		    =>   'nullable|max:10|regex:/^([a-zA-Z0-9-]+)$/',
     		'warranty'		    =>   'nullable|max:10|regex:/^([a-zA-Z0-9 ]+)$/',
     		'product_type'	  =>   'nullable|max:10|regex:/^([a-zA-Z0-9]+)$/',
     		'packaging'		    =>   'nullable|max:10|regex:/^([a-zA-Z]+)$/',
@@ -86,7 +89,7 @@ class ProductController extends Controller
     public function productBarcode(Request $r){
       $data=DB::select("SELECT product_code,product_name from products where product_name like '%".$r->searchTerm."%' order by product_name asc limit 100");
       foreach($data as $value){
-        $set_data[]=['id'=> ($value->product_code==null) ? 0 : $value->product_code.'|'.$value->product_name,'text'=>$value->product_name];
+        $set_data[]=['id'=> ($value->product_code==null) ? '0|'.$value->product_name : $value->product_code.'|'.$value->product_name,'text'=>$value->product_name];
       }
       return $set_data;
     }
@@ -96,6 +99,7 @@ class ProductController extends Controller
         return response()->json($res);
     }
     public function Delete($id=null){
+      return "sorry! you dont have to permisson for delete";
        $photo=DB::table('products')->select('photo')->where('id',$id)->first();
        $delete=Product::where('id',$id)->delete();
        if ($delete) {
@@ -107,7 +111,7 @@ class ProductController extends Controller
     }
     public function Update(Request $r,$id){
       $validator=Validator::make($r->all(),[
-        'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9]+(([',. -][a-zA-Z ])?[a-zA-Z0-9 ]*)*$/",
+        'product_name'    =>   "required|max:100|regex:/^[a-zA-Z0-9']+(([',. -][a-zA-Z0-9' ])?[a-zA-Z0-9' ]*)*$/",
         'category'        =>   'required|max:10|regex:/^([0-9]+)$/',
         'child_category'  =>   'required|max:10|regex:/^([0-9]+)$/',
         'product_code'    =>   'nullable|max:30|regex:/^([0-9]+)$/',
@@ -150,5 +154,11 @@ class ProductController extends Controller
         }
       return response()->json([$validator->getMessageBag()]);
     }
-
+    public function getQantity($product_id,$store_id){
+      $data=DB::select("
+    SELECT ifnull((SELECT sum(deb_qantity)-sum(cred_qantity) from purchases where product_id=:product_id and store_id=:store_id),0)-ifnull((SELECT sum(deb_qantity)-sum(cred_qantity) from sales where product_id=:product_id and store_id=:store_id and (action_id=0 or action_id=2 or action_id=3)),0) as total
+        ",['product_id'=>$product_id,'store_id'=>$store_id]);
+      return response()->json($data);
+    }
+    
 }

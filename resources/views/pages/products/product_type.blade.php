@@ -141,9 +141,9 @@ function ajaxRequest(){
         window.toastr.success('Product Type Added Success');
         $('.data-table').DataTable().ajax.reload();
       }
-      var keys=Object.keys(response.data[0]);
+      var keys=Object.keys(response.data);
       for(var i=0; i<keys.length;i++){
-          $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+          $('#'+keys[i]+'_msg').html(response.data[keys[i]][0]);
           $('#'+keys[i]).css('border','1px solid red');
           $('#'+keys[i]+'_msg').show();
         }

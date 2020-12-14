@@ -4,13 +4,13 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Manage Category</h1>
+            <h1>Accounts Head</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="{{ URL::to('/home') }}">Home</a></li>
-              <li class="breadcrumb-item">Products</li>
-              <li class="breadcrumb-item active">Manage Category</li>
+              <li class="breadcrumb-item">Accounts</li>
+              <li class="breadcrumb-item active">Accounts-head</li>
             </ol>
           </div>
         </div>
@@ -20,7 +20,7 @@
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Manage Category</h5>
+      <h5 class="m-0 font-weight-bold">Accounts Head</h5>
      </div>
     <div class="card-body px-3 px-md-5">
 		  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -33,7 +33,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Add 
-                New Name</h5>
+                New</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="ModalClose()">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -42,7 +42,7 @@
               <div class="modal-body">
                 <form action="" id="myForm">
                   <div class="form-group">
-                    <label class="font-weight-bold">Names:</label>
+                    <label class="font-weight-bold">Accounts:</label>
                     <select class="form-control form-control-sm" id="name">
                       <option value="">--SELECT--</option>
                       @foreach($names as $name)
@@ -53,8 +53,8 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label class="font-weight-bold">Names Relation:</label>
-                    <input class="form-control form-control-sm" id="rel_name"  type="text" placeholder="Enter Name Relation.............">
+                    <label class="font-weight-bold">Accounts Head:</label>
+                    <input class="form-control form-control-sm" id="rel_name"  type="text" placeholder="Enter Accounts Head.............">
                     <div id="category_msg" class="invalid-feedback">
                     </div>
                   </div>
@@ -76,8 +76,8 @@
                     <thead class="thead-light">
                      <tr>
                         <th>No.</th>
-                        <th>Name</th> 
-                        <th>Name Relation</th> 
+                        <th>Accounts</th> 
+                        <th>Accounts Head</th> 
                         <th>Created By</th>
                     </tr>
                     </thead>

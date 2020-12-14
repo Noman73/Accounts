@@ -43,11 +43,12 @@ class ProductTypeController extends Controller
     		$type->name=$r->product_type;
     		$type->user_id=Auth::user()->id;
     		$type->save();
-    		return ['message'=>'success'];
+    		return ['message'=>'Product Type Added Success'];
     	}
-    return response()->json([$validator->getMessageBag()]);
+    return response()->json($validator->getMessageBag());
     }
     public function Delete($id=null){
+        return "sorry! you cannot delete this item";
         $name=Ptype::where('id',$id)->select('name')->first();
         $delete=Ptype::where('id',$id)->delete();
         if ($delete) {
@@ -80,6 +81,6 @@ class ProductTypeController extends Controller
             }
             
         }
-    return response()->json([$validator->getMessageBag()]);
+    return response()->json($validator->getMessageBag());
     }
 }

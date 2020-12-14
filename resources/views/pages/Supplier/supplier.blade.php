@@ -175,6 +175,14 @@ $('#Modalx').modal('show');
     $('#adress').val(response.data[0].adress);
     $('#phone').val(response.data[0].phone);
     $('#supplier_type').val(response.data[0].supplier_type);
+
+    $('#opening_balance').val(response.data[0].opening_balance);
+    if (response.data[0].opening_balance>0) {
+        balance_type=1;
+    }else{
+      balance_type=0;
+    }
+    $('#balance_type').val(balance_type);
   })
 })
  //ajax request from employee.js
@@ -205,7 +213,7 @@ function ajaxRequest(id){
           if (response.data.message=='success') {
             window.toastr.success('Supplier Added Success');
             $('.data-table').DataTable().ajax.reload();
-            document.getElementById('myForm').reset();
+            ModalClose()
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -224,7 +232,7 @@ function ajaxRequest(id){
           if (response.data.message=='success') {
             window.toastr.success('Supplier Updated Success');
             $('.data-table').DataTable().ajax.reload();
-            document.getElementById('myForm').reset();
+            ModalClose()
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -245,6 +253,7 @@ function ajaxRequest(id){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+  $('#Modalx').modal('hide')
  }
  $('table').on('click','.delete',function(){
    console.log('xxx');

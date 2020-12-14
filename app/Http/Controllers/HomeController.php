@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Voucer;
 use App\Invoice;
+use App\Keycheck;
 use DB;
 class HomeController extends Controller
 {
@@ -32,7 +33,8 @@ class HomeController extends Controller
         $deposit=Voucer::where('dates',strtotime(date('d-m-Y')))->sum('debit');
         $expence=Voucer::where('dates',strtotime(date('d-m-Y')))->sum('credit');
         $total_sales_ammount=Invoice::where('dates',strtotime(date('d-m-Y')))->sum('total_payable');
-        return ['deposit'=>$deposit,'expence'=>$expence,'total_sales'=>$total_sales_ammount];
+        $access_days=Keycheck::select('todate')->first();
+        return ['deposit'=>$deposit,'expence'=>$expence,'total_sales'=>$total_sales_ammount,'access_days'=>date('d-m-Y',$access_days->todate)];
     }
 
     public function getVoucerFormData(){

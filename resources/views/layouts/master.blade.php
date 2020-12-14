@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  
   @php
   $info=DB::table('information')->select('company_name','logo')->get()->first();
   @endphp
@@ -44,7 +46,7 @@
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
-
+    <input type="hidden" value="{{csrf_token()}}">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -83,7 +85,7 @@
                                     <span class="status"></span><span class="ml-2 text-success">Available</span>
                                 </div>
                                 <a class="dropdown-item" href="#"><i class="fas fa-user mr-2"></i>Account</a>
-                                <a class="dropdown-item" href="#"><i class="fas fa-cog mr-2"></i>Password Change</a>
+                                <a class="dropdown-item" href="{{URL::to('admin/change_password')}}"><i class="fas fa-cog mr-2"></i>Password Change</a>
                                 <a class="dropdown-item" href="{{ route('logout') }}" 
 
                                     onclick="event.preventDefault();
@@ -163,132 +165,84 @@
                with font-awesome or any other icon font library -->
          
           
-        
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
+         <li class="nav-item">
+            <a href="{{ URL::to('/admin/banks') }}" class="nav-link">
               <i class="nav-icon fas fa-donate"></i>
               <p>
                 Banks
-                <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/banks') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Bank</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/fund_transfer') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Fund Transfer</p>
-                </a>
-              </li>
-            </ul>
+          </li>
+          <li class="nav-item">
+              <a href="{{ URL::to('/admin/fund_transfer') }}" class="nav-link">
+                <i class="nav-icon fas fa-exchange-alt "></i>
+                <p>Fund Transfer</p>
+              </a>
+            </li>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/all_invoice') }}" class="nav-link">
+              <i class="nav-icon fas fa-file-invoice"></i>
+              <p>Bill/Invoice</p>
+            </a>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-file-invoice"></i>
               <p>
-                Bill/Invoice
+                Installment
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ URL::to('/admin/invoice') }}" class="nav-link">
+                <a href="{{ URL::to('/admin/installment') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>New Invoice</p>
+                  <p>New Installment</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ URL::to('/admin/invoice_back') }}" class="nav-link">
+                <a href="{{ URL::to('/admin/installment_status') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Sales Return</p>
+                  <p>Installment Status</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ URL::to('/admin/all_invoice') }}" class="nav-link">
+                <a href="{{ URL::to('/admin/installment_pay') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>All Invoice</p>
+                  <p>Installment Pay</p>
                 </a>
               </li>
             </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-circle"></i>
-              <p>
-                Employee
-                <i class="right fas fa-angle-left"></i>
-              </p>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/employee') }}" class="nav-link">
+              <i class="nav-icon fas fa-user-alt"></i>
+              <p>Employee</p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/employee') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Employee</p>
-                </a>
-              </li>
-            </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-circle"></i>
-              <p>
-                Supplier
-                <i class="right fas fa-angle-left"></i>
-              </p>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/supplier') }}" class="nav-link">
+              <i class="nav-icon fas fa-users"></i>
+              <p>Supplier</p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/supplier') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Supplier</p>
-                </a>
-              </li>
-            </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-circle"></i>
-              <p>
-                Customer/Client
-                <i class="right fas fa-angle-left"></i>
-              </p>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/all-customer') }}" class="nav-link">
+              <i class="fas fa-users nav-icon"></i>
+              <p>Customer/Client</p>
             </a>
-            <ul class="nav nav-treeview ">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/customer') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Add Customer/Client</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/all-customer') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>All Customer</p>
-                </a>
-              </li>
-            </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-user-circle"></i>
-              <p>
-                Store
-                <i class="right fas fa-angle-left"></i>
-              </p>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/transport') }}" class="nav-link">
+              <i class="fas fa-truck nav-icon"></i>
+              <p>Transport</p>
             </a>
-            <ul class="nav nav-treeview ">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/store') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Store</p>
-                </a>
-              </li>
-            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/store') }}" class="nav-link">
+              <i class="fas fa-store-alt nav-icon"></i>
+              <p>Store</p>
+            </a>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
@@ -341,46 +295,30 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ URL::to('/admin/purchase_return') }}" class="nav-link">
+                <a href="{{ URL::to('/admin/opening_stock') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Purchase Return</p>
+                  <p>Opening Stock</p>
                 </a>
               </li>
-            </ul>
-          </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-layer-group"></i>
-              <p>
-                Stock
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ URL::to('/admin/stock') }}" class="nav-link">
+                <a href="{{ URL::to('/admin/stock_transfer') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Stock</p>
+                  <p>Stock Transfer</p>
                 </a>
               </li>
             </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
+         <li class="nav-item">
+            <a href="{{ URL::to('/admin/stock') }}" class="nav-link">
+              <i class="fas fa-layer-group nav-icon"></i>
+              <p>Stock</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/voucer') }}" class="nav-link">
               <i class="nav-icon fas fa-money-check-alt"></i>
-              <p>
-                Create Voucer
-                <i class="right fas fa-angle-left"></i>
-              </p>
+              <p>Voucer</p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/voucer') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Voucer</p>
-                </a>
-              </li>
-            </ul>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
@@ -394,13 +332,13 @@
               <li class="nav-item">
                 <a href="{{ URL::to('/admin/name') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Name</p>
+                  <p>Manage Accounts</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="{{ URL::to('/admin/name_relation') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Manage Name-Relation</p>
+                  <p>Manage Accounts-Head</p>
                 </a>
               </li>
             </ul>
@@ -417,13 +355,19 @@
               <li class="nav-item">
                 <a href="{{ URL::to('/admin/running-total') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
-                  <p>Running Total</p>
+                  <p>Ledger Sheet</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="{{ URL::to('/admin/invoice_summery') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>Invoice Summery</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/sales_summery') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Sale Summery</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -451,6 +395,18 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{{ URL::to('/admin/custom_report') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Custom Report</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/installment_report') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Installment Report</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{{ URL::to('/admin/sales_report') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>C-W-Sales-Report</p>
@@ -458,22 +414,11 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
+         <li class="nav-item">
+            <a href="{{ URL::to('/admin/barcode') }}" class="nav-link">
               <i class="nav-icon fas fa-barcode"></i>
-              <p>
-                Barcode
-                <i class="right fas fa-angle-left"></i>
-              </p>
+              <p>Genarate Barcode</p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ URL::to('/admin/barcode') }}" class="nav-link">
-                  <i class="fas fa-circle nav-icon"></i>
-                  <p>Genarate Barcode</p>
-                </a>
-              </li>
-            </ul>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
@@ -531,17 +476,19 @@
     <div class="modal-body" id="forms">
       <form id="myMasterForm">
       <div class="input-group">
-        <label class="control-label col-sm-3 text-lg-right" for="date">Date:</label>
+        <label class="control-label col-sm-3 text-lg-right" for="master-date">Date:</label>
         <div class="col-md-7">
           <input type="text" id="master-date" class="master-date form-control form-control-sm">
         </div>
       </div>
       <div class="input-group">
-        <label class="control-label col-sm-3 text-lg-right" for="categories">Select Category:</label>
+        <label class="control-label col-sm-3 text-lg-right" for="master-category">Select Category:</label>
         <div class="col-md-7">
-          <select type="text" id="master-category" class="form-control form-control-sm" onchange="getMasterCat(this)">
+          <select  id="master-category" class="form-control form-control-sm" onchange="getMasterCat(this)">
             <option value="">--SELECT--</option>
           </select>
+          <div id="master_category_msg" class="invalid-feedback">
+          </div>
         </div>
       </div>
       <div class="input-group">
@@ -550,6 +497,8 @@
           <select type="text" id="master-data" class="form-control form-control-sm">
             <option value="">--SELECT--</option>
           </select>
+          <div id="master_data_msg" class="invalid-feedback">
+          </div>
         </div>
       </div>
       <div class="input-group">
@@ -560,6 +509,8 @@
             <option value="Deposit">Deposit</option>
             <option value="Expence">Expence</option>
           </select>
+          <div id="master_payment_type_msg" class="invalid-feedback">
+          </div>
         </div>
       </div>
       <div class="input-group">
@@ -568,18 +519,22 @@
           <select type="text" id="master-bank" class="form-control form-control-sm">
             <option value="">--SELECT--</option>
           </select>
+          <div id="master_bank_msg" class="invalid-feedback">
+          </div>
         </div>
       </div>
       <div class="input-group">
         <label class="control-label col-sm-3 text-lg-right" for="product">Ammount $:</label>
         <div class="col-md-7">
-          <input type="text" id="master-ammount" class="form-control form-control-sm" placeholder="Enter rate......">
+          <input type="text" id="master-ammount" class="form-control form-control-sm" placeholder="Enter Ammount......">
+          <div id="master_ammount_msg" class="invalid-feedback">
+          </div>
         </div>
       </div>
      </form>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      <button type="button" onclick="MasterModalClose()" class="btn btn-secondary" data-dismiss="modal">Close</button>
       <button type="button" class="btn btn-primary" onclick="MasterAjaxRequest()">Save changes</button>
     </div>
   </div>
@@ -631,32 +586,66 @@ $(document).ready(function(){
 });
 
 function MasterModal(){
+
   $('#modal-voucer').modal('show');
   $('#VModalLabel').text('Create New Voucer');
-  document.getElementById('myMasterForm').reset();
-  axios.get('admin/getVoucerFormData')
-  .then((res)=>{
-    console.log(res)
-   data=Object.keys(res.data);
-   banks="<option>--select--</option>";
-   category="<option>--select--</option>";
-   for (var i = 0; i < data.length; i++) {
-     for (var x = 0; x < res.data[data[i]].length; x++) {
-      if (data[i]=='banks'){
-        banks+="<option value='"+res.data[data[i]][x].id+"'>"+res.data[data[i]][x].name+"</option>";
-      }else if(data[i]=='category'){
-        category+="<option value='"+res.data[data[i]][x].id+"'>"+res.data[data[i]][x].name+"</option>";
-      }
-     }
-   }
-   $('#master-category').html(category);
-   $('#master-bank').html(banks);
+  MasterModalClose();
+  $('#master-bank').select2({
+    theme:'bootstrap4',
+    placeholder:'Select',
+    allowClear:true,
+    ajax:{
+      url:'{{URL::to('admin/get_banks')}}',
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
+  })
+  $('#master-category').select2({
+    theme:'bootstrap4',
+    placeholder:'Select',
+    allowClear:true,
+    ajax:{
+      url:'{{URL::to('admin/search_name')}}',
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
   })
 }
 function getMasterCat(data){
-  category=data.options[data.selectedIndex].text;
+  if (Number.isInteger(parseInt(data.value))) {
+    category=data.options[data.selectedIndex].text;
+    console.log(category);
+  }else{
+    category='';
+  }
   $('#data-label').text(category+':');
-  console.log(data.value);
+ 
   $('#master-data').html('');
   $('.master-data').removeClass('d-none');
   switch(category){
@@ -673,7 +662,7 @@ function getMasterCat(data){
     method='get';
     break;
   }
-  console.log(category);
+ 
   $('#master-data').select2({
     theme:'bootstrap4',
     placeholder:'Select '+category+'....',
@@ -700,8 +689,8 @@ function getMasterCat(data){
 }
 function MasterAjaxRequest(){
     $('.invalid-feedback').hide();
-    $('input').css('border','1px solid rgb(209,211,226)');
-    $('select').css('border','1px solid rgb(209,211,226)');
+    $('select,input').removeClass('is-invalid');
+    $('select,input').css('border','1px solid rgb(209,211,226)');
     let main_date=$('#master-date').val();
     let main_category=$('#master-category option:selected').text();
     let main_data=$('#master-data').val();
@@ -720,16 +709,17 @@ function MasterAjaxRequest(){
   axios.post('/admin/voucer',formData)
   .then(function (response){
     console.log(response);
-    if (response.data.message=='success') {
-      window.toastr.success('Purchase Added Success');
+    if (response.data.message) {
+      window.toastr.success(response.data.message);
       $('.data-table').DataTable().ajax.reload();
-      document.getElementById('myForm').reset();
+      $('#modal-voucer').modal('hide');
     }
-    var keys=Object.keys(response.data[0]);
+    var keys=Object.keys(response.data);
     for(var i=0; i<keys.length;i++){
-        $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
-        $('#'+keys[i]).css('border','1px solid red');
-        $('#'+keys[i]+'_msg').show();
+        $('#master_'+keys[i]+'_msg').html(response.data[keys[i]][0]);
+        $('#master-'+keys[i]).addClass('is-invalid');
+        $('#master-'+keys[i]).css('border','1px solid red');
+        $('#master_'+keys[i]+'_msg').show();
       }
   })
    .catch(function (error) {
@@ -749,8 +739,22 @@ function MasterAjaxRequest(){
   minDate: '01-01-1950',
   maxDate: '01-01-2050'
 });
-
- console.log(n2words(999999999999998))
+function MasterModalClose(){
+  $('#modal-voucer input').val('');
+  $("#modal-voucer select option[value='']").attr('selected',true);
+  $('#modal-voucer .invalid-feedback').hide();
+  $('#modal-voucer select,input').removeClass('is-invalid');
+  $('#modal-voucer select,input').css('border','1px solid rgb(209,211,226)');
+  $('#master-date').daterangepicker({
+ showDropdowns:true,
+ singleDatePicker: true,
+ locale: {
+    format: 'DD-MM-YYYY',
+  },
+  minDate: '01-01-1950',
+  maxDate: '01-01-2050'
+});
+}
 </script>
 </body>
 </html>

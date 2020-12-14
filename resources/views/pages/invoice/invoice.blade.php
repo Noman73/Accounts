@@ -10,6 +10,10 @@
 @endsection
 @php
   $info=DB::table('information')->select('company_name','logo','phone','adress')->get()->first();
+  $path = asset('storage/logo/'.$info->logo);
+  $type = pathinfo($path, PATHINFO_EXTENSION);
+  $data = file_get_contents($path);
+  $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
 @endphp
 <div class="container">
 	<div class="card m-0">
@@ -17,30 +21,45 @@
       <h5 class="m-0 font-weight-bold">Sale Invoice <img class='buffer float-right d-none' src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
      </div>
     <div class="card-body px-3 px-md-5">
-    <form>
       <div class="row">
-        <div class="col-12 col-md-6"> 
+        <div class="col-12 col-md-3"> 
           <div class="form-group">
             <label class="font-weight-bold">Select Customer</label>
             <select class="form-control" id="customer" onchange="getBlnce(this.value)">
             </select>
             <span class="p-1 d-none" id="balance">Balance:<span id='c_bal'></span></span>
           </div>
+        </div>
+        <div class="col-12 col-md-3">
           <div class="form-group">
             <label class="font-weight-bold">Select Tranport</label>
             <select class="form-control" id="transport">
             </select>
-            <span class="p-1 d-none" id="balance">Balance:<span id='c_bal'></span></span>
           </div>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="form-group float-right">
-            <label class="font-weight-bold d-block">Date:</label>
-            <input  class="form-control-sm" id="date">
+        <div class="col-12 col-md-2">
+          <div class="form-group">
+            <label class="font-weight-bold">Sales Type</label>
+            <select class="form-control" id="sales_type">
+              <option value="0">Normal Sale</option>
+              <option value="1">Advance Sale</option>
+              <option value="2">Sales Return</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-12 col-md-2">
+          <div class="form-group d-none">
+            <label class="font-weight-bold">Issue Date:</label>
+            <input disabled="" class="form-control form-control-sm" id="issue_date">
+          </div>
+        </div>
+        <div class="col-12 col-md-2">
+          <div class="form-group">
+            <label class="font-weight-bold">Date:</label>
+            <input  class="form-control form-control-sm" id="date">
           </div>
         </div>
       </div>
-    </form>
 <!--<button class="btn btn-sm btn-primary mb-3" id="add_item">Add Product</button> -->
         <table class="table-sm table-bordered" id="sales-table">
             <thead>
@@ -78,7 +97,9 @@
                   <tr>
                     <td class="font-weight-bold">Total Item:</td>
                     <td>
-                      <input type="text" disabled="" class="form-control-sm form-control" id="total_item">
+                      <div class="input-group input-group-sm">
+                          <input type="text" disabled="" class="form-control-sm form-control" id="total_item">
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -108,6 +129,17 @@
                     <td>
                       <div class="input-group input-group-sm">
                           <input type="text" class="form-control form-control-sm" id="labour">
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="inputGroupPrepend">৳</span>
+                          </div>
+                      </div>
+                      </td>
+                  </tr>
+                  <tr>
+                    <td class="font-weight-bold">Transport Cost:</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" id="transport_cost">
                           <div class="input-group-append">
                             <span class="input-group-text" id="inputGroupPrepend">৳</span>
                           </div>
@@ -156,10 +188,12 @@
                   </tr>
                 </table>
                 <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
+                <button class="btn btn-sm btn-secondary text-center mb-3 mt-3" type="submit" onclick="remove()" id="submit">Reset</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
                 {{-- /invoic modal --}}
             </div>
+
       </div>
     </div>
   </div>
@@ -197,7 +231,7 @@ $(document).ready(function(){
     placeholder:'select',
     allowClear:true,
     ajax:{
-      url:"{{URL::to('admin/search_customer')}}",
+      url:"{{URL::to('admin/get_transport')}}",
       type:'post',
       dataType:'json',
       delay:20,
@@ -219,25 +253,32 @@ $(document).ready(function(){
     theme:'bootstrap4',
     placeholder:'select',
     allowClear:true,
+    ajax:{
+      url:"{{URL::to('admin/get_banks')}}",
+      type:'post',
+      dataType:'json',
+      delay:20,
+      data:function(params){
+        return {
+          searchTerm:params.term,
+          _token:"{{csrf_token()}}",
+          }
+      },
+      processResults:function(response){
+        return {
+          results:response,
+        }
+      },
+      cache:true,
+    }
   })
-getBank()
+   $('#sales_type').select2({
+    theme:'bootstrap4',
+    placeholder:'select',
+    allowClear:true,
+  })
 
 })
-
-function getBank(){
-  axios.get('admin/get_account')
-  .then((response)=>{
-    console.log(response)
-    html=''
-    response.data.forEach((data)=>{
-        html+='<option value='+data.id+'>'+data.name+'</option>'
-    })
-    $('#payment_method').html(html);
-  })
-  .catch((error)=>{
-    console.log(error);
-  })
-}
 function getBlnce(id){
   if (id=='' || id==null || id==NaN) {
       $('#balance').addClass('d-none');
@@ -263,22 +304,24 @@ function getBlnce(id){
      }
   })
 }
- var count=0;
-//add item function 
+ let count=0;
+  let i=0;
+//add item function
 function addItem(){
   count=count+1;
+  i=i+1;
   var html='<tr>';
-      html+="<td><select class='form-control form-control-sm item' type='text' name='item[]' id='item"+count+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
-      html+="<td><select class='form-control form-control-sm store' type='text' name='store[]' id='store"+count+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
-      html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='av_qty[]' disabled id='av_qty"+count+"'></td>";
-      html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='qantity[]' id='qantity"+count+"'></td>";
-      html+="<td><input class='form-control form-control-sm text-right price'  type='text' placeholder='0.00' name='price[]' id='price"+count+"'></td>";
-      html+="<td><input class='form-control form-control-sm text-right total'  type='text' placeholder='0.00' name='total[]' id='total"+count+"'></td>";
+      html+="<td><select class='form-control form-control-sm item' type='text' name='item[]' id='item"+i+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
+      html+="<td><select class='form-control form-control-sm store' type='text' name='store[]' id='store"+i+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
+      html+="<td><input class='form-control form-control-sm text-right av_qty'  type='text' placeholder='0.00' name='av_qty[]' disabled id='av_qty"+i+"'></td>";
+      html+="<td><input class='form-control form-control-sm text-right qantity'  type='number' placeholder='0.00' name='qantity[]' id='qantity"+i+"' value='1'></td>";
+      html+="<td><input class='form-control form-control-sm text-right price'  type='number' placeholder='0.00' name='price[]' id='price"+i+"'></td>";
+      html+="<td><input class='form-control form-control-sm text-right total'  type='text' placeholder='0.00' name='total[]' id='total"+i+"'></td>";
       html+="<td><button id='remove' class='btn btn-sm btn-danger'>X</button></td>";
       html+='</tr>';
   $('#sales-table tbody').append(html);
   $('#total_item').val(count);
-  $('#item'+count).select2({
+  $('#item'+i).select2({
       theme:"bootstrap4",
       allowClear:true,
       placeholder:'select',
@@ -308,7 +351,7 @@ function addItem(){
       cache:true,
     }
   })
-  $('#store'+count).select2({
+  $('#store'+i).select2({
       theme:"bootstrap4",
       allowClear:true,
       placeholder:'select',
@@ -340,30 +383,20 @@ function addItem(){
 function remove(){
   count=0;
   $('#sales-table tbody').children().remove();
-  $('#final_total').val('');
-  $('#discount').val('');
-  $('#vat').val('');
-  $('#labour').val('');
-  $('#total_payable').val('');
+  $('.card-body input').val('');
+  $(".card-body select").val(null).change();
+  $(".card-body select option[value='']").attr('selected',true);
+  $('#date,#issue_date').daterangepicker({
+        showDropdowns: true,
+        singleDatePicker: true,
+        parentEl: ".bd-example-modal-lg .modal-body",
+        locale: {
+            format: 'DD-MM-YYYY',
+        }
+  });
   addItem();
 }
-// get category wise product
-$('body').on('select2:select',"select[name='category[]']", function (e){
-  id=e.params.data.id;
-  this_cat=$(this);
-  console.log(id);
- axios.get('admin/product_by_cat/'+id)
-      .then(function(response){
-          html="<option value='' selected>select</option>"
-              response.data.forEach(function(data){
-                html+="<option value='"+data.id+"'>"+data.product_name+"</option>";
-              })
-            this_cat.parent().next().children("[name='item[]']").html(html);
-          })
-          .catch(function(error){
-          console.log(error.request);
-        })
- })
+
 // get product wise price
 $('body').on('select2:select',"select[name='item[]']", function (e){
   id=e.params.data.id;
@@ -372,6 +405,39 @@ $('body').on('select2:select',"select[name='item[]']", function (e){
       .then(function(response){
         console.log(response.data);
             this_cat.parent().next().next().next().next().children("[name='price[]']").val(response.data);
+            calculation();
+          })
+          .catch(function(error){
+          console.log(error.request);
+        })
+ })
+// when select store
+$('body').on('select2:select',"select[name='store[]']", function (e){
+  store_id=e.params.data.id;
+  this_cat=$(this);
+  product_id=this_cat.parent().prev().children("[name='item[]']").val();
+  if (store_id=='' || product_id=='') {
+    return false;
+  }
+ axios.get('admin/product_qantity/'+product_id+'/'+store_id)
+      .then(function(response){
+        console.log(response.data);
+            this_cat.parent().next().children("[name='av_qty[]']").val(response.data[0].total);
+          })
+          .catch(function(error){
+          console.log(error.request);
+        })
+ })
+$('body').on('select2:select',"select[name='item[]']", function (e){
+  store_id=$(this).parent().next().children("[name='store[]']").val();
+  this_cat=$(this);
+  product_id=this_cat.val();
+  if (store_id=='' || product_id=='') {
+    return false;
+  }
+ axios.get('admin/product_qantity/'+product_id+'/'+store_id)
+      .then(function(response){
+            this_cat.parent().next().next().children("[name='av_qty[]']").val(response.data[0].total);
           })
           .catch(function(error){
           console.log(error.request);
@@ -391,23 +457,10 @@ $('tbody').on('click','#remove',function(){
   $(this).parent().parent().remove();
   count=count-1;
   $('#total_item').val(count);
-  var final_total=parseFloat($("#final_total").val());
-  var this_total=$(this).parent().prev().children().val();
-  if (isNaN(final_total)){
-    final_total=0;
-  }else if(isNaN(this_total)){
-    this_total=0;
-  }else if(isNaN(final_total) && isNaN(this_total)){
-    final_total=0;
-    this_total=0
-  }
-  final_total=final_total-this_total
-  $("#final_total").val(final_total);
-  $("#total_payable").val(final_total);
+  calculation();
   }else{
     alert('You cannot remove this item')
   }
-  
 })
 
 // function discount(discount){
@@ -425,6 +478,7 @@ function totalCalculation(){
   discount=parseFloat($('#discount').val());
   vat=parseFloat($('#vat').val());
   labour=parseFloat($('#labour').val());
+  transport_cost=parseFloat($('#transport_cost').val());
   if (!isNaN(total_payable)) {
     if (isNaN(discount)) {
       discount=0;
@@ -435,48 +489,40 @@ function totalCalculation(){
     if (isNaN(labour)) {
       labour=0;
     }
+    if (isNaN(transport_cost)) {
+      transport_cost=0;
+    }
     total_payableX=(total_payable*discount)/100;
     vat=(total_payable*vat)/100;
-    $('#total_payable').val(((total_payable-total_payableX)+labour+vat).toFixed(2));
+    $('#total_payable').val(((total_payable-total_payableX)+labour+vat+transport_cost).toFixed(2));
   }
 }
 function calculation(){
+  let x=0;
+  let totalcal=0;
   var total_item=$('#total_item').val();
-  var qantity=0;
-  var price=0;
-  var total=0;
-  var final_total=0;
-   for (var i = 0; i <= total_item; i++) {
-     qantity=$("#qantity"+i).val();
-     if (qantity>0) {
-      var price=$("#price"+i).val()
-      if (price>0) {
-        total=qantity*price;
-        $("#total"+i).val(total);
-        if (total>0) {
-          final_total=final_total+parseFloat($("#total"+i).val());
-          $('#final_total').val(final_total);
-          $("#total_payable").val(final_total);
-          totalCalculation();
-        }
+  var qantity=$("input[name='qantity[]']")
+              .map(function(){return (($(this).val()=='')? 0:$(this).val());}).get();
+ $("input[name='price[]']")
+  .map(function(){
+      price=(($(this).val()=='')? 0:$(this).val())
+      total=parseFloat(price)*parseFloat(qantity[x]);
+      if (!isNaN(total)) {
+      $(this).parent().next().children("input[name='total[]']").val(total)
+      totalcal+=total;
+      $('#final_total').val(totalcal);
+      $('#total_payable').val(totalcal);
+      totalCalculation();
       }
-     }
-   }
+    x=x+1;
+  }).get();
 }
-$(document).on('keyup','.qantity',function(){
+$(document).on('keyup change','.qantity,.price',function(){
   calculation();
 })
-$(document).on('keyup','.price',function(){
-  calculation();
-})
-$(document).on('keyup','#discount',function(){
+
+$(document).on('keyup change','#discount,#vat,#labour,#transport_cost',function(){
   totalCalculation()
-});
-$(document).on('keyup','#vat',function(){
-  totalCalculation();
-});
-$(document).on('keyup','#labour',function(){
-  totalCalculation();
 });
 
 // show Modal with data
@@ -493,21 +539,22 @@ function CreatePdf(inv_id){
       total = $("input[name='total[]']")
                   .map(function(){return $(this).val();}).get();
                   console.log(products.length);
-      totalx=$('#final_total').val();
-      total_item=$('#total_item').val();
-      discount=$('#discount').val();
-      vat=$('#vat').val();
-      labour=$('#labour').val();
-      total_payable=$('#total_payable').val();
-      pay=$('#pay').val();
+      totalx=parseFloat($('#final_total').val());
+      total_item=parseFloat($('#total_item').val());
+      discount=parseFloat($('#discount').val());
+      vat=parseFloat($('#vat').val());
+      labour=parseFloat($('#labour').val());
+      transport=parseFloat($('#transport_cost').val());
+      total_payable=parseFloat($('#total_payable').val());
+      pay=parseFloat($('#pay').val());
+      s_type=parseFloat($('#sales_type').val());
+      console.log(pay+'first')
+      if (isNaN(pay)){
+          pay=parseFloat(0);
+          console.log(pay+'pay')
+      }
       x=[{product:products,qantities,prices,total}];
       html=`
-      <table style='font-weight:bold;'>
-        <tr style='border:none;' bgcolor='#4395D1'><td>Invoice ID</td><td> : `+inv_id+`</td></tr>
-        <tr style='border:none;'><td>Date</td><td> : `+$('#date').val()+`</td></tr>
-        <tr style='border:none;'><td>Customer</td><td> : `+$('#customer option:selected').text()+`</td></tr>
-      </table>
-      <h6 style='text-align:center;font-size:15px'>Product List</h6>
       <table style='font-size:10px;'>
       <tr style='text-align:center;width:25%'>
         <th>Product Name</th>
@@ -520,49 +567,63 @@ function CreatePdf(inv_id){
       for (var i=0;i<products.length; i++) {
         html+="<tr style='text-align:center;width:25%'>";
         html+="<td>"+x[0]['product'][i]+"</td>";
-        html+="<td>"+x[0]['qantities'][i]+"</td>";
-        html+="<td>"+x[0]['prices'][i]+"</td>";
-        html+="<td>"+x[0]['total'][i]+"</td>";
+        html+="<td>"+(parseFloat(x[0]['qantities'][i])).toFixed(2)+"</td>";
+        html+="<td>"+(parseFloat(x[0]['prices'][i])).toFixed(2)+"</td>";
+        html+="<td>"+(parseFloat(x[0]['total'][i])).toFixed(2)+"</td>";
         html+="</tr>";
       }
       html+=`</table>
-        <table>
-            <tr style='border:none;'><td>Total</td><td> : `+totalx+` /=</td></tr>
-            <tr style='border:none;'><td>Total Item</td><td> : `+total_item+`</td></tr>
-            <tr style='border:none;'><td>Discount</td><td> : `+(discount ? discount :0 )+` %</td></tr>
-            <tr style='border:none;'><td>vat</td><td> : `+(vat ? vat : 0)+` %</td></tr>
-            <tr style='border:none;'><td>Labour Cost</td><td> : `+(labour ? labour :0)+` /=</td></tr>
-            <tr style='border:none;'><td>Total Payable</td><td> : `+(total_payable ? total_payable : 0)+` /=</td></tr>
-            <tr style='border:none;'><td>Payment</td><td> : `+(pay ? pay : 0)+` /=</td></tr>
+        <table style='margin-left:16.8rem'>
+            <tr style='border:none;'><td>Total</td><td style='background-color:blue;border:1px solid white;' width="53%"> `+totalx.toFixed(2)+`</td></tr>
+            <tr style='border:none;'><td>Total Item</td><td style='background-color:blue;border:1px solid white;'> `+total_item+`</td></tr>
+            <tr style='border:none;'><td>Discount</td><td  style='background-color:blue;border:1px solid white;'> `+(discount ? ((discount*totalx)/100).toFixed(2) :0.00 )+`</td></tr>
+            <tr style='border:none;'><td>vat</td><td  style='background-color:blue;border:1px solid white;'> `+(vat ? ((vat*totalx)/100).toFixed(2) : 0.00)+`</td></tr>
+            <tr style='border:none;'><td>Labour Cost</td><td  style='background-color:blue;border:1px solid white;'> `+(labour ? labour.toFixed(2) :0.00)+`</td></tr>
+            <tr style='border:none;'><td>Transport Cost</td><td  style='background-color:blue;border:1px solid white;'> `+(transport ? transport.toFixed(2) :0.00)+`</td></tr>
+            <tr style='border:none;'><td>Total Payable</td><td  style='background-color:blue;border:1px solid white;'> `+(total_payable ? total_payable.toFixed(2) : 0.00)+`</td></tr>
+            <tr style='border:none;'><td>Payment</td><td  style='background-color:blue;border:1px solid white;'> `+(pay ? (pay).toFixed(2) : 0.00)+`</td></tr>
         </table>
-        <h5 style='background-color:black;color:white;text-align:center;padding:10px;'>
-        `+PaymentCheck(total_payable,pay)+`
-        </h5>
-        <h5 style='background-color:black;color:white;text-align:center;padding:10px;'>
+        <div style='background-color:black;color:white;text-align:center;padding:10px;line-height:1.0;'>
+        `+PaymentCheck(total_payable,pay)+`<br>
         Balance :`+(parseFloat($('#c_bal').text())-(parseFloat(total_payable)-parseFloat(pay)))+`
-        </h5>
+        </div>
       `;
-      header=`<div style='text-align:center;line-height:0.1;'>
-                  <h6 style='margin-top:30px;line-height:0.5;'>`+'{{$info->company_name}}'+`</h6>
-                  <p style-'font-size:12px;'>`+'{{$info->adress}}'+`</p>
-                  <p style-'font-size:12px;'>Mobile:`+'{{$info->phone}}'+`</p>
-              </div>
-               <div style='text-align:right;margin-right:30px;font-size:12px;'>Print Date : `+dateFormat(new Date())+` 
-                </div>`;
-      footer=`<div style='margin-top:50px;'><p style='text-align:center;font-size:10px;color:#808080;'>Powered By : DevTunes Technology || 01731186740</p></div>`
+      header=`<img style='width:100px;height:70px;margin-top:30px;margin-left:25px;' src='{{$base64}}'/>
+              <span style='margin-left:30px;font-size:22px;'>INVOICE-`+inv_id+`</span>
+              <span style='margin-left:30px;font-size:18px;'>{{$info->company_name}}</span>
+              <span style='margin-left:30px;font-size:12px;'>{{$info->adress}}</span>
+              <span style='margin-left:30px;font-size:12px;margin-bottom:15px;'>{{$info->phone}}</span>
+              <span style='font-weight:bold;font-size:14px;text-align:center;'>`+$('#customer option:selected').text()+`</span>
+              <span style='font-size:12px;text-align:center;'>`+$('#date').val()+`</span>
+              <span style='font-size:12px;text-align:center;'>`+((s_type==2) ? 'Sales Return':'')+`</span>`;
+
+      footer=`<div style='margin-top:50px;'>
+        <div style='text-align:right;margin-right:30px;font-size:8px;'>Print Date : `+dateFormat(new Date())+`
+               </div>
+      <p style='text-align:center;font-size:10px;color:#808080;'>Powered By : DevTunes Technology || 01731186740</p></div>`
        // var head = HtmlToPdfMake(header);
     var val = HtmlToPdfMake(html,{
               tableAutoSize:true
             });
-    val[0].table.body[0][0].fillColor='#4395D1';
+    console.log(val);
+    setColor=val[1].table.body;
+    for (var i = 0; i < setColor.length; i++) {
+      setColor[i][1].fillOpacity=0.1;
+    }
+    // val[1]._layout.hLineColor:function(i, node) {
+    //   return (i === 0 || i === node.table.body.length) ? 'red' : 'red';
+    // }
     var header = HtmlToPdfMake(header,{
               // tableAutoSize:true
             });
+    header[0].alignment="center";
+  console.log(header);
     var footer = HtmlToPdfMake(footer);
-        var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,100,20,40],pageSize:'A5',content:val,header:header,footer:footer};
+        var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,170,20,40],pageSize:'A5',content:val,header:header,footer:footer};
     MakePdf.createPdf(dd).open();
+    remove();
     }
-    function PaymentCheck(payable,pay){
+    function PaymentCheck(payable,pay=0){
       payablex=parseInt(payable)
       payx=parseInt(pay)
       switch(true){
@@ -587,21 +648,37 @@ function CreatePdf(inv_id){
 // validate all fields
 function Validate(){
   let isValid=true;
+  let i=0;
 $('#customer').removeClass('is-invalid');
-if($('#customer').val()==''){
+$('#transport').removeClass('is-invalid');
+if($('#customer').val()==null){
   isValid=false
   $('#customer').addClass('is-invalid');
 }
+if($('#transport').val()==null){
+  isValid=false
+  $('#transport').addClass('is-invalid');
+}
+av_qty = $("input[name='av_qty[]']")
+       .map(function(){  
+        if($(this).val()==''){
+          return 0;
+        }else{
+          return $(this).val();
+        }
+      }).get();
 $("input[name='qantity[]']").each(function(){
   $(this).removeClass('is-invalid');
-if ($(this).val()=='') {
+if ($(this).val()=='' || parseFloat(av_qty[i])<parseFloat($(this).val())){
   isValid=false;
-  
   $(this).addClass('is-invalid');
+}else{
+  i=i+1;
 }
 })
-$("input[name='store[]']").each(function(){
+$("select[name='store[]']").each(function(){
   $(this).removeClass('is-invalid');
+  console.log($(this).val())
 if ($(this).val()=='') {
   isValid=false;
   $(this).addClass('is-invalid');
@@ -616,7 +693,7 @@ if ($(this).val()=='') {
 })
 $("select[name='item[]']").each(function(){
   $(this).removeClass('is-invalid');
-if ($(this).val()=='') {
+if ($(this).val()==''){
   isValid=false;
   $(this).addClass('is-invalid');
 }
@@ -635,13 +712,19 @@ if (isValid==true) {
               .map(function(){return $(this).val();}).get();
    items = $("select[name='item[]']")
               .map(function(){return $(this).val();}).get();
+   store = $("select[name='store[]']")
+              .map(function(){return $(this).val();}).get();
    customer=$('#customer').val();
    date=$('#date').val();
+   issue_date=$('#issue_date').val();
    total_payable=$('#total_payable').val();
    total_item=$('#total_item').val();
    discount=$('#discount').val();
    vat=$('#vat').val();
    labour=$('#labour').val();
+   transport_cost=$('#transport_cost').val();
+   transport=$('#transport').val();
+   sales_type=$('#sales_type').val();
    total=$('#final_total').val();
    payment_method=$('#payment_method').val();
    transaction=$('#transaction_id').val();
@@ -650,13 +733,18 @@ if (isValid==true) {
     formData.append('qantities[]',qantities);
     formData.append('prices[]',prices);
     formData.append('product[]',items);
+    formData.append('store[]',store);
     formData.append('customer',customer);
+    formData.append('issue_date',issue_date);
     formData.append('date',date);
     formData.append('total_payable',total_payable);
     formData.append('total_item',total_item);
     formData.append('discount',discount);
     formData.append('vat',vat);
     formData.append('labour',labour);
+    formData.append('transport_cost',transport_cost);
+    formData.append('transport',transport);
+    formData.append('sales_type',sales_type);
     formData.append('total',total);
     formData.append('payment_method',payment_method);
     formData.append('transaction',transaction);
@@ -669,7 +757,6 @@ if (isValid==true) {
         keys=Object.keys(response.data[0]);
         html='';
         for (var i = 0; i <keys.length; i++) {
-          console.log(keys[i]);
           html+="<p style='color:red;line-height:1px;font-size:12px;'>"+response.data[0][keys[i]][0]+"</p>";
         }
         // alert(html);
@@ -694,7 +781,7 @@ if (isValid==true) {
 }
 //datepicker.................
 
-$('#date').daterangepicker({
+$('#date,#issue_date').daterangepicker({
         showDropdowns: true,
         singleDatePicker: true,
         parentEl: ".bd-example-modal-lg .modal-body",
@@ -702,7 +789,16 @@ $('#date').daterangepicker({
             format: 'DD-MM-YYYY',
         }
   });
-
+$('#sales_type').on("select2:select", function(e){
+  console.log(e.params.data.id);
+  if (e.params.data.id==1) {
+    $('#issue_date').parent().removeClass('d-none');
+    $('#issue_date').attr('disabled',false)
+  }else{
+    $('#issue_date').parent().addClass('d-none');
+    $('#issue_date').attr('disabled',true);
+  }
+})
 function dateFormat(date){
 let date_ob = date;
 let dates = ("0" + date_ob.getDate()).slice(-2);

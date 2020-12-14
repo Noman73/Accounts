@@ -234,7 +234,7 @@ function addNew(){
             $('#job_department').val(response.data[0][keys[i]]);
           }
         }
-        document.getElementById('photo').setAttribute('src','http://localhost/accounts/public/storage/employee_img/'+response.data[0]['photo'])
+        document.getElementById('photo').setAttribute('src','{{asset('storage/employee_img')}}/'+response.data[0]['photo'])
     })
     .catch((error)=>{
       console.log(error.request);
@@ -276,7 +276,7 @@ function ajaxRequest(id){
           if (response.data.message=='success') {
             window.toastr.success('Banks Added Success');
             $('.data-table').DataTable().ajax.reload();
-            $('#Modalx').modal('hide');
+            ModalClose();
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -292,10 +292,10 @@ function ajaxRequest(id){
       axios.post('/admin/employee/'+id,formData)
         .then(function (response){
           console.log(response);
-          if (response.data.message=='success') {
-            window.toastr.success('Banks Added Success');
+          if (response.data.message) {
+            window.toastr.success(response.data.message);
             $('.data-table').DataTable().ajax.reload();
-            $('#Modalx').modal('hide');
+            ModalClose();
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -317,6 +317,7 @@ function ajaxRequest(id){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+   $('#Modalx').modal('hide');
  }
 
  $('table').on('click','.delete',function(){

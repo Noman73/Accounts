@@ -6,10 +6,12 @@ use DOMPDF;
 use DNS2D;
 use DNS1D;
 use Auth;
+use DB;
 class BarcodeController extends Controller
 {
     public function __construct(){
-    	$this->middleware('auth');
+        $this->middleware('auth');
+    	$this->middleware('keycheck');
     }
     public function Form(){
     	return view('pages.barcode.barcode');
@@ -18,17 +20,20 @@ class BarcodeController extends Controller
     	$validate=$r->validate([
             'product'=>'required|min:1|max:100|',
             'qantity'=>'required|min:1|max:3|regex:/^([0-9]+)$/',
-    		'price'=>'required|min:1|max:12|regex:/^([0-9]+)$/',
     	]);
-    	if ($r->product==='0') {
-    		$barcode='not found!! give valid code';
+
+        $data=explode('|',$r->product);
+        $p=DB::table('products')->select('price')->where('product_code',$data[0])->first();
+    	if ($data[0]==='0') {
+    		$barcode="<h2 style='text-align:center;color:red;margin-top:100px;'>Product Code not found!! Please give us valid code</h2>";
+            return $barcode;
     	}else{
-            $data=explode('|',$r->product);
+            
             // return json_encode($data);
-            for ($i=0; $i <$r->qantity ; $i++){ 
+            for ($i=0; $i <$r->qantity ; $i++){
                 $barcode[]= DNS1D::getBarcodeSVG(str_pad($data[0],10, "0", STR_PAD_LEFT),'I25');
                 $text[]=$data[1];
-                $price[]=$r->price;
+                $price[]=$p->price;
             }
             
     	}

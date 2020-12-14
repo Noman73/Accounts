@@ -18,7 +18,7 @@ class ChildCategoryController extends Controller
     	if (request()->ajax()){
     $get=DB::select("SELECT categories.name as cat_name,child_categories.name as childname,users.name as username from child_categories 
 inner join categories on categories.id=child_categories.cat_id
-inner join users on users.id=child_categories.user_id");
+left join users on users.id=child_categories.user_id");
    return DataTables::of($get)
       ->addIndexColumn()->make(true);
     }
@@ -27,7 +27,7 @@ inner join users on users.id=child_categories.user_id");
     public function insertCategory(Request $r){
     	$validator = Validator::make($r->all(),[
         'child_category'     => 'required|max:50|regex:/^([a-zA-Z0-9., ]+)$/',
-        'category' => 'required|max:10|regex:/^([0-9]+)$/',
+        'category'           => 'required|max:10|regex:/^([0-9]+)$/',
         ]);
 
     //for image
@@ -37,9 +37,9 @@ inner join users on users.id=child_categories.user_id");
         $category->name      = $r->child_category;
         $category->user_id   = Auth::user()->id;
         $category->save();
-        return response()->json(['message'=>'success']);
+        return response()->json(['message'=>'Child Category Aded Success']);
     }
-    return response()->json([$validator->getMessageBag()]);
+    return response()->json($validator->getMessageBag());
     }
     public function getChildCat($id){
         $validator=Validator::make(['cateogory_id'=>$id],[

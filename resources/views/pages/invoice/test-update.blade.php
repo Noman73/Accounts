@@ -1,24 +1,40 @@
+
 @extends('layouts.master')
 @section('content')
+@section('link')
+<style>
+  .buffer{
+    height: 20px;
+    width:20px;
+  }
+</style>
+@endsection()
+{{date('d-m-Y',intval(json_decode($invoice)->dates))}}
 <div class="container">
-  <div class="card m-0">
+	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Purchase Return</h5>
+     {{--  @php
+      print_r($invoice);
+      print_r($sales);
+      @endphp --}}
+      <h5 class="m-0 font-weight-bold">Sale Invoice <img class='buffer float-right d-none' src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
      </div>
     <div class="card-body px-3 px-md-5">
     <form>
       <div class="row">
         <div class="col-12 col-md-6"> 
           <div class="form-group">
-            <label class="font-weight-bold">Select Supplier</label>
-            <select class="select2-container--open form-control" id="supplier">
+            <label class="font-weight-bold">Select Customer</label>
+            <select class="form-control" id="customer" onchange="getBlnce(this.value)">
             </select>
+            <span class="p-1 d-none" id="balance"></span>
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="form-group float-right">
-            <label class="font-weight-bold d-block">Return Date:</label>
-            <input  class="form-control-sm" id="date">
+            <label class="font-weight-bold d-block">Date:</label>
+            <input  class="form-control-sm" id="date" value="28-11-2020">
+
           </div>
         </div>
       </div>
@@ -37,8 +53,6 @@
                 
             </thead>
         <tbody>
-<!--               <form name='invoice[]' id='invoice'>-->
-<!--                @csrf -->
         </tbody> 
       </table>
       <button class="btn btn-sm btn-primary mb-3 float-right" id="add_item">+</button>
@@ -63,10 +77,10 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="font-weight-bold">Transport:</td>
+                    <td class="font-weight-bold">Discount:</td>
                     <td>
                       <div class="input-group input-group-sm">
-                          <input type="text" class="form-control form-control-sm" id="transport">
+                          <input type="text" class="form-control form-control-sm" id="discount">
                           <div class="input-group-append">
                             <span class="input-group-text" id="inputGroupPrepend">%</span>
                           </div>
@@ -74,26 +88,26 @@
                     </td>
                   </tr>
                   <tr>
-                    <td class="font-weight-bold">Labour:</td>
+                    <td class="font-weight-bold">Vat:</td>
+                    <td>
+                      <div class="input-group input-group-sm">
+                          <input type="text" class="form-control form-control-sm" id="vat">
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="inputGroupPrepend">%</span>
+                          </div>
+                      </div>
+                      </td>
+                  </tr>
+                  <tr>
+                    <td class="font-weight-bold">Labour Cost:</td>
                     <td>
                       <div class="input-group input-group-sm">
                           <input type="text" class="form-control form-control-sm" id="labour">
                           <div class="input-group-append">
-                            <span class="input-group-text" id="inputGroupPrepend">%</span>
+                            <span class="input-group-text" id="inputGroupPrepend">৳</span>
                           </div>
                       </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="font-weight-bold">Fine:</td>
-                    <td>
-                      <div class="input-group input-group-sm">
-                          <input type="text" class="form-control form-control-sm" id="fine">
-                          <div class="input-group-append">
-                            <span class="input-group-text" id="inputGroupPrepend">%</span>
-                          </div>
-                      </div>
-                    </td>
+                      </td>
                   </tr>
                   <tr>
                     <td class="font-weight-bold">Total Payable:</td>
@@ -107,7 +121,7 @@
                       </td>
                   </tr>
                 </table>
-                
+                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -152,8 +166,16 @@
                                 <td id='report_total'></td>
                               </tr>
                               <tr>
-                                <th>fine</th>
-                                <td id="report_fine"></td>
+                                <th>Discount</th>
+                                <td id="report_discount"></td>
+                              </tr>
+                              <tr>
+                                <th>Vat</th>
+                                <td id="report_vat"></td>
+                              </tr>
+                              <tr>
+                                <th>Labour Cost</th>
+                                <td id="report_labour_cost"></td>
                               </tr>
                               <tr>
                                 <th>Previous Due</th>
@@ -180,20 +202,85 @@
                 {{-- /invoic modal --}}
             </div>
       </div>
-      <button class="btn btn-lg btn-warning text-center float-right mb-3 mt-3" type="submit" onclick="showModal()" id="submit">Return</button>
     </div>
   </div>
 </div>
 @endsection
 @section('script')
 <script type="text/javascript">
+  let invoice=<?php echo $invoice; ?>;
+  let sales=<?php echo $sales; ?>;
+  let count=1;
+function InitData(){
+  console.log(invoice,sales);
+  var html='<tr>';
+  for (var i = 0; i < invoice.total_item; i++) {
+      count=count+i;
+      html+="<input type='hidden' name='row[]' value='"+sales[i].id+"'>"
+      html+="<td><select class='form-control form-control-sm item' type='text' name='item[]' id='item"+i+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
+      html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='av_qty[]' disabled id='av_qty"+i+"'></td>";
+      html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='qantity[]' id='qantity"+i+"' value='"+sales[i].qantity+"'></td>";
+      html+="<td><input class='form-control form-control-sm text-right price'  type='text' placeholder='0.00' name='price[]' id='price"+i+"' value='"+sales[i].price+"'></td>";
+      html+="<td><input class='form-control form-control-sm text-right total'  type='text' placeholder='0.00' name='total[]' id='total"+i+"' value='"+(sales[i].qantity*sales[i].price)+"'></td>";
+      html+="<td><button id='remove' class='btn btn-sm btn-danger'>X</button></td>";
+      html+='</tr>';
+  
+  }
+  $('#sales-table tbody').append(html);
+  $('#total_item').val(invoice.total_item);
+  $('#total_payable').val(invoice.total_payable);
+  $('#final_total').val(invoice.total);
+  $('#discount').val(invoice.discount);
+  $('#vat').val(invoice.vat);
+  Select2();
+}
+function Select2(){
+  console.log(invoice.total_item)
+    for (var i = 0; i <invoice.total_item; i++) {
+      console.log(sales[i].product_id)
+          $('#item'+i).select2({
+            theme:"bootstrap4",
+            allowClear:true,
+            placeholder:'select',
+            tags:true,
+            ajax:{
+            url:"{{URL::to('admin/select2')}}",
+            type:'post',
+            dataType:'json',
+            delay:20,
+            data:function(params){
+              return {
+                searchTerm:params.term,
+                _token:'{{csrf_token()}}',
+                }
+            },
+            processResults:function(response){
+              item=$("select[name='item[]'] option:selected")
+                  .map(function(){return $(this).val();}).get();
+               res=response.map(function(currentValue, index, arr){
+                if (item.includes(currentValue.id)){
+                  response[index]['disabled']=true;
+                }
+              });
+              return {
+                results:response,
+              }
+            },
+            cache:true,
+          }
+        })
+          $('#item'+i).html("<option value='"+sales[i].product_id+"'>"+sales[i].product_name+"</option>");
+    }
+  }
+
 $(document).ready(function(){
-  $('#supplier').select2({
+  
+  $('#customer').select2({
     theme:'bootstrap4',
     placeholder:'select',
     allowClear:true,
     ajax:{
-      url:"{{URL::to('admin/search_supplier')}}",
+      url:"{{URL::to('admin/search_customer')}}",
       type:'post',
       dataType:'json',
       delay:20,
@@ -211,16 +298,40 @@ $(document).ready(function(){
       cache:true,
     }
   })
+  if (invoice.name!=null){
+    $('#customer').html("<option value='"+invoice.customer_id+"'>"+invoice.name+"("+invoice.phone1+")</option>")
+  }
+
+  console.log($('#customer').val())
 })
 
-
-  
-
- var count=0;
-//add item function 
+function getBlnce(id){
+  if (id=='' || id==null || id==NaN) {
+      $('#balance').addClass('d-none');
+      return false;
+    }
+  axios.get('admin/customer_balance/'+id)
+  .then(function(response){
+    if (response.data[0].total){
+        total=response.data[0].total;
+        $('#balance').removeClass('d-none');
+        $('#balance').text('Balance:'+total);
+        if (total>0){
+          $('#balance').removeClass('bg-danger');
+          $('#balance').addClass('bg-success');
+        }else if(total==null){
+          $('#balance').addClass('d-none');
+        }else{
+          $('#balance').removeClass('bg-success');
+          $('#balance').addClass('bg-danger');
+        }
+    }
+  })
+}
 function addItem(){
   count=count+1;
   var html='<tr>';
+      html+="<input type='hidden' name='row[]' value='0'>"
       html+="<td><select class='form-control form-control-sm item' type='text' name='item[]' id='item"+count+"' data-allow-clear='true'><option value='' selected>Select</option></select></td>";
       html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='av_qty[]' disabled id='av_qty"+count+"'></td>";
       html+="<td><input class='form-control form-control-sm text-right qantity'  type='text' placeholder='0.00' name='qantity[]' id='qantity"+count+"'></td>";
@@ -234,6 +345,7 @@ function addItem(){
       theme:"bootstrap4",
       allowClear:true,
       placeholder:'select',
+      tags:true,
       ajax:{
       url:"{{URL::to('admin/select2')}}",
       type:'post',
@@ -246,6 +358,13 @@ function addItem(){
           }
       },
       processResults:function(response){
+        item=$("select[name='item[]'] option:selected")
+                  .map(function(){return $(this).val();}).get();
+               res=response.map(function(currentValue, index, arr){
+                if (item.includes(currentValue.id)){
+                  response[index]['disabled']=true;
+                }
+              });
         return {
           results:response,
         }
@@ -253,8 +372,6 @@ function addItem(){
       cache:true,
     }
   })
-
-  
 }
 //............end add item function...........
 
@@ -263,9 +380,9 @@ function remove(){
   count=0;
   $('#sales-table tbody').children().remove();
   $('#final_total').val('');
-  $('#transport').val('');
+  $('#discount').val('');
+  $('#vat').val('');
   $('#labour').val('');
-  $('#fine').val('');
   $('#total_payable').val('');
   addItem();
 }
@@ -303,7 +420,7 @@ $('body').on('select2:select',"select[name='item[]']", function (e){
 
 
 $(document).ready(function(){
-  addItem();
+  InitData();
 })
 $('#add_item').click(function(){
   addItem();
@@ -344,21 +461,22 @@ $('tbody').on('click','#remove',function(){
 // }
 function totalCalculation(){
   total_payable=parseFloat($('#final_total').val());
-  transport=parseFloat($('#transport').val());
+  discount=parseFloat($('#discount').val());
+  vat=parseFloat($('#vat').val());
   labour=parseFloat($('#labour').val());
-  fine=parseFloat($('#fine').val());
   if (!isNaN(total_payable)) {
-    if (isNaN(transport)){
-      transport=0;
+    if (isNaN(discount)) {
+      discount=0;
     }
-    if (isNaN(labour)){
+    if (isNaN(vat)) {
+      vat=0;
+    }
+    if (isNaN(labour)) {
       labour=0;
     }
-    if (isNaN(fine)){
-      fine=0;
-    }
-    total_payableX=(total_payable*fine)/100;
-    $('#total_payable').val((total_payable-total_payableX)+transport+labour);
+    total_payableX=(total_payable*discount)/100;
+    vat=(total_payable*vat)/100;
+    $('#total_payable').val(((total_payable-total_payableX)+labour+vat).toFixed(2));
   }
 }
 function calculation(){
@@ -390,21 +508,19 @@ function calculation(){
 $(document).on('keyup','.qantity',function(){
   calculation();
 })
-$(document).on('keyup','#transport',function(){
+$(document).on('keyup','#discount',function(){
   totalCalculation()
+});
+$(document).on('keyup','#vat',function(){
+  totalCalculation();
 });
 $(document).on('keyup','#labour',function(){
-  totalCalculation()
-});
-$(document).on('keyup','#fine',function(){
-  totalCalculation()
+  totalCalculation();
 });
 
 // show Modal with data
 
 function showModal(){
-  isValid=Validate();
-  if(isValid==true){
       products = $("select[name='item[]'] option:selected")
                   .map(function(){return $(this).text();}).get();
       qantities = $("input[name='qantity[]']")
@@ -428,21 +544,21 @@ function showModal(){
       $('#product_list').html(html);
       $('#report_date').text(' :'+$('#date').val());
       $('#report_total').text(' :'+$('#final_total').val());
-      $('#report_fine').text(':'+$('#fine').val());
+      $('#report_discount').text(':'+$('#discount').val());
+      $('#report_vat').text(' :'+$('#vat').val());
+      $('#report_labour_cost').text(' :'+$('#labour').val());
       $('#report_total_payable').text(' :'+$('#total_payable').val());
       $('#report_customer').text(' :'+$('#customer option:selected').text());
       $('#report_previous_due').text(' :');
-      $('.modal').modal('show');
-    }
+      // $('.modal').modal('show');
   }
 // validate all fields
 function Validate(){
   let isValid=true;
-$('#supplier').removeClass('is-invalid');
-console.log($('#supplier').val());
-if($('#supplier').val()==null){
+$('#customer').removeClass('is-invalid');
+if($('#customer').val()==''){
   isValid=false
-  $('#supplier').addClass('is-invalid');
+  $('#customer').addClass('is-invalid');
 }
 $("input[name='qantity[]']").each(function(){
   $(this).removeClass('is-invalid');
@@ -469,53 +585,65 @@ if ($(this).val()=='') {
 return isValid;
 }
 function submit(){
+  $('.buffer').removeClass('d-none');
    isValid=Validate();
 if (isValid==true) {
        qan=document.getElementsByName('qantity[]');
+   row = $("input[name='row[]']")
+              .map(function(){return $(this).val();}).get();
    qantities = $("input[name='qantity[]']")
               .map(function(){return $(this).val();}).get();
    prices = $("input[name='price[]']")
               .map(function(){return $(this).val();}).get();
    items = $("select[name='item[]']")
               .map(function(){return $(this).val();}).get();
-   supplier=$('#supplier').val();
+   customer=$('#customer').val();
    date=$('#date').val();
    total_payable=$('#total_payable').val();
    total_item=$('#total_item').val();
-   transport=$('#transport').val();
+   discount=$('#discount').val();
+   vat=$('#vat').val();
    labour=$('#labour').val();
-   fine=$('#fine').val();
    total=$('#final_total').val();
     formData=new FormData();
+    formData.append('row[]',row);
     formData.append('qantities[]',qantities);
     formData.append('prices[]',prices);
     formData.append('product[]',items);
-    formData.append('supplier',supplier);
+    formData.append('customer',customer);
     formData.append('date',date);
     formData.append('total_payable',total_payable);
     formData.append('total_item',total_item);
-    formData.append('transport',transport);
+    formData.append('discount',discount);
+    formData.append('vat',vat);
     formData.append('labour',labour);
-    formData.append('fine',fine);
     formData.append('total',total);
-    axios.post('admin/purchase_return',formData)
+    axios.post('admin/invoice/'+invoice.id,formData)
     .then(function(response){
-      console.log(response.data);
-      if (response.data.message!=='success'){
-        length=Object.keys(response.data[0]).length;
-        html='';
-        for (var i = 0; i<length; i++) {
-          html+='*';
-          html+=response.data[0]["product."+i+""][0]+'\n';
-        }
-        alert(html);
-      }else if(response.data.message==='success'){
-        window.toastr.warning('Return Success');
+      console.log(response);
+      if (response.data.message==='success'){
+        window.toastr.success('Invoice Updated Success');
+        window.location="{{URL::to('admin/all_invoice')}}"
+        $('.buffer').addClass('d-none');
+        showModal();
       }
+      // if (response.data.message!=='success'){
+      //   length=Object.keys(response.data[0]).length;
+      //   html='';
+      //   for (var i = 0; i<length; i++) {
+      //     html+='*';
+      //     html+=response.data[0]["product."+i+""][0]+'\n';
+      //   }
+      //   alert(html);
+      // }else if(response.data.message==='success'){
+      //   window.toastr.success('Invoice Added Success');
+      // }
     })
     .catch(function(error){
-      console.log(error.request.response);
+      console.log(error);
     })
+  }else{
+    $('.buffer').addClass('d-none');
   }
 }
 //datepicker.................
@@ -528,5 +656,7 @@ $('#date').daterangepicker({
             format: 'DD-MM-YYYY',
         }
   });
+
+
  </script>
 @endsection

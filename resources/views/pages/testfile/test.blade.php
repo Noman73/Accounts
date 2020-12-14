@@ -34,6 +34,7 @@
           <button class="btn btn-sm btn-primary" type="submit">Create Report</button>
         </div>
         </form>
+        <button class="btn btn-sm btn-primary" onclick="test()">sdfsdfdf</button>
     </div>
   </div>
 </div>
@@ -68,5 +69,13 @@ $('#toDate').daterangepicker({
   minDate: '01-01-1950',
   maxDate: '01-01-2050'
 });
+
+function test(){
+  axios.post("{{URL::to('admin/testpage')}}", {number: 100})
+  .then((res)=>{
+    console.log(res);
+  })
+  console.log($('meta[name="csrf-token"]').attr('content'))
+}
 </script>
 @endsection

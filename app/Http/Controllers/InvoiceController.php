@@ -23,13 +23,18 @@ class InvoiceController extends Controller
     	$data['product']=array_combine(range(1,count(explode(',',$r->product[0]))),explode(',',$r->product[0]));
     	$data['qantities']=array_combine(range(1,count(explode(',',$r->qantities[0]))),explode(',',$r->qantities[0]));
     	$data['prices']=array_combine(range(1,count(explode(',',$r->prices[0]))),explode(',',$r->prices[0]));
+        $data['store']=array_combine(range(1,count(explode(',',$r->store[0]))),explode(',',$r->store[0]));
     	$data['customer']=$r->customer;
-    	$data['date']=$r->date;
+        $data['date']=$r->date;
+    	$data['issue_date']=$r->issue_date;
     	$data['total_payable']=$r->total_payable;
     	$data['total_item']=$r->total_item;
     	$data['discount']=$r->discount;
     	$data['vat']=$r->vat;
-    	$data['labour']=$r->labour;
+        $data['labour']=$r->labour;
+        $data['transport']=$r->transport;
+        $data['transport_cost']=$r->transport_cost;
+    	$data['sales_type']=$r->sales_type;
         $data['transaction']=$r->transaction;
         $data['payment_method']=$r->payment_method;
         if ($r->payment_method=='null') {
@@ -44,9 +49,14 @@ class InvoiceController extends Controller
     		'qantities'=>'required|array',
     		'qantities.*'=>'required|regex:/^([0-9.]+)$/',
     		'prices'=>'required|array',
-    		'prices.*'=>'required|regex:/^([0-9.]+)$/',
+            'prices.*'=>'required|regex:/^([0-9.]+)$/',
+            'store'=>'required|array',
+            'store.*'=>'required|regex:/^([0-9]+)$/',
+            'transport'=>'nullable|regex:/^([0-9]+)$/',
+    		'sales_type'=>'required|regex:/^([0-2]+)$/',
     		'customer'=>'required|regex:/^([0-9]+)$/',
-    		'date'=>'required|max:10|date_format:d-m-Y',
+            'date'=>'required|max:10|date_format:d-m-Y',
+    		'issue_date'=>'required|max:10|date_format:d-m-Y',
     		'total_payable'=>'required|max:10|regex:/^([0-9.]+)$/',
     		'total_item'=>'required|max:10|regex:/^([0-9.]+)$/',
     		'discount'=>'nullable|max:15|regex:/^([0-9.]+)$/',
@@ -60,14 +70,19 @@ class InvoiceController extends Controller
     	if ($validator->passes()) {
     		$invoice=new Invoice;
     		$invoice->dates=strtotime(strval($data['date']));
+            if ($data['sales_type']==1) {
+                $invoice->issue_dates=$data['issue_date'];
+            }
     		$invoice->customer_id=$data['customer'];
     		$invoice->total_item=$data['total_item'];
     		$invoice->discount=$data['discount'];
     		$invoice->vat=$data['vat'];
-    		$invoice->labour_cost=$data['labour'];
+            $invoice->labour_cost=$data['labour'];
+            $invoice->transport=$data['transport_cost'];
+    		$invoice->transport_id=$data['transport'];
     		$invoice->total_payable=$data['total_payable'];
             $invoice->total=$data['total'];
-    		$invoice->action_id=1;
+    		$invoice->action_id=$data['sales_type'];
     		$invoice->user_id=Auth::user()->id;
     		$invoice->save();
     		$inv_id=$invoice->id;
@@ -79,11 +94,16 @@ class InvoiceController extends Controller
 	                $stmt->invoice_id=$inv_id;
 	    			$stmt->dates=strtotime(strval($data['date']));
 	    			$stmt->customer_id=$data['customer'];
-	    			$stmt->product_id=$data['product'][$i+1];
-	    			$stmt->qantity=$data['qantities'][$i+1];
+                    $stmt->product_id=$data['product'][$i+1];
+	    			$stmt->store_id=$data['store'][$i+1];
+                    if ($data['sales_type']!=2) {
+                        $stmt->deb_qantity=$data['qantities'][$i+1];
+                    }else{
+                        $stmt->cred_qantity=$data['qantities'][$i+1];
+                    }
 	    			$stmt->price=$data['prices'][$i+1];
                     $stmt->user_id=$user_id;
-	    			$stmt->action_id=1;
+	    			$stmt->action_id=$data['sales_type'];
 	    			$stmt->save();
     			}
     			if ($stmt=true){
@@ -93,7 +113,12 @@ class InvoiceController extends Controller
                         $voucer->dates=strtotime(strval($data['date']));
                         $voucer->category='customer';
                         $voucer->data_id=$data['customer'];
-                        $voucer->debit=$data['pay'];
+                        if ($data['sales_type']!=2) {
+                            $voucer->debit=$data['pay'];
+                        }else{
+                            $voucer->credit=$data['pay'];
+                        }
+                        
                         $voucer->invoice_id=$inv_id;
                         $voucer->user_id=Auth::user()->id;
                         $voucer->save();
@@ -117,30 +142,51 @@ class InvoiceController extends Controller
             $total_bal=500;
             $get=DB::table('invoices')
                      ->join('customers','customers.id','=','invoices.customer_id')
-                     ->select('invoices.id','invoices.dates','customers.name','invoices.total_item','invoices.total_payable','invoices.total')
+                     ->select('invoices.id','invoices.dates','customers.name','invoices.action_id','invoices.total_payable','invoices.total')
                      ->get();
         return DataTables::of($get)
               ->addIndexColumn()
               ->addColumn('action',function($get){
           $button  ='<div class="btn-group btn-group-toggle" data-toggle="buttons">
-                       <a type="button" href="'.URL::to('admin/invoice-update').'/'.$get->id.'" class="btn btn-sm btn-primary rounded mr-1 edit"><i class="fas fa-eye"></i></a>
+                       <a disabled type="button" href="'.URL::to('admin/invoice-update').'/'.$get->id.'" class="btn btn-sm btn-primary rounded mr-1 edit"><i class="fas fa-eye"></i></a>
                        <a class="btn btn-danger btn-sm rounded delete" data-id="'.$get->id.'"><i class="fas fa-trash-alt"></i></a>
                     </div>';
         return $button;
       })
-      ->rawColumns(['action'])->make(true);
+        ->addColumn('type',function($get){
+          switch (intval($get->action_id)) {
+              case 0:
+                  $type="Sale";
+                  break;
+              case 1:
+                  $type="Advance";
+                  break;
+             case 2:
+                  $type="Sale Return";
+                  break;
+             case 3:
+                  $type="Installment";
+                  break;
+          }
+        return $type;
+      })
+        ->addColumn('dates',function($get){
+          $date=date('d-m-Y',$get->dates);
+        return $date;
+      })
+      ->rawColumns(['action','type','dates'])->make(true);
         }
         return view('pages.invoice.all_invoices');
     }
     public function UpdateForm($id){
         $invoice=DB::table('invoices')
                 ->join('customers','customers.id','=','invoices.customer_id')
-                ->selectRaw('invoices.id,invoices.customer_id,customers.name,customers.phone1,invoices.discount,invoices.vat,invoices.labour_cost,invoices.total_item,invoices.total_payable,invoices.total')
+                ->selectRaw('invoices.id,invoices.customer_id,customers.name,customers.phone1,invoices.discount,invoices.vat,invoices.labour_cost,invoices.total_item,invoices.total_payable,invoices.total,invoices.dates')
                 ->where('invoices.id',$id)
                 ->first();               
-        $sales=DB::select("select sales.id,sales.product_id,sales.invoice_id,products.product_name,sales.qantity,sales.price from sales inner join products on products.id=sales.product_id where sales.invoice_id=:id order by sales.id asc",['id'=>$id]);
-        $invoice=json_encode($invoice);
-        $sales=json_encode($sales);
+        $sales=DB::select("select sales.id,sales.product_id,sales.invoice_id,products.product_name,sales.deb_qantity+sales.cred_qantity as qantity,sales.price from sales inner join products on products.id=sales.product_id where sales.invoice_id=:id order by sales.id asc",['id'=>$id]);
+         $invoice=json_encode($invoice);
+         $sales=json_encode($sales);
         return view('pages.invoice.invoice-update',compact('invoice','sales'));
     }
     public function Update(Request $r,$id){
@@ -225,23 +271,5 @@ class InvoiceController extends Controller
             }
         }
         return response()->json([$validator->getMessageBag()]);
-    }
-    public function Increment(){
-       $data=DB::select("
-          SELECT 
-              (SELECT max(increment_id) from voucers) as voucer_id,
-              (SELECT max(increment_id) from invoices) as invoice_id,
-              (SELECT max(increment_id) from sales) as sales_id,
-              (SELECT max(increment_id) from invoicebacks) as invoiebacks_id,
-              (SELECT max(increment_id) from salesbacks) as salesbacks_id,
-              (SELECT max(increment_id) from invpurchases) as invpurchase_id,
-              (SELECT max(increment_id) from purchases) as purchase_id,
-              (SELECT max(increment_id) from invpurchasebacks) as invpurchasebacks_id,
-              (SELECT max(increment_id) from purchasebacks) as purchaseback_id
-              ");
-    foreach ($data[0] as $key => $value) {
-        $arr[]=$value;
-    }
-    return intval(max($arr));
     }
 }

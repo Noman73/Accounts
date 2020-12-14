@@ -41,10 +41,6 @@
           <input class="form-control" name="qantity" id="product" placeholder="Enter Qantity .....">
           </input>
         </div>
-        <div class="input-group">
-          <input class="form-control" name="price" id="price" placeholder="Enter Price $.....">
-          </input>
-        </div>
         <div class="col-md-2" id="submit">
           <button class="btn btn-sm btn-primary" type="submit">Create Barcode</button>
         </div>

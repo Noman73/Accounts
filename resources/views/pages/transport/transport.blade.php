@@ -33,13 +33,13 @@
                   <div class="form-group">
                     <label for="phone" class="font-weight-bold">Phone:</label>
                     <input class="form-control form-control-sm" id="phone"  type="text" placeholder="Enter Phone Number...">
-                    <div id="email_msg" class="invalid-feedback">
+                    <div id="phone_msg" class="invalid-feedback">
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="phone" class="font-weight-bold">Driver Phone:</label>
                     <input class="form-control form-control-sm" id="driver_phone"  type="text" placeholder="Enter Driver Phone Number...">
-                    <div id="phone_msg" class="invalid-feedback">
+                    <div id="driver_phone_msg" class="invalid-feedback">
                     </div>
                   </div>
                   <div class="form-group">
@@ -52,10 +52,10 @@
                     <label for="adress" class="font-weight-bold">Type:</label>
                     <select class="form-control form-control-sm" id="type">
                       <option value="">--select--</option>
-                      <option value="Distributor">Import</option>
-                      <option value="Whole Saler">Export</option>
+                      <option value="Import">Import</option>
+                      <option value="Export">Export</option>
                     </select>
-                    <div id="supplier_type_msg" class="invalid-feedback">
+                    <div id="type_msg" class="invalid-feedback">
                     </div>
                   </div>
                   <div class="form-group">
@@ -64,7 +64,7 @@
                         <option value="1">Active</option>
                         <option value="0">Deactive</option>
                         </select>
-                        <div id="opening_balance_msg" class="invalid-feedback">
+                        <div id="status_msg" class="invalid-feedback">
                         </div>
                   </div>
                   
@@ -89,7 +89,9 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Adress</th>
-                        <th>Supplier Type</th>
+                        <th>Driver Phone</th>
+                        <th>Status</th>
+                        <th>Type</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -114,7 +116,7 @@
         processing:true,
         serverSide:true,
         ajax:{
-          url:"{{ URL::to('/admin/supplier') }}"
+          url:"{{ URL::to('/admin/transport') }}"
         },
         columns:[
           {
@@ -136,8 +138,16 @@
             name:'adress',
           },
            {
-            data:'supplier_type',
-            name:'supplier_type',
+            data:'driver_phone',
+            name:'driver_phone',
+          },
+          {
+            data:'status',
+            name:'status',
+          },
+           {
+            data:'type',
+            name:'type',
           },
           {
             data:'action',
@@ -158,14 +168,14 @@ $(document).on('click','.edit',function(){
 $('#Modalx').modal('show');
   id=$(this).data('id');
   $('#id').val(id);
-  axios.get('admin/get-supplier/'+id)
+  axios.get('admin/get_transport/'+id)
   .then(function(response){
     console.log(response);
-    $('#name').val(response.data[0].name);
-    $('#email').val(response.data[0].email);
-    $('#adress').val(response.data[0].adress);
-    $('#phone').val(response.data[0].phone);
-    $('#supplier_type').val(response.data[0].supplier_type);
+    $('#name').val(response.data.name);
+    $('#email').val(response.data.email);
+    $('#adress').val(response.data.adress);
+    $('#phone').val(response.data.phone);
+    $('#type').val(response.data.type);
   })
 })
  //ajax request from employee.js
@@ -191,10 +201,11 @@ function ajaxRequest(id){
          axios.post('/admin/transport',formData)
         .then(function (response){
           console.log(response);
-          if (response.data.message=='success') {
-            window.toastr.success('Supplier Added Success');
+          if (response.data.message) {
+            window.toastr.success(response.data.message);
             $('.data-table').DataTable().ajax.reload();
             document.getElementById('myForm').reset();
+            ModalClose();
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -210,10 +221,11 @@ function ajaxRequest(id){
       axios.post('/admin/transport/'+id,formData)
         .then(function (response){
           console.log(response);
-          if (response.data.message=='success') {
-            window.toastr.success('Supplier Updated Success');
+          if (response.data.message) {
+            window.toastr.success(response.data.message);
             $('.data-table').DataTable().ajax.reload();
             document.getElementById('myForm').reset();
+            ModalClose();
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){

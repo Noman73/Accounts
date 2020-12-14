@@ -27,7 +27,7 @@ class StoreController extends Controller
                   }else{
                     $status='Deactive';
                   }
-              return $status=0;
+              return $status;
             })->rawColumns(['status'])->make(true);
             }
            return view('pages.store.store');

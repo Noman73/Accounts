@@ -23,6 +23,7 @@ class CreateVoucerTable extends Migration
             $table->decimal('debit',16,2)->default(false);
             $table->decimal('credit',16,2)->default(false);
             $table->unsignedBigInteger('invoice_id')->nullable();
+            $table->tinyInt('pay_action_id')->nullable();
             $table->unsignedInteger('user_id');
             $table->timestamps();
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');

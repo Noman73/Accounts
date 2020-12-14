@@ -49,13 +49,14 @@ class VoucerController extends Controller
     }
     public function insertVoucer(Request $r){
         $validator=Validator::make($r->all(),[
-            'date'=>'required|max:10|min:10',
-            'category'=>'required|max:100',
-            'data'=>'required|max:20',
-            'payment_type'=>'required|max:7',
-            'bank'=>'required|max:10',
-            'debit'=>'nullable|max:20|',
-            'credit'=>'nullable|max:20|',
+            'date'=>'required|max:10|min:10|date_format:d-m-Y',
+            'category'=>'required|max:100|regex:/^([a-zA-Z0-9]+)$/',
+            'data'=>'required|max:20|regex:/^([0-9]+)$/',
+            'payment_type'=>'required|max:7|regex:/^([a-zA-Z]+)$/',
+            'bank'=>'required|max:10|regex:/^([0-9]+)$/',
+            'debit'=>'nullable|max:20|regex:/^([0-9]+)$/',
+            'credit'=>'nullable|max:20|regex:/^([0-9]+)$/',
+            'ammount'=>'required|max:20|min:1|regex:/^([0-9]+)$/',
         ]);
         if ($validator->passes()){
            
@@ -66,33 +67,17 @@ class VoucerController extends Controller
             $voucer->bank_id=$r->bank;
             if ($r->payment_type=='Deposit') {
               $voucer->debit=$r->ammount;
+              $voucer->credit=0;
             }
             if ($r->payment_type=='Expence') {
               $voucer->credit=$r->ammount;
+              $voucer->debit=0;
             }
             $voucer->user_id=Auth::user()->id;
             $voucer->save();
-            return ['message'=>'success'];
+            return ['message'=>'Voucer Added Success'];
         }
 
-        return response()->json([$validator->getMessageBag()]);
-    }
-    public function Increment(){
-       $data=DB::select("
-          SELECT 
-              (SELECT max(increment_id) from voucers) as voucer_id,
-              (SELECT max(increment_id) from invoices) as invoice_id,
-              (SELECT max(increment_id) from sales) as sales_id,
-              (SELECT max(increment_id) from invoicebacks) as invoiebacks_id,
-              (SELECT max(increment_id) from salesbacks) as salesbacks_id,
-              (SELECT max(increment_id) from invpurchases) as invpurchase_id,
-              (SELECT max(increment_id) from purchases) as purchase_id,
-              (SELECT max(increment_id) from invpurchasebacks) as invpurchasebacks_id,
-              (SELECT max(increment_id) from purchasebacks) as purchaseback_id
-              ");
-    foreach ($data[0] as $key => $value) {
-        $arr[]=$value;
-    }
-    return intval(max($arr));
+        return response()->json($validator->getMessageBag());
     }
 }

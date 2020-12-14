@@ -68,9 +68,9 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>65</h3>
+                <h3 id="access_days"></h3>
 
-                <p>Unique Visitors</p>
+                <p>Last Date Of Access Permission</p>
               </div>
               <div class="icon">
                 <i class="ion ion-pie-graph"></i>
@@ -92,6 +92,7 @@
     $('#recieve').text(response.data.deposit);
     $('#expence').text(response.data.expence);
     $('#total_inv').text(response.data.total_sales);
+    $('#access_days').text(response.data.access_days);
   })
   .catch(function(error){
     console.log(error.request.response);

@@ -52,6 +52,7 @@
 	</style>
 </head>
 <body>
+
 	<h1 style="text-align: center;">Product Barcode</h1>
 	<table>
 @php

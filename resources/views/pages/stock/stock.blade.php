@@ -12,6 +12,7 @@
              <tr>
                 <th>No.</th>
                 <th>Product Name</th>
+                <th>Store</th>
                 <th>Available</th>
             </tr>
             </thead>
@@ -49,9 +50,13 @@
             data:'product_name',
             name:'product_name',
           },
+          {
+            data:'store',
+            name:'store',
+          },
            {
-            data:'total',
-            name:'total',
+            data:'qantity',
+            name:'qantity',
           }
         ]
     });

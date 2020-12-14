@@ -30,6 +30,21 @@
 </head>
 <body class="hold-transition">
 <div class="login-page">
+   @if (session('dateover'))
+          <div class="alert alert-danger">
+              {{ session('dateover') }}
+          </div>
+    @endif
+    @if (session('message'))
+          <div class="alert alert-success">
+              {{ session('message') }}
+          </div>
+    @endif
+    @if (session('internet'))
+        <div class="alert alert-danger">
+            {{ session('internet') }}
+        </div>
+    @endif
   <h1 class="text-light">
     {{$info->company_name}}
   </h1>
@@ -40,8 +55,9 @@
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to start your session</p>
+      
 
+      <p class="login-box-msg">Sign in to start your session</p>
       <form action="{{ route('login') }}" method="POST">
         @csrf
         <div class="input-group mb-3">

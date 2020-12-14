@@ -73,6 +73,7 @@ class EmployeeController extends Controller
     }
 
     public function Delete($id){
+        return "sorry! you dont have to permission delete.";
         $name=DB::table('employees')->select('name')->where('id',$id)->first();
         $delete=Employee::where('id',$id)->delete();
         if($delete) {

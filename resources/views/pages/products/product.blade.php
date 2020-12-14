@@ -32,10 +32,10 @@
       <h5 class="m-0 font-weight-bold">Manage Product</h5>
      </div>
     <div class="card-body px-3 px-md-5">
+      
         <button type="button" class="btn btn-primary" onclick="addNew()">
           Add New <i class="fas fa-plus"></i>
         </button>
-
         <!-- Modal -->
         <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="Modalx">
           <div class="modal-dialog modal-lg">
@@ -49,6 +49,7 @@
               </div>
               <!--modal body-->
               <div class="modal-body" id="forms">
+                <div id="CustomModal"></div>
                 <form id="myForm">
                   <input type="hidden" id="id">
                 <div class="text-center">
@@ -58,34 +59,41 @@
                     <div id="photo_msg" class="invalid-feedback">
                      </div>
                 </div>
+                 
                  <div class="input-group mt-4">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Product Name :</label>
-                   <div class="col-sm-9">
-                       <input type="text" class="form-control form-control-sm" id="product_name" placeholder="Enter Product Name....">
-                       <div id="product_name_msg" class="invalid-feedback">
-                       </div>
-                    </div>
-                 </div>
-                 <div class="input-group">
                    <label class="control-label col-sm-3 text-lg-right"  for="Category">Category :</label>
-                   <div class="col-sm-9">
-                       <select type="text" class="form-control form-control-sm" id="category" onchange="getChildCat()">
+                   <div class="col-sm-8">
+                       <select type="text"  class="form-control form-control-sm" id="category" onchange="getChildCat()">
                         <option value="">--SELECT--</option>
                         @foreach($category as $cat)
-                        <option value="{{$cat->id}}">{{$cat->name}}</option>
+                        <option value="{{$cat['id']}}">{{$cat['text']}}</option>
                         @endforeach
                        </select>
                        <div id="category_msg" class="invalid-feedback">
                        </div>
                     </div>
+                    <div class="col-sm-1">
+                       <a onclick="openModal(this)" data-id='1' class="btn btn-sm btn-primary d-block">Add</a>
+                    </div>
                  </div>
-                 <div class="input-group">
+                 <div class="input-group ">
                    <label class="control-label col-sm-3 text-lg-right" for="name">Child Category :</label>
-                   <div class="col-sm-9">
+                   <div class="col-sm-8">
                        <select type="text" class="form-control form-control-sm" id="child_category">
                         <option value="">--SELECT--</option>
                        </select>
                        <div id="child_category_msg" class="invalid-feedback">
+                       </div>
+                    </div>
+                    <div class="col-sm-1">
+                      <a onclick="openModal(this)" data-id='2' class="btn btn-sm btn-primary d-block">Add</a>
+                    </div>
+                 </div>
+                 <div class="input-group ">
+                   <label class="control-label col-sm-3 text-lg-right" for="name">Product Name :</label>
+                   <div class="col-sm-9">
+                       <input type="text" class="form-control form-control-sm" id="product_name" placeholder="Enter Product Name....">
+                       <div id="product_name_msg" class="invalid-feedback">
                        </div>
                     </div>
                  </div>
@@ -115,15 +123,18 @@
                  </div>
                  <div class="input-group">
                    <label class="control-label col-sm-3 text-lg-right" for="name">Product Type:</label>
-                   <div class="col-sm-9">
+                   <div class="col-sm-8">
                        <select type="text" class="form-control form-control-sm" id="product_type" placeholder="Enter Warranty....">
                         <option value="">--SELECT--</option>
                         @foreach($ptype as $type)
-                        <option value="{{$type->id}}">{{$type->name}}</option>
+                          <option value="{{$type->id}}">{{$type->name}}</option>
                         @endforeach
                        </select>
                        <div id="product_type_msg" class="invalid-feedback">
                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <a onclick="openModal(this)" data-id='3' class="btn btn-sm btn-primary d-block">Add</a>
                     </div>
                  </div>
                  <div class="input-group">
@@ -138,7 +149,7 @@
                        </div>
                     </div>
                  </div>
-                  <div class="input-group ">
+                  <div class="input-group">
                    <label class="control-label col-sm-3 text-lg-right" for="name">Price
                     <span class="bg-info pl-1 pr-1">$</span> :</label>
                    <div class="col-sm-9">
@@ -180,6 +191,7 @@
 </div>
 @endsection
 @section('script')
+<script src="{{asset('js/custom_modal.js')}}"></script>
 <script type="text/javascript">
    $.ajaxSetup({
           headers: {
@@ -384,5 +396,151 @@ function ajaxRequest(){
   $('select').css('border','1px solid rgb(209,211,226)');
   $("select option[value='']").attr('selected',true);
  }
+function openModal(this_val){
+  id=$(this_val).data('id');
+    switch(true){
+      case id==1:
+      data=CustomModalForm({
+      setting:{
+          title:'Add New Category',
+          unique:1,
+          SubmitButton:{
+            text:'Submit',
+            class:'btn  btn-primary CustomSubmit',
+            type:'',
+          }
+        },
+        forms:{
+          form1:{
+            category:'input',
+            label:'Category',
+            type:'text',
+            class:'form-control form-control-sm',
+            id:'name',
+            placeholder:'Enter Category Name',
+            option:<?php echo json_encode($category) ?>
+          },
+        }
+    });
+      $('#CustomModal').html(data)
+      console.log(data);
+      $('#CustomModalForm').modal('show')
+      $('#CustomModalForm select').select2({
+        placeholder:'select',
+        theme:'bootstrap4',
+        allowClear:true
+      })
+      break;
+      case id==2:
+      data=CustomModalForm({
+      setting:{
+          title:'Add New Child Category',
+          unique:2,
+          SubmitButton:{
+            text:'Submit',
+            class:'btn  btn-primary CustomSubmit',
+            type:'',
+          }
+        },
+        forms:{
+          form1:{
+            category:'select',
+            label:'Category',
+            type:'text',
+            class:'form-control form-control-sm',
+            id:'category',
+            placeholder:'Enter Category Name',
+            option:<?php echo json_encode($category) ?>
+          },
+          form2:{
+            category:'input',
+            label:'Child Category',
+            type:'text',
+            class:'form-control form-control-sm',
+            id:'child_category',
+            placeholder:'Enter Child Category Name',
+          },
+        }
+    });
+      $('#CustomModal').html(data)
+      console.log(data);
+      $('#CustomModalForm').modal('show')
+      $('#CustomModalForm select').select2({
+        placeholder:'select',
+        theme:'bootstrap4',
+        allowClear:true
+      })
+      break;
+      case id==3:
+      data=CustomModalForm({
+      setting:{
+          title:'Add New Product Type',
+          unique:3,
+          SubmitButton:{
+            text:'Submit',
+            class:'btn  btn-primary CustomSubmit',
+            type:'',
+          }
+        },
+        forms:{
+          form1:{
+            category:'input',
+            label:'Product Type',
+            type:'text',
+            class:'form-control form-control-sm',
+            id:'product_type',
+            placeholder:'Enter Product Type',
+            option:<?php echo json_encode($category) ?>
+          },
+        }
+    });
+      $('#CustomModal').html(data)
+      console.log(data);
+      $('#CustomModalForm').modal('show')
+      $('#CustomModalForm select').select2({
+        placeholder:'select',
+        theme:'bootstrap4',
+        allowClear:true
+      })
+      default: 
+      return false
+      break;
+
+  }
+}
+$(document).on('click','.CustomSubmit',function(){
+ data=$('#myCustomForm').serializeArray();
+ var formData=new FormData;
+ for(i=0;i<data.length;i++){
+  formData.append(data[i]['name'],data[i]['value']);
+ }
+ unique_id=$('#unique_id').val();
+     switch(true){
+      case unique_id==1:
+      url='admin/category';
+      break;
+      case unique_id==2:
+      url='admin/child_category';
+      break;
+      case unique_id==3:
+      url='admin/product_type'
+     }
+     axios.post(url,formData)
+     .then((res)=>{
+        console.log(res);
+        if (res.data.message) {
+          toastr.success(res.data.message);
+        }else{
+          keys=Object.keys(res.data)
+          for (var i = 0; i < keys.length; i++) {
+            alert(res.data[keys[i]]+'\n');
+          }
+        }
+     })
+     .error((error)=>{
+      console.log(error);
+     })
+})
+ 
  </script>
 @endsection

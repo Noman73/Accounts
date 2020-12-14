@@ -19,7 +19,7 @@
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Manage Banks</h5>
+      <h5 class="m-0 font-weight-bold">Fund Transfer</h5>
      </div>
     <div class="card-body px-3 px-md-5">
 		  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -40,14 +40,14 @@
               <div class="modal-body">
                 <div class="form-group">
                   <label class="font-weight-bold">From:</label>
-                  <select class="form-control form-control-sm bank" name='bank[]' id="from">
+                  <select class="form-control form-control-sm bank" name='bank[]' id="from" onchange="getBalance(this)">
                   </select>
                   <div id="from_msg" class="invalid-feedback">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="font-weight-bold">To:</label>
-                  <select class="form-control form-control-sm bank" name='bank[]' id="to">
+                  <label class="font-weight-bold">To :</label>
+                  <select class="form-control form-control-sm bank" name='bank[]' id="to" onchange="getBalance(this)">
                   </select>
                   <div id="to_msg" class="invalid-feedback">
                   </div>
@@ -66,6 +66,7 @@
                   <div id="ammount_msg" class="invalid-feedback">
                   </div>
                </div>
+
                <div class="form-group">
                   <label class="font-weight-bold">Details:</label>
                   <textarea class="form-control form-control-sm" name="" id="details" rows="3" placeholder="Enter Details Information ............."></textarea>
@@ -90,9 +91,8 @@
                     <thead class="thead-light">
                      <tr>
                         <th>No.</th>
-                        <th>Bank Name</th>
-                        <th>Debit</th>
-                        <th>Credit</th>
+                        <th>Date</th>
+                        <th>Details</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -126,16 +126,12 @@
             searchable:false
           },
           {
-            data:'bank_name',
-            name:'bank_name',
+            data:'date',
+            name:'date',
           },
           {
-            data:'debit',
-            name:'debit',
-          },
-          {
-            data:'credit',
-            name:'credit',
+            data:'details',
+            name:'details',
           },
         ]
     });
@@ -161,6 +157,7 @@ function ajaxRequest(){
     console.log(response);
     if (response.data.message) {
       window.toastr.success(response.data.message);
+      ModalClose()
       $('.data-table').DataTable().ajax.reload();
     }
     var keys=Object.keys(response.data[0]);
@@ -206,11 +203,32 @@ function ajaxRequest(){
     }
   })
  function ModalClose(){
-  $('input').val('');
+  $('select').html('');
   $("select option[value='']").attr('selected',true);
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+  $('#exampleModal').modal('hide');
  }
+function getBalance(element){
+    if (element.value){
+     console.log(element.value);
+      id=element.value;
+      axios.get('admin/get_balance/'+id)
+      .then((res)=>{
+     Swal.fire({
+  title: "Balance:"+res.data.total,
+  text: "Are you sure!Do You want Fund Transfer from this account",
+  // icon: "warning",
+  showCancelButton: true,
+  // dangerMode: true,
+  confirmButtonColor: "#DD6B55",
+  cancelButtonText: "CANCEL",
+  confirmButtonText: "CONFIRM",
+})
+    })
+  }
+}
+
  </script>
 @endsection

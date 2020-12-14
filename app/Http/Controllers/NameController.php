@@ -15,7 +15,7 @@ class NameController extends Controller
     }
     public function ManageName(){
     	if (request()->ajax()) {
-        $get=DB::select("select names.id,names.name,users.id as user_id,users.name as username from names inner join users on users.id=names.user_id");
+        $get=DB::select("select names.id,names.name,users.id as user_id,users.name as username from names left join users on users.id=names.user_id");
           return DataTables::of($get)
           ->addIndexColumn()
           ->addColumn('username',function($get){
@@ -38,6 +38,15 @@ class NameController extends Controller
     		return response()->json(['message'=>'success']);
     	}
     	return response()->json([$validator->getMessageBag()]);
+    }
+    public function searchName(Request $r){
+         if (!preg_match("/[^a-zA-Z0-9. ]/", $r->searchTerm)) {
+            $data=DB::select("SELECT id,name from names where name like '%".$r->searchTerm."%' limit 10");
+            foreach ($data as $value) {
+                $set_data[]=['id'=>$value->id,'text'=>$value->name];
+            }
+            return $set_data;
+        }
     }
     
 }

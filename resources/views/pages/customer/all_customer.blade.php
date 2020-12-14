@@ -33,8 +33,10 @@
       <h5 class="m-0 font-weight-bold">All Customer</h5>
      </div>
     <div class="card-body px-3 px-md-5">
-        <!-- Modal -->  
-              <!--modal body-->
+              <button type="button" class="btn btn-primary mb-1" {{-- data-toggle="modal" data-target="#exampleModal" --}} onclick="AddNew()">
+              Add New <i class="fas fa-plus"></i>
+              </button>
+              <!-- Modal -->  
               <div class="modal fade bd-example-modal-lg" id="Modalx">
                 <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -56,125 +58,135 @@
                   </div>
                  {{-- forms inputs --}}
                  <div class="input-group mt-4">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Company Name :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="company_name" placeholder="Enter Company Name....">
-                     <div id="company_name_msg" class="invalid-feedback">
-                     </div>
+                 <label class="control-label col-sm-3 text-lg-right" for="name">Company Name :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="company_name" placeholder="Enter Company Name....">
+                   <div id="company_name_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Customer/Client Name:</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="name" placeholder="Enter Customer/Client Name....">
-                     <div id="name_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="name">Customer/Client Name:</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="name" placeholder="Enter Customer/Client Name....">
+                   <div id="name_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Previous Due :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm bg-danger" id="previous_due" placeholder="Enter Previous Due....">
-                     <div id="previous_due_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group input-group-sm">
+                  <label class="control-label col-sm-3 text-lg-right" for="name">Opening Balance :</label>
+                  <div class="col-sm-7">
+                      <input type="text" class="form-control form-control-sm" id="opening_balance" placeholder="Enter Opening Balance....">
+                      
+                      <div id="opening_balance_msg" class="invalid-feedback">
+                      </div>
+                  </div>
+                  <div class='col-sm-2'>
+                    <select type="text" class='form-control form-control-sm' id='balance_type'>
+                        <option value="1">Balance</option>
+                        <option value="0">Due</option>
+                    </select>
+                    <div id="opening_balance_msg" class="invalid-feedback">
+                      </div>
+                  </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="name">Maximum Due :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="maximum_due" placeholder="Enter Maximum Due....">
+                   <div id="maximum_due_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Maximum Due :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="maximum_due" placeholder="Enter Maximum Due....">
-                     <div id="maximum_due_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="phone1">Phone 1 :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="phone1" placeholder="Enter Phone No 1....">
+                   <div id="phone1_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="phone1">Phone 1 :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="phone1" placeholder="Enter Maximum Due....">
-                     <div id="phone1_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="phone2">Phone 2 :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="phone2" placeholder="Enter Phone No 2....">
+                   <div id="phone2_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="phone2">Phone 2 :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="phone2" placeholder="Enter Maximum Due....">
-                     <div id="phone2_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="name">Email :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="email" placeholder="Enter Email....">
+                   <div id="email_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="name">Email :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="email" placeholder="Enter Email....">
-                     <div id="email_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="birthDate">Birth Date :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="birth_date" placeholder="Enter Birth Date...">
+                   <div id="birth_date_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="birthDate">Birth Date :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="birth_date">
-                     <div id="birth_date_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="mariageDate">Mariage Date :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="mariage_date" placeholder="Enter Marriage Date..">
+                   <div id="mariage_date_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="mariageDate">Mariage Date :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="mariage_date">
-                     <div id="mariage_date_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="adress">Adress:</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="adress" placeholder="Enter Adress....">
+                   <div id="adress_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="adress">Adress:</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="adress" placeholder="Enter Adress....">
-                     <div id="adress_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="city">City :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="city" placeholder="Enter City Name....">
+                   <div id="city_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="city">City :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="city" placeholder="Enter City Name....">
-                     <div id="city_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="postalCode">Postal Code :</label>
+                 <div class="col-sm-9">
+                   <input type="text" class="form-control form-control-sm" id="postal_code" placeholder="Enter Postal Code ....">
+                   <div id="postal_code_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="postalCode">Postal Code :</label>
-                   <div class="col-sm-9">
-                     <input type="text" class="form-control form-control-sm" id="postal_code" placeholder="Enter Postal Code ....">
-                     <div id="postal_code_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="stutus">Stutus :</label>
+                 <div class="col-sm-9">
+                   <select  class="form-control form-control-sm" id="stutus">
+                     <option value="">--SELECT--</option>
+                     <option value="1">ACTIVE</option>
+                     <option value="0">DEACTIVE</option>
+                   </select>
+                   <div id="stutus_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="stutus">Stutus :</label>
-                   <div class="col-sm-9">
-                     <select  class="form-control form-control-sm" id="stutus">
-                       <option value="">--SELECT--</option>
-                       <option value="1">ACTIVE</option>
-                       <option value="0">DEACTIVE</option>
-                     </select>
-                     <div id="stutus_msg" class="invalid-feedback">
-                     </div>
+               </div>
+               <div class="input-group">
+                 <label class="control-label col-sm-3 text-lg-right" for="group">Group :</label>
+                 <div class="col-sm-9">
+                   <select  class="form-control form-control-sm" id="group_types">
+                     <option value="">--SELECT--</option>
+                     <option value="Regular">Regular</option>
+                     <option value="Walking">Walking</option>
+                   </select>
+                   <div id="group_types_msg" class="invalid-feedback">
                    </div>
                  </div>
-                 <div class="input-group">
-                   <label class="control-label col-sm-3 text-lg-right" for="group">Group :</label>
-                   <div class="col-sm-9">
-                     <select  class="form-control form-control-sm" id="group_types">
-                       <option value="">--SELECT--</option>
-                       <option value="Regular">Regular</option>
-                       <option value="Walking">Walking</option>
-                     </select>
-                     <div id="group_types_msg" class="invalid-feedback">
-                     </div>
-                   </div>
-                 </div>
+               </div>
+
                  </form>
                 </div>
                   <div class="modal-footer">
@@ -258,18 +270,39 @@ $('#Modalx').modal('show');
     var keys=Object.keys(response.data[0]);
     console.log(response.data[0])
     for (var i = 0; i < keys.length; i++) {
-      $('#'+keys[i]).val(response.data[0][keys[i]])
+      console.log(keys[i]+':',response.data[0][keys[i]])
+      if (keys[i]!=='opening_balance') {
+         $('#'+keys[i]).val(response.data[0][keys[i]])
+      }else{
+         if(parseFloat(response.data[0][keys[i]])>0){
+            $('#'+keys[i]).val(response.data[0][keys[i]])
+            $('#balance_type').val(1)
+         }else{
+            $('#'+keys[i]).val(response.data[0][keys[i]])
+            $('#balance_type').val(0)
+         }
+      }
     }
+    $('#imagex').attr('src','{{asset('storage/customer')}}/'+((response.data[0]['photo']==null) ? 'fixed.jpg' : response.data[0]['photo']))
   })
 })
+function AddNew(){
+document.getElementById('myForm').reset();
+$('#id').val('');
+$('#exampleModalLabel').text('Add New Customer');
+$('.submit').text('Save');
+$('#Modalx').modal('show');
+}
  //ajax request from employee.js
 function ajaxRequest(){
+
     $('.invalid-feedback').hide();
     $('input').css('border','1px solid rgb(209,211,226)');
     $('select').css('border','1px solid rgb(209,211,226)');
+    let id=$('#id').val();
     let company_name=$('#company_name').val();
     let client_name=$('#name').val();
-    let previous_due=$('#previous_due').val();
+    let opening_balance=$('#opening_balance').val();
     let maximum_due=$('#maximum_due').val();
     let phone1=$('#phone1').val();
     let phone2=$('#phone2').val();
@@ -281,12 +314,14 @@ function ajaxRequest(){
     let postal_code=$('#postal_code').val();
     let stutus=$('#stutus').val();
     let group=$('#group_types').val();
+    let balance_type=$('#balance_type').val();
     let file=document.getElementById('file').files;
-    console.log(maximum_due,previous_due)
     let formData= new FormData();
+
     formData.append('company_name',company_name);
     formData.append('name',client_name);
-    formData.append('previous_due',previous_due);
+    formData.append('opening_balance',opening_balance);
+    formData.append('balance_type',balance_type);
     formData.append('maximum_due',maximum_due);
     formData.append('phone1',phone1);
     formData.append('phone2',phone2);
@@ -304,28 +339,52 @@ function ajaxRequest(){
     if (file[0]!=null) {
       formData.append('photo',file[0]); 
     }
-    //axios post request
-  axios.post('/admin/customer/'+$('#id').val(),formData)
-  .then(function (response){
-    console.log(response);
-    if (response.data.message=='success') {
-      window.toastr.success('Client Updated Success');
-      document.getElementById('myForm').reset();
-      $('#imagex').attr('src','http://localhost/accounts/public/storage/admin-lte/dist/img/avatar5.png');
-      $('.invalid-feedback').hide();
-      $('input').css('border','1px solid rgb(209,211,226)');
-      $('select').css('border','1px solid rgb(209,211,226)');
-    }
-    var keys=Object.keys(response.data[0]);
-    for(var i=0; i<keys.length;i++){
-        $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
-        $('#'+keys[i]).css('border','1px solid red');
-        $('#'+keys[i]+'_msg').show();
-      }
-  })
-   .catch(function (error) {
-    console.log(error.request);
-  });
+    if(id){
+        //axios post request
+          axios.post('/admin/customer/'+$('#id').val(),formData)
+          .then(function (response){
+            console.log(response);
+            if (response.data.message) {
+              window.toastr.success(response.data.message);
+              document.getElementById('myForm').reset();
+              $('#imagex').attr('src','http://localhost/accounts/public/storage/admin-lte/dist/img/avatar5.png');
+              $('.invalid-feedback').hide();
+              $('input').css('border','1px solid rgb(209,211,226)');
+              $('select').css('border','1px solid rgb(209,211,226)');
+            }
+            var keys=Object.keys(response.data[0]);
+            for(var i=0; i<keys.length;i++){
+                $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+                $('#'+keys[i]).css('border','1px solid red');
+                $('#'+keys[i]+'_msg').show();
+              }
+          })
+           .catch(function (error) {
+            console.log(error.request);
+          });
+     }else{
+        axios.post('/admin/customer',formData)
+          .then(function (response){
+            console.log(response);
+            if (response.data.message) {
+              window.toastr.success(response.data.message);
+              document.getElementById('myForm').reset();
+              $('#imagex').attr('src','http://localhost/accounts/public/storage/admin-lte/dist/img/avatar5.png');
+              $('.invalid-feedback').hide();
+              $('input').css('border','1px solid rgb(209,211,226)');
+              $('select').css('border','1px solid rgb(209,211,226)');
+            }
+            var keys=Object.keys(response.data[0]);
+            for(var i=0; i<keys.length;i++){
+                $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+                $('#'+keys[i]).css('border','1px solid red');
+                $('#'+keys[i]+'_msg').show();
+              }
+          })
+           .catch(function (error) {
+            console.log(error.request);
+          });
+     }
  }
 $('table').on('click','.delete',function(){
    console.log('xxx');
@@ -362,6 +421,17 @@ $('table').on('click','.delete',function(){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+  $('#Modalx').modal('hide')
  }
- </script>
+ $('#birth_date,#mariage_date').daterangepicker({
+        showDropdowns: true,
+        singleDatePicker: true,
+        locale:{
+            format: 'DD-MM-YYYY',
+            separator:' to ',
+            customRangeLabel: "Custom",
+        },
+        minDate: '01-01-1970',
+        maxDate: '01/01/2050'
+  }) </script>
 @endsection

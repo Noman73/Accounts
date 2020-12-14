@@ -16,7 +16,7 @@ class CategoryController extends Controller
     }
     public function ManageCategory(){
     	if (request()->ajax()){
-    $get=DB::select("select categories.id,categories.name,users.name as username from categories inner join users on categories.user_id=users.id");
+    $get=DB::select("select categories.id,categories.name,users.name as username from categories left join users on categories.user_id=users.id");
    return DataTables::of($get)
          ->addIndexColumn()
          ->addColumn('action',function($get){
@@ -41,9 +41,9 @@ class CategoryController extends Controller
             $category->name       = $r->name;
             $category->user_id   = Auth::user()->id;
             $category->save();
-            return response()->json(['message'=>'success']);
+            return response()->json(['message'=>'Category Added Success']);
         }
-        return response()->json([$validator->getMessageBag()]);
+        return response()->json($validator->getMessageBag());
     }
     public function getCat(){
         $category=DB::table('categories')->select('id','name')->get();
@@ -54,6 +54,7 @@ class CategoryController extends Controller
         return ['name'=>$get->name];
     }
     public function Delete($id=null){
+        return "sorry! you dont have to permission for delete!";
         $name=Category::select('name')->where('id',$id)->first();
         $delete=Category::where('id',$id)->delete();
         if ($delete) {
@@ -85,7 +86,7 @@ class CategoryController extends Controller
             }
             
         }
-    return response()->json([$validator->getMessageBag()]);
+    return response()->json($validator->getMessageBag());
     }
 
 }

@@ -32,7 +32,7 @@ class SupplierController extends Controller
         return view('pages.Supplier.supplier');
     }
     public function insertSupplier(Request $r){
-
+        return $r->all();
         if($r->opening_balance===null){
             $r->opening_balance=0;
         }
@@ -55,11 +55,11 @@ class SupplierController extends Controller
         $supplier->adress   		 = $r->adress;
         if($r->balance_type!==null){
           switch($r->balance_type){
-              case 0:
-                $supplier->opening_balance=-($r->opening_balance);
+              case '0':
+                $supplier->opening_balance=-abs($r->opening_balance);
               break;
-              case 1:
-                $supplier->opening_balance=$r->opening_balance;
+              case '1':
+                $supplier->opening_balance=abs($r->opening_balance);
               break;
           }
         }
@@ -72,6 +72,7 @@ class SupplierController extends Controller
     return response()->json([$validator->getMessageBag()]);
     }
     public function DeleteSupplier($id){
+        return "sorry you dont have to permisson for delete.";
         $supplierName=DB::table('suppliers')->select('name')->where('id',$id)->first();
     	$delete=Supplier::where('id',$id)->delete();
         if ($delete) {
@@ -100,6 +101,16 @@ class SupplierController extends Controller
         $supplier->phone             = $r->phone;
         $supplier->adress            = $r->adress;
         $supplier->supplier_type     = $r->supplier_type;
+        if($r->balance_type!==null){
+          switch($r->balance_type){
+              case 0:
+                $supplier->opening_balance=-abs($r->opening_balance);
+              break;
+              case 1:
+                $supplier->opening_balance=abs($r->opening_balance);
+              break;
+            }
+        }
         $supplier->users_id          = Auth::user()->id;
         $supplier->save();
         return response()->json(['message'=>'success']);
@@ -117,7 +128,21 @@ class SupplierController extends Controller
         }
     }
     public function getSupplier($id){
-        $data=DB::table('suppliers')->select('name','email','phone','adress','supplier_type')->where('id',$id)->first();
+        $data=DB::table('suppliers')->select('name','email','phone','adress','supplier_type','opening_balance')->where('id',$id)->first();
         return response()->json([$data]);
+    }
+    public function getBalance($id){
+        $blnce=DB::select("
+            SELECT 
+((t.total_purchase+t.Deposit)-(t.total_purchase_backs+t.Expence))+opening_balance as total
+from(
+SELECT
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchases where supplier_id=:id and action_id=0),0) as total_purchase,
+    ifnull((select sum(ifnull(total_payable,0)) from invpurchases where supplier_id=:id and action_id=2),0) as total_purchase_backs,
+    (SELECT opening_balance from suppliers where id=:id) as opening_balance,
+    ifnull(sum(ifnull(debit,0)),0) as Deposit,
+    ifnull(sum(ifnull(credit,0)),0) as Expence
+    from voucers where category='supplier' and data_id=:id) t ",['id'=>$id]);
+    return response()->json(['total'=>$blnce[0]->total]);
     }
 }

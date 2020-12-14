@@ -35,8 +35,8 @@ try {
 window.axios = require('axios');
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.baseURL = (process.env.NODE_ENV !== 'production') ? 'http://localhost/accounts1/public' : ''
 
-window.axios.defaults.baseURL = (process.env.NODE_ENV !== 'production') ? 'http://localhost/accounts/public' : ''
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

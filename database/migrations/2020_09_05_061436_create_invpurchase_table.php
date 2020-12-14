@@ -16,13 +16,18 @@ class CreateInvpurchaseTable extends Migration
         Schema::create('invpurchases', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('dates',30);
-            $table->integer('supplier_id');
+            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->integer('transport_id')->nullable();
             $table->integer('total_item');
             $table->decimal('transport',16,2)->nullable();
+            $table->decimal('fine',16,2)->nullable();
             $table->decimal('labour_cost',16,2)->nullable();
             $table->decimal('total_payable',16,2);
             $table->decimal('total',16,2);
-            $table->unsignedBigInteger('increment_id');
+            $table->text('details',500)->nullable();
+            $table->unsignedBigInteger('payment_id')->nullable();
+            $table->unsignedBigInteger('str_rel_id')->default(null);
+            $table->unsignedInteger('action_id')->default(0);
             $table->unsignedInteger('user_id');
             $table->timestamps();
         });

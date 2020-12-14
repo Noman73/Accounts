@@ -163,14 +163,14 @@ function ajaxRequest(){
         axios.post('/admin/category',formData)
         .then(function (response){
         console.log(response);
-        if (response.data.message=='success') {
-          window.toastr.success('Category Added Success');
+        if (response.data.message) {
+          window.toastr.success(response.data.message);
           $('.data-table').DataTable().ajax.reload();
           $('.submit').removeClass('disabled').attr('disabled',false);
         }
-        var keys=Object.keys(response.data[0]);
+        var keys=Object.keys(response.data);
         for(var i=0; i<keys.length;i++){
-            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]+'_msg').html(response.data[keys[i]][0]);
             $('#'+keys[i]).css('border','1px solid red');
             $('#'+keys[i]+'_msg').show();
           }
@@ -182,14 +182,14 @@ function ajaxRequest(){
       axios.post('/admin/category/'+id,formData)
         .then(function (response){
         console.log(response);
-        if (response.data.message=='success') {
-          window.toastr.success('Category Updated Success');
+        if (response.data.message) {
+          window.toastr.success(response.data.message);
           $('.data-table').DataTable().ajax.reload();
           $('.submit').removeClass('disabled').attr('disabled',false);
         }
-        var keys=Object.keys(response.data[0]);
+        var keys=Object.keys(response.data);
         for(var i=0; i<keys.length;i++){
-            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]+'_msg').html(response.data[keys[i]][0]);
             $('#'+keys[i]).css('border','1px solid red');
             $('#'+keys[i]+'_msg').show();
           }
@@ -206,5 +206,7 @@ function ajaxRequest(){
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
  }
+
+ 
  </script>
 @endsection

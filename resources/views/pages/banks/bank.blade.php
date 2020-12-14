@@ -22,7 +22,7 @@
       <h5 class="m-0 font-weight-bold">Manage Banks</h5>
      </div>
     <div class="card-body px-3 px-md-5">
-		  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+		  	<button type="button" class="btn btn-primary" onclick="addNew()">
           Add New <i class="fas fa-plus"></i>
         </button>
 
@@ -39,6 +39,8 @@
               </div>
               <!--modal body-->
               <div class="modal-body">
+                <form id="myForm">
+                <input type="hidden" id="id">
                 <div class="form-group">
                   <label class="font-weight-bold">Bank Name:</label>
                   <input class="form-control form-control-sm" id="name"  type="text" placeholder="Enter Bank Name...">
@@ -66,10 +68,11 @@
                   </div>
                </div>
                <!--end 2nd column -->
+               </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="ModalClose()" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="ajaxRequest()">Save changes</button>
+                <button type="button" class="btn btn-primary" onclick="ajaxRequest($('#id').val())">Save changes</button>
               </div>
             </div>
           </div>
@@ -86,6 +89,7 @@
                         <th>Account Number</th>
                         <th>Branch</th>
                         <th>Balance</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -133,11 +137,39 @@
            {
             data:'total',
             name:'total',
+          },
+          {
+            data:'action',
+            name:'action',
           }
         ]
     });
+function addNew(){
+document.getElementById('myForm').reset();
+ $('#balance').attr('disabled',false);
+$('#id').val('');
+$('#exampleModalLabel').text('Add New Bank');
+$('.submit').text('Save');
+$('#exampleModal').modal('show');
+}
+$(document).on('click','.edit',function(){
+  $('#exampleModalLabel').text('Update Bank Account');
+  $('.submit').text('Update');
+  $('#balance').attr('disabled',true);
+$('#exampleModal').modal('show');
+  id=$(this).data('id');
+  $('#id').val(id);
+  axios.get('admin/get_banks/'+id)
+  .then(function(response){
+    console.log(response);
+    keys=Object.keys(response.data);
+    for (var i = 0; i < keys.length; i++) {
+      $('#'+keys[i]).val(response.data[keys[i]]);
+    }
+  })
+})
  //ajax request from employee.js
-function ajaxRequest(){
+function ajaxRequest(id){
     $('.invalid-feedback').hide();
     $('input').css('border','1px solid rgb(209,211,226)');
     $('select').css('border','1px solid rgb(209,211,226)');
@@ -152,24 +184,44 @@ function ajaxRequest(){
     formData.append('balance',balance);
     
     //axios post request
-  axios.post('/admin/banks',formData)
-  .then(function (response){
-    console.log(response);
-    if (response.data.message=='success') {
-      window.toastr.success('Banks Added Success');
-      $('.data-table').DataTable().ajax.reload();
+    if (!id) {
+      axios.post('/admin/banks',formData)
+      .then(function (response){
+        console.log(response);
+        if (response.data.message) {
+          window.toastr.success(response.data.message);
+          ModalClose();
+          $('.data-table').DataTable().ajax.reload();
+        }
+        var keys=Object.keys(response.data[0]);
+        for(var i=0; i<keys.length;i++){
+            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]).css('border','1px solid red');
+            $('#'+keys[i]+'_msg').show();
+          }
+      })
+       .catch(function (error) {
+        console.log(error.request);
+      });
+    }else{
+      axios.post('/admin/banks/'+id,formData)
+      .then(function (response){
+        console.log(response);
+        if (response.data.message) {
+          window.toastr.success(response.data.message);
+          $('.data-table').DataTable().ajax.reload();
+        }
+        var keys=Object.keys(response.data[0]);
+        for(var i=0; i<keys.length;i++){
+            $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+            $('#'+keys[i]).css('border','1px solid red');
+            $('#'+keys[i]+'_msg').show();
+          }
+      })
+       .catch(function (error) {
+        console.log(error.request);
+      });
     }
-    var keys=Object.keys(response.data[0]);
-    for(var i=0; i<keys.length;i++){
-        $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
-        $('#'+keys[i]).css('border','1px solid red');
-        $('#'+keys[i]+'_msg').show();
-      }
-  })
-   .catch(function (error) {
-    console.log(error.request);
-  });
-
  }
  function ModalClose(){
   $('input').val('');
@@ -177,6 +229,7 @@ function ajaxRequest(){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+  $('#exampleModal').modal('hide')
  }
  </script>
 @endsection

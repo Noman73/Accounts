@@ -17,11 +17,22 @@ class FundTransferController extends Controller
     public function Form(){
         if (request()->ajax()){
             $get=DB::select("
-               select voucers.id,banks.name as bank_name,voucers.debit,voucers.credit from voucers 
-               inner join banks on banks.id=voucers.bank_id where voucers.category='fund_transfer';
+               SELECT voucers.id,voucers.dates,
+               case when 
+                    voucers.debit !=0.00 then concat(banks.name,' Received ',voucers.debit,' Taka From ',banks2.name)
+                    when
+                    voucers.credit !=0.00 then concat(banks.name,' Transfered ',voucers.credit,' Taka To ',banks2.name) else '' end as details
+                         from voucers 
+               inner join banks on banks.id=voucers.bank_id
+               inner join banks as banks2 on banks2.id=voucers.data_id where voucers.category='fund_transfer';
                 ");
             return DataTables::of($get)
-              ->addIndexColumn()->make(true);
+              ->addIndexColumn()
+              ->addColumn('date',function($get){
+                $date=date('d-m-Y',$get->dates);
+                return $date;
+              })
+              ->rawColumns(['date'])->make(true);
             }
            return view('pages.banks.fund_transfer');
     }
@@ -36,6 +47,7 @@ class FundTransferController extends Controller
         if ($validation->passes()) {
             $voucer=new Voucer;
             $voucer->bank_id=$r->from;
+            $voucer->dates=strtotime(strval(Date('d-m-Y')));
             $voucer->category='fund_transfer';
             $voucer->data_id=$r->to;
             $voucer->credit=$r->ammount;
@@ -44,6 +56,7 @@ class FundTransferController extends Controller
             if ($voucer==true) {
                 $voucer=new Voucer;
                 $voucer->bank_id=$r->to;
+                $voucer->dates=strtotime(strval(Date('d-m-Y')));
                 $voucer->category='fund_transfer';
                 $voucer->data_id=$r->from;
                 $voucer->debit=$r->ammount;

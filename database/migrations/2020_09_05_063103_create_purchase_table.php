@@ -15,14 +15,16 @@ class CreatePurchaseTable extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('invoice_id');          
-            $table->string('dates',30);            
-            $table->unsignedInteger('supplier_id');
-            $table->unsignedInteger('product_id');
-            $table->unsignedInteger('store_id');
-            $table->decimal('qantity',16,2);
+            $table->unsignedBigInteger('invoice_id');    
+            $table->string('dates',30);
+            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('store_id');
+            $table->decimal('deb_qantity',16,2)->default(0);
+            $table->decimal('cred_qantity',16,2)->default(0);
             $table->decimal('price',16,2);
-            $table->unsignedBigInteger('increment_id');
+            $table->unsignedBigInteger('action_id')->default(0);
+            $table->unsignedBigInteger('str_rel_id')->default(null);
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('invoice_id')->references('id')->on('invpurchases')->onDelete('cascade');

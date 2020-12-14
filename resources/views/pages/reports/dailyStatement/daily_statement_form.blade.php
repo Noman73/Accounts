@@ -85,13 +85,14 @@ function Request(){
     let html='';
        html+='<table>'
        html+="<thead>"
-       html+="<tr style='text-align:center;font-size:12px;height:12px;'>"
+       html+="<tr style='text-align:center;font-size:10px;height:12px;'>"
        html+="<th width='10%'>ID</th>"
        html+="<th width='10%'>Date</th>"
+       html+="<th width='10%'>Bank Name</th>"
        html+="<th width='15%'>Category</th>"
        html+="<th width='25%'>Name</th>"
-       html+="<th width='20%'>Debit</th>"
-       html+="<th width='20%'>Credit</th>"
+       html+="<th width='15%'>Debit</th>"
+       html+="<th width='15%'>Credit</th>"
        html+='</tr>'
        html+="</thead>"
        html+="<tbody style='font-size:12px;text-align:center;'>"
@@ -101,10 +102,11 @@ function Request(){
         html+=`<tr style='height:12px;'>
                 <td>`+i+`</td>
                 <td>`+dateFormat(new Date(data[i]['dates']*1000))+`</td>
+                <td>`+data[i]['bank_name']+`</td>
                 <td>`+data[i]['category']+`</td>
                 <td>`+data[i]['name']+`</td>
-                <td>`+data[i]['Deposit']+`</td>
-                <td>`+data[i]['Expence']+`</td>
+                <td>`+(parseFloat(data[i]['Deposit'])).toFixed(2)+`</td>
+                <td>`+(parseFloat(data[i]['Expence'])).toFixed(2)+`</td>
                </tr>`
         deposit+=parseFloat(data[i]['Deposit']);
         expence+=parseFloat(data[i]['Expence']);
@@ -112,11 +114,11 @@ function Request(){
        html+="</tbody>"
        html+=`<tfoot>
               <tr>
-                <th colspan="4"></th>
+                <th colspan="5"></th>
                 <th style='text-align:right;font-size:12px;'>Total: `+deposit.toFixed(2)+`</th>
                 <th style='text-align:right;font-size:12px;'>Total: `+expence.toFixed(2)+`</th>
               </tr>
-                <th colspan='6' style='text-align:right;font-size:12px;'>Grand Total: `+res.data.total+`</th>
+                <th colspan='7' style='text-align:right;font-size:12px;'>Grand Total: `+(parseFloat(res.data.total)).toFixed(2)+`</th>
               <tr>
               </tr>
             </tfoot>`;

@@ -19,11 +19,12 @@ class CreateSaleTable extends Migration
             $table->string('dates',30);            
             $table->unsignedInteger('customer_id');
             $table->unsignedInteger('product_id');
-            $table->unsignedInteger('store_id');
-            $table->decimal('qantity',16,2);
+            $table->unsignedInteger('store_id')->nullable();
+            $table->decimal('deb_qantity',16,2)->default(0);
+            $table->decimal('cred_qantity',16,2)->default(0);
             $table->decimal('price',16,2);
             $table->unsignedTinyInteger('action_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->default(0);
             $table->timestamps();
              $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });

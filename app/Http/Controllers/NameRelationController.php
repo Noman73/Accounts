@@ -17,7 +17,7 @@ class NameRelationController extends Controller
     public function ManageNameRelation(){
     	$names=DB::table('names')->select('id','name')->where('stutus',0)->get();
     	if (request()->ajax()) {
-        $get=DB::select("select namerelations.id,namerelations.rel_name as rel_name,users.id as user_id,users.name as username,names.name as name from namerelations inner join users on users.id=namerelations.user_id 
+        $get=DB::select("select namerelations.id,namerelations.rel_name as rel_name,users.id as user_id,users.name as username,names.name as name from namerelations left join users on users.id=namerelations.user_id 
             inner join names on names.id=namerelations.name_id");
           return DataTables::of($get)
           ->addIndexColumn()
@@ -47,10 +47,14 @@ class NameRelationController extends Controller
     }
 
     public function getRelationById($id=null){
+      if (!preg_match("/[^a-zA-Z0-9. ]/", $id)) {
       $data=DB::table('namerelations')->select('id','rel_name')->where('name_id',$id)->get();
-      foreach ($data as $value){
-                $set_data[]=['id'=>$value->id,'text'=>$value->rel_name];
-            }
-      return $set_data;
-    }
+            foreach ($data as $value){
+                  $set_data[]=['id'=>$value->id,'text'=>$value->rel_name];
+             }
+             if (isset($set_data)) {
+               return $set_data;
+             }
+         }
+      }
 }

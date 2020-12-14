@@ -95,10 +95,10 @@
                     <thead class="thead-light">
                      <tr>
                         <th>No.</th>
-                        <th>Bank Name</th>
-                        <th>Account Number</th>
-                        <th>Branch</th>
-                        <th>Balance</th>
+                        <th>Name</th>
+                        <th>Adress</th>
+                        <th>Space</th>
+                        <th>Type</th>
                         <th>status</th>
                     </tr>
                     </thead>
@@ -174,9 +174,10 @@ function ajaxRequest(){
   axios.post('/admin/store',formData)
   .then(function (response){
     console.log(response);
-    if (response.data.message=='success') {
-      window.toastr.success('Banks Added Success');
+    if (response.data.message) {
+      window.toastr.success(response.data.message);
       $('.data-table').DataTable().ajax.reload();
+      ModalClose();
     }
     var keys=Object.keys(response.data[0]);
     for(var i=0; i<keys.length;i++){
@@ -195,6 +196,7 @@ function ajaxRequest(){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
+  $('#exampleModal').modal('hide');
  }
  </script>
 @endsection
