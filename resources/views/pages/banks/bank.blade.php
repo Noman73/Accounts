@@ -72,7 +72,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="ModalClose()" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="ajaxRequest($('#id').val())">Save changes</button>
+                <button type="button" class="btn btn-primary submit" onclick="ajaxRequest($('#id').val())">Save changes</button>
               </div>
             </div>
           </div>
@@ -146,6 +146,7 @@
     });
 function addNew(){
 document.getElementById('myForm').reset();
+ModalClose();
  $('#balance').attr('disabled',false);
 $('#id').val('');
 $('#exampleModalLabel').text('Add New Bank');
@@ -157,6 +158,7 @@ $(document).on('click','.edit',function(){
   $('.submit').text('Update');
   $('#balance').attr('disabled',true);
 $('#exampleModal').modal('show');
+  ModalClose();
   id=$(this).data('id');
   $('#id').val(id);
   axios.get('admin/get_banks/'+id)
@@ -170,6 +172,7 @@ $('#exampleModal').modal('show');
 })
  //ajax request from employee.js
 function ajaxRequest(id){
+    $('.submit').attr('disabled',true);
     $('.invalid-feedback').hide();
     $('input').css('border','1px solid rgb(209,211,226)');
     $('select').css('border','1px solid rgb(209,211,226)');
@@ -187,11 +190,14 @@ function ajaxRequest(id){
     if (!id) {
       axios.post('/admin/banks',formData)
       .then(function (response){
+        
         console.log(response);
         if (response.data.message) {
           window.toastr.success(response.data.message);
+          $('#exampleModal').modal('hide')
           ModalClose();
           $('.data-table').DataTable().ajax.reload();
+          $('.submit').attr('disabled',false);
         }
         var keys=Object.keys(response.data[0]);
         for(var i=0; i<keys.length;i++){
@@ -201,15 +207,18 @@ function ajaxRequest(id){
           }
       })
        .catch(function (error) {
+        $('.submit').attr('disabled',false);
         console.log(error.request);
       });
     }else{
       axios.post('/admin/banks/'+id,formData)
       .then(function (response){
-        console.log(response);
         if (response.data.message) {
           window.toastr.success(response.data.message);
           $('.data-table').DataTable().ajax.reload();
+          ModalClose();
+          $('#exampleModal').modal('hide')
+           $('.submit').attr('disabled',false);
         }
         var keys=Object.keys(response.data[0]);
         for(var i=0; i<keys.length;i++){
@@ -219,6 +228,7 @@ function ajaxRequest(id){
           }
       })
        .catch(function (error) {
+        $('.submit').attr('disabled',false);
         console.log(error.request);
       });
     }
@@ -229,7 +239,6 @@ function ajaxRequest(id){
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');
-  $('#exampleModal').modal('hide')
  }
  </script>
 @endsection

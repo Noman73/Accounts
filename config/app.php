@@ -178,8 +178,7 @@ return [
         Barryvdh\DomPDF\ServiceProvider::class,
         Milon\Barcode\BarcodeServiceProvider::class,
         Elibyy\TCPDF\ServiceProvider::class,
-
-
+        Spatie\Permission\PermissionServiceProvider::class,
     ],
 
     /*

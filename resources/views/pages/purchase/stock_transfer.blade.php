@@ -547,8 +547,9 @@ return isValid;
 function submit(){
    isValid=Validate();
    // isValid=true;
-   $('.buffer').removeClass('d-none');
 if (isValid==true) {
+  $('.buffer').removeClass('d-none');
+  $('.submit').attr('disabled',true);
        qan=document.getElementsByName('qantity[]');
    qantities = $("input[name='qantity[]']")
               .map(function(){return $(this).val();}).get();
@@ -611,12 +612,18 @@ if (isValid==true) {
           focusConfirm: false,
           confirmButtonText:'Ok',
         })
+        $('.buffer').addClass('d-none');
+        $('.submit').attr('disabled',false);
       }else if(response.data.message){
         window.toastr.success(response.data.message);
         remove();
+        $('.buffer').addClass('d-none');
+        $('.submit').attr('disabled',false);
       }
     })
     .catch(function(error){
+      $('.buffer').addClass('d-none');
+      $('.submit').attr('disabled',false);
       console.log(error);
     })
   }

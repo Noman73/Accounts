@@ -18,7 +18,7 @@
 <div class="container">
 	<div class="card m-0">
     <div class="card-header pt-3  flex-row align-items-center justify-content-between">
-      <h5 class="m-0 font-weight-bold">Sale Invoice <img class='buffer float-right d-none' src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
+      <h5 class="m-0 font-weight-bold">Installment Invoice <img class='buffer float-right d-none' src="{{asset('storage/admin-lte/dist/img/buffer.gif')}}" alt=""></h5>
      </div>
     <div class="card-body px-3 px-md-5">
     <form>
@@ -206,7 +206,7 @@
                     </td>
                   </tr>
                 </table>
-                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
+                <button class="btn btn-sm btn-primary text-center mb-3 mt-3 submit" type="submit" onclick="submit()" id="submit">submit</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
                 {{-- /invoic modal --}}
@@ -414,14 +414,19 @@ function addItem(){
 function remove(){
   count=0;
   $('#sales-table tbody').children().remove();
-  $('#final_total').val('');
-  $('#discount').val('');
-  $('#vat').val('');
-  $('#labour').val('');
-  $('#total_payable').val('');
+  $('.card-body input').val('');
+  $(".card-body select").val(null).change();
+  $(".card-body select option[value='']").attr('selected',true);
+  $('#date,#issue_date').daterangepicker({
+        showDropdowns: true,
+        singleDatePicker: true,
+        parentEl: ".bd-example-modal-lg .modal-body",
+        locale: {
+            format: 'DD-MM-YYYY',
+        }
+  });
   addItem();
 }
-
 // get product wise price
 $('body').on('select2:select',"select[name='item[]']", function (e){
   id=e.params.data.id;
@@ -486,17 +491,6 @@ $('tbody').on('click','#remove',function(){
     alert('You cannot remove this item')
   }
 })
-
-// function discount(discount){
-//   total_payable=$('#final_total').val();
-//   total_payable=total_payable-(total_payable*discount)/100;
-//   $('#total_payable').val(total_payable);
-// }
-// function vat(vat){
-//   total_payable=$('#final_total').val();
-//   total_payable=total_payable-(total_payable*vat)/100;
-//   $('#total_payable').val(total_payable);
-// }
 function totalCalculation(){
   total_payable=parseFloat($('#final_total').val());
   discount=parseFloat($('#discount').val());
@@ -607,7 +601,7 @@ function CreatePdf(inv_id){
             <tr style='border:none;'><td>Total</td><td style='background-color:blue;border:1px solid white;' width="53%"> `+totalx.toFixed(2)+`</td></tr>
             <tr style='border:none;'><td>Total Item</td><td style='background-color:blue;border:1px solid white;'> `+total_item+`</td></tr>
             <tr style='border:none;'><td>Total Ins.</td><td style='background-color:blue;border:1px solid white;'> `+installment+`</td></tr>
-            <tr style='border:none;'><td>Ins. Ammount</td><td style='background-color:blue;border:1px solid white;'> `+((total_payable-pay)/installment).toFixed(2)+`</td></tr>
+            <tr style='border:none;'><td>Ins. Ammount</td><td style='background-color:blue;border:1px solid white;'> `+parseInt((total_payable-pay)/installment).toFixed(2)+`</td></tr>
             <tr style='border:none;'><td>Discount</td><td  style='background-color:blue;border:1px solid white;'> `+(discount ? ((discount*totalx)/100).toFixed(2) :0.00 )+`</td></tr>
             <tr style='border:none;'><td>vat</td><td  style='background-color:blue;border:1px solid white;'> `+(vat ? ((vat*totalx)/100).toFixed(2) : 0.00)+`</td></tr>
             <tr style='border:none;'><td>Labour Cost</td><td  style='background-color:blue;border:1px solid white;'> `+(labour ? labour.toFixed(2) :0.00)+`</td></tr>
@@ -654,6 +648,7 @@ function CreatePdf(inv_id){
         var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,170,20,40],pageSize:'A5',content:val,header:header,footer:footer};
     MakePdf.createPdf(dd).open();
     remove();
+    $('.submit').attr('disabled',false);
     }
     function PaymentCheck(payable,pay){
       payablex=parseInt(payable)
@@ -681,46 +676,16 @@ function CreatePdf(inv_id){
 function Validate(){
   let isValid=true;
   let i=0;
-$('#customer').removeClass('is-invalid');
-$('#transport').removeClass('is-invalid');
-$('#final_total').removeClass('is-invalid');
-$('#total_payable').removeClass('is-invalid');
-$('#date').removeClass('is-invalid');
-$('#issue_date').removeClass('is-invalid');
-$('#total_installment').removeClass('is-invalid');
-$('#installment_type').removeClass('is-invalid');
-if($('#customer').val()==null){
-  isValid=false
-  $('#customer').addClass('is-invalid');
-}
-if($('#transport').val()==null){
-  isValid=false
-  $('#transport').addClass('is-invalid');
-}
-if($('#final_total').val()==''){
-  isValid=false
-  $('#final_total').addClass('is-invalid');
-}
-if($('#total_payable').val()==''){
-  isValid=false
-  $('#total_payable').addClass('is-invalid');
-}
-if($('#date').val()==''){
-  isValid=false
-  $('#date').addClass('is-invalid');
-}
-if($('#issue_date').val()==''){
-  isValid=false
-  $('#issue_date').addClass('is-invalid');
-}
-if($('#total_installment').val()==''){
-  isValid=false
-  $('#total_installment').addClass('is-invalid');
-}
-if($('#installment_type').val()==null){
-  isValid=false
-  $('#installment_type').addClass('is-invalid');
-}
+$('#customer,#transport,#final_total,#total_payable,#date,#issue_date,#total_installment,#installment_type').removeClass('is-invalid');
+$('#customer,#transport,#final_total,#total_payable,#date,#issue_date,#total_installment,#installment_type').each(function(){
+  if ($(this).val()==null || $(this).val()=='') {
+    isValid=false;
+    $(this).addClass('is-invalid');
+    $(this).tooltip({
+      content: "Awesome title!"
+    });
+  }
+})
 av_qty = $("input[name='av_qty[]']")
        .map(function(){  
         if($(this).val()==''){
@@ -763,10 +728,10 @@ return isValid;
 }
 function submit(){
    isValid=Validate();
-   // isValid=true;
-   
+   // isValid=true; 
 if (isValid==true) {
   $('.buffer').removeClass('d-none');
+  $('.submit').attr('disabled',true);
        qan=document.getElementsByName('qantity[]');
    qantities = $("input[name='qantity[]']")
               .map(function(){return $(this).val();}).get();
@@ -838,6 +803,7 @@ if (isValid==true) {
           focusConfirm: false,
           confirmButtonText:'Ok',
         })
+      $('.submit').attr('disabled',false);
       }else if(response.data.message){
         window.toastr.success(response.data.message);
         CreatePdf(response.data.id);

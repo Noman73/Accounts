@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.0",
         "milon/barcode": "^6.0",
         "spatie/laravel-backup": "^6.11",
+        "spatie/laravel-permission": "^3.18",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {

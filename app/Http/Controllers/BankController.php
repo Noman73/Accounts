@@ -15,7 +15,7 @@ use Hash;
 class BankController extends Controller
 {
     public function __construct(){
-    	// $this->middleware('auth');
+    	$this->middleware('auth');
     }
     public function bankForm(){
     	return view('pages.banks.bank');

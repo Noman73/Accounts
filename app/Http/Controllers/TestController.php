@@ -26,7 +26,6 @@ class TestController extends Controller
             ['id'=>2,'text'=>'text3'],
         ];
     }
-
     public function select2(Request $r){
           if (!preg_match("/[^a-zA-Z0-9. ]/", $r->searchTerm)) {
           $data=DB::select("SELECT id,product_name from products where product_name like '%".$r->searchTerm."%' or product_code like '%".$r->searchTerm."%' order by product_name asc limit 100");

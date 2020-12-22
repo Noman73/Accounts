@@ -164,7 +164,14 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
          
-          
+          <li class="nav-item">
+            <a href="{{ URL::to('/home') }}" class="nav-link">
+              <i class="nav-icon fas fa-donate"></i>
+              <p>
+                Dashboard
+              </p>
+            </a>
+          </li>
          <li class="nav-item">
             <a href="{{ URL::to('/admin/banks') }}" class="nav-link">
               <i class="nav-icon fas fa-donate"></i>
@@ -433,6 +440,41 @@
                 <a href="{{ URL::to('/admin/info_form') }}" class="nav-link">
                   <i class="fas fa-circle nav-icon"></i>
                   <p>Add Info</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-cog"></i>
+              <p>
+                Permission Apply
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/manage_role') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Manage Role</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/manage_permission') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Manage Permission</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/set_role_has_permission') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Apply Permission</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ URL::to('/admin/user_wise_role') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Apply Role</p>
                 </a>
               </li>
             </ul>
@@ -709,10 +751,12 @@ function MasterAjaxRequest(){
   axios.post('/admin/voucer',formData)
   .then(function (response){
     console.log(response);
-    if (response.data.message) {
+    if (response.data.message){
       window.toastr.success(response.data.message);
       $('.data-table').DataTable().ajax.reload();
+      MasterModalClose();
       $('#modal-voucer').modal('hide');
+      return false;
     }
     var keys=Object.keys(response.data);
     for(var i=0; i<keys.length;i++){
@@ -741,6 +785,7 @@ function MasterAjaxRequest(){
 });
 function MasterModalClose(){
   $('#modal-voucer input').val('');
+  $('#modal-voucer select').val(null).change();
   $("#modal-voucer select option[value='']").attr('selected',true);
   $('#modal-voucer .invalid-feedback').hide();
   $('#modal-voucer select,input').removeClass('is-invalid');

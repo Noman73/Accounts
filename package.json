@@ -30,6 +30,7 @@
         "dateformat": "^3.0.3",
         "file-saver": "^2.0.2",
         "html-to-pdfmake": "^2.1.0",
+        "javascript-calculator": "^1.0.7",
         "n2words": "^1.7.1",
         "num-to-words": "^0.2.1",
         "number-to-words": "^1.2.4",

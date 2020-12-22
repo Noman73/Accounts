@@ -77,7 +77,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="ModalClose()" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="ajaxRequest()">Save changes</button>
+                <button type="button" class="btn btn-primary submit" onclick="ajaxRequest()">Save changes</button>
               </div>
 
             </div>
@@ -137,6 +137,7 @@
     });
  //ajax request from employee.js
 function ajaxRequest(){
+    $('.submit').attr('disabled',true);
     $('.invalid-feedback').hide();
     $('input').css('border','1px solid rgb(209,211,226)');
     $('select').css('border','1px solid rgb(209,211,226)');
@@ -159,15 +160,18 @@ function ajaxRequest(){
       window.toastr.success(response.data.message);
       ModalClose()
       $('.data-table').DataTable().ajax.reload();
+      $('.submit').attr('disabled',false);
     }
     var keys=Object.keys(response.data[0]);
     for(var i=0; i<keys.length;i++){
         $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
+        $('#'+keys[i]).addClass('is-invalid');
         $('#'+keys[i]).css('border','1px solid red');
         $('#'+keys[i]+'_msg').show();
       }
   })
    .catch(function (error){
+    $('.submit').attr('disabled',false);
     console.log(error.request);
   });
 
@@ -203,8 +207,8 @@ function ajaxRequest(){
     }
   })
  function ModalClose(){
-  $('select').html('');
-  $("select option[value='']").attr('selected',true);
+  $('#exampleModal select').val(null).change();
+  $(".card-body select option[value='']").attr('selected',true);
   $('.invalid-feedback').hide();
   $('input').css('border','1px solid rgb(209,211,226)');
   $('select').css('border','1px solid rgb(209,211,226)');

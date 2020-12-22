@@ -53,7 +53,7 @@ class PurchaseController extends Controller
             'transport'=>'nullable|max:15',
             'payment_method'=>'nullable|max:15|regex:/^([0-9]+)$/',
             'transaction'=>'nullable|max:15|regex:/^([a-zA-Z0-9]+)$/',
-            'pay'=>'nullable|max:15|regex:/^([0-9]+)$/',
+            'pay'=>'nullable|max:15|regex:/^([0-9.]+)$/',
             'transport_cost'=>'nullable|max:15',
             'labour'=>'nullable|max:15',
             'total'=>'required|max:15',

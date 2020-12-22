@@ -505,7 +505,6 @@ function openModal(this_val){
       default: 
       return false
       break;
-
   }
 }
 $(document).on('click','.CustomSubmit',function(){

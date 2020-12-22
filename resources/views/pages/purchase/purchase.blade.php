@@ -144,7 +144,7 @@
                     </td>
                   </tr>
                 </table>
-                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
+                <button class="btn btn-sm btn-primary text-center mb-3 mt-3 submit" type="submit" onclick="submit()" id="submit">submit</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
                 {{-- /invoic modal --}}
@@ -615,8 +615,10 @@ return isValid;
 function submit(){
    isValid=Validate();
    // isValid=true;
-   $('.buffer').removeClass('d-none');
+   
 if (isValid==true) {
+  $('.buffer').removeClass('d-none');
+  $('.submit').attr('disabled',true);
        qan=document.getElementsByName('qantity[]');
    qantities = $("input[name='qantity[]']")
               .map(function(){return $(this).val();}).get();
@@ -677,9 +679,14 @@ if (isValid==true) {
           focusConfirm: false,
           confirmButtonText:'Ok',
         })
+        $
+        $('.buffer').addClass('d-none');
+        $('.submit').attr('disabled',false);
       }else if(response.data.message){
         window.toastr.success(response.data.message);
         remove();
+        $('.buffer').addClass('d-none');
+        $('.submit').attr('disabled',false);
       }
     })
     .catch(function(error){

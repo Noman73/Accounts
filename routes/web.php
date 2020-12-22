@@ -198,6 +198,16 @@ Route::post('admin/change_password','ChangePasswordController@Change');
 Route::get('admin/'.md5('time()'),function(){
 	return 'md5';
 })->name('md5');
+// permission Manage Controller
+Route::get('admin/manage_role','PermissionManageController@CreateRoleForm');
+Route::post('admin/manage_role','PermissionManageController@CreateRole');
+Route::get('admin/manage_permission','PermissionManageController@CreatePermissionForm');
+Route::post('admin/manage_permission','PermissionManageController@CreatePermission');
+Route::get('admin/set_role_has_permission','PermissionManageController@roleHasPermissionForm');
+Route::post('admin/set_role_has_permission','PermissionManageController@setRoleHasPermission')->name('roleHasPermission');
+Route::get('admin/get_role_has_permission','PermissionManageController@getRoleHasPermission');
+Route::get('admin/user_wise_role','PermissionManageController@userWiseRoleForm');
+Route::post('admin/user_wise_role','PermissionManageController@userWiseRole');
 
 
 

@@ -187,8 +187,8 @@
                     </td>
                   </tr>
                 </table>
-                <button class="btn btn-sm btn-primary text-center mb-3 mt-3" type="submit" onclick="submit()" id="submit">submit</button>
-                <button class="btn btn-sm btn-secondary text-center mb-3 mt-3" type="submit" onclick="remove()" id="submit">Reset</button>
+                <button class="btn btn-sm btn-primary text-center mb-3 mt-3 submit" type="submit" onclick="submit()" id="submit">submit</button>
+                <button class="btn btn-sm btn-secondary text-center mb-3 mt-3" onclick="remove()" id="submit">Reset</button>
 <!--               </form> -->
                 {{--invoice slip modal here --}}
                 {{-- /invoic modal --}}
@@ -622,6 +622,7 @@ function CreatePdf(inv_id){
         var dd = {info:{title:'invoice_'+inv_id+(new Date()).getTime()},pageMargins:[20,170,20,40],pageSize:'A5',content:val,header:header,footer:footer};
     MakePdf.createPdf(dd).open();
     remove();
+    $('.submit').attr('disabled',false);
     }
     function PaymentCheck(payable,pay=0){
       payablex=parseInt(payable)
@@ -705,6 +706,7 @@ function submit(){
    // isValid=true;
    $('.buffer').removeClass('d-none');
 if (isValid==true) {
+  $('.submit').attr('disabled',true);
        qan=document.getElementsByName('qantity[]');
    qantities = $("input[name='qantity[]']")
               .map(function(){return $(this).val();}).get();
@@ -753,6 +755,7 @@ if (isValid==true) {
     .then(function(response){
       console.log(response.data);
       $('.buffer').addClass('d-none');
+      $('.submit').attr('disabled',true);
       if (!response.data.message){
         keys=Object.keys(response.data[0]);
         html='';
@@ -772,11 +775,14 @@ if (isValid==true) {
       }else if(response.data.message){
         window.toastr.success(response.data.message);
         CreatePdf(response.data.id);
+        $('.buffer').addClass('d-none');
       }
     })
     .catch(function(error){
       console.log(error);
     })
+  }else{
+    $('.buffer').addClass('d-none');
   }
 }
 //datepicker.................
