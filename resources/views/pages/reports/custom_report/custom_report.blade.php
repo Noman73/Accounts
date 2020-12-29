@@ -192,7 +192,7 @@ function Request(){
                 <td>`+data[i]['credit']+`</td>
                </tr>`
         debit+=parseFloat(data[i]['debit']);
-        debit+=parseFloat(data[i]['credit']);
+        credit+=parseFloat(data[i]['credit']);
       }
        html+="</tbody>"
        html+=`<tfoot>

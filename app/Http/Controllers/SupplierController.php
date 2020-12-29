@@ -43,7 +43,7 @@ class SupplierController extends Controller
         'opening_balance'   => 'nullable|max:19|regex:/^([0-9.]+)$/',
         'balance_type'      => 'required|max:1|regex:/^([0-1]+)$/',
         'adress'    		=> 'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
-        'supplier_type'     => 'required|max:50|regex:/^([a-zA-Z0-9]+)$/'
+        'supplier_type'     => 'required|max:50|regex:/^([a-zA-Z0-9 ]+)$/'
         ]);
 
     //for image

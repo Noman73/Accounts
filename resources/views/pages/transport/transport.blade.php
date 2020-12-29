@@ -206,6 +206,7 @@ function ajaxRequest(id){
             $('.data-table').DataTable().ajax.reload();
             document.getElementById('myForm').reset();
             ModalClose();
+            $('#Modalx').modal('hide');
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){
@@ -226,6 +227,7 @@ function ajaxRequest(id){
             $('.data-table').DataTable().ajax.reload();
             document.getElementById('myForm').reset();
             ModalClose();
+            $('#Modalx').modal('hide');
           }
           var keys=Object.keys(response.data[0]);
           for(var i=0; i<keys.length;i++){

@@ -5,13 +5,12 @@ use Illuminate\Http\Request;
 use DOMPDF;
 use DNS2D;
 use DNS1D;
-use Auth;
+// use Auth;
 use DB;
 class BarcodeController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth');
-    	$this->middleware('keycheck');
+        $this->middleware('auth'); 
     }
     public function Form(){
     	return view('pages.barcode.barcode');

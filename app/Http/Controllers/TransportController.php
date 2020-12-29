@@ -41,7 +41,7 @@ class TransportController extends Controller
 
     public function Create(Request $r){
         $validation=Validator::make($r->all(),[
-            'name'         =>'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
+            'name'         =>"required|max:100|regex:/^([a-zA-Z0-9., ]+)$/",
             'phone'        =>'nullable|max:100|regex:/^([0-9]+)$/',
             'driver_phone' =>'nullable|max:100|regex:/^([0-9]+)$/',
             'adress'       =>'nullable|max:100|regex:/^([a-zA-Z0-9., ]+)$/',

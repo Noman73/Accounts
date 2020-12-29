@@ -50,7 +50,7 @@ class VoucerController extends Controller
     public function insertVoucer(Request $r){
         $validator=Validator::make($r->all(),[
             'date'=>'required|max:10|min:10|date_format:d-m-Y',
-            'category'=>'required|max:100|regex:/^([a-zA-Z0-9]+)$/',
+            'category'=>'required|max:100|regex:/^([a-zA-Z0-9., ]+)$/',
             'data'=>'required|max:20|regex:/^([0-9]+)$/',
             'payment_type'=>'required|max:7|regex:/^([a-zA-Z]+)$/',
             'bank'=>'required|max:10|regex:/^([0-9]+)$/',

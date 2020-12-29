@@ -204,11 +204,12 @@ function ajaxRequest(id){
             $('#'+keys[i]+'_msg').html(response.data[0][keys[i]][0]);
             $('#'+keys[i]).css('border','1px solid red');
             $('#'+keys[i]+'_msg').show();
+            $('.submit').attr('disabled',false);
           }
       })
        .catch(function (error) {
         $('.submit').attr('disabled',false);
-        console.log(error.request);
+        alert((JSON.parse(error.request.response)).message);
       });
     }else{
       axios.post('/admin/banks/'+id,formData)
@@ -229,7 +230,7 @@ function ajaxRequest(id){
       })
        .catch(function (error) {
         $('.submit').attr('disabled',false);
-        console.log(error.request);
+        alert((JSON.parse(error.request.response)).message);
       });
     }
  }

@@ -10,7 +10,12 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::group(['middleware' => ['permission:edit']], function () {
+    Route::post('/admin/banks/{id}', 'BankController@Update');
+    Route::post('/admin/employee/{id}', 'EmployeeController@Update');
+    Route::post('/admin/supplier/{id}', 'SupplierController@UpdateSupplier');
+});
+Route::get('/admin/user','UserController@Form');
 Route::get('/','Auth\LoginController@showLoginForm');
 Route::get('/lisencekey','LisencekeyController@Form');
 Route::post('/lisencekey','LisencekeyController@Create')->name('lisence');
@@ -22,7 +27,7 @@ Route::get('/admin/getVoucerFormData', 'HomeController@getVoucerFormData');
 // banks route
 Route::get('/admin/banks', 'BankController@bankForm');
 Route::post('/admin/banks', 'BankController@insertBank');
-Route::post('/admin/banks/{id}', 'BankController@Update');
+
 Route::get('/admin/all_banks', 'BankController@allBanks');
 Route::get('/admin/test','BankController@test');
 Route::get('/admin/get_account','BankController@getAccount');
@@ -33,7 +38,7 @@ Route::get('/admin/get_balance/{id}','BankController@getBalanceById');
 // Employee routes
 Route::get('/admin/employee', 'EmployeeController@ManageEmployee');
 Route::get('/admin/employee/{id}', 'EmployeeController@getEmployee');
-Route::post('/admin/employee/{id}', 'EmployeeController@Update');
+
 Route::post('/admin/employee', 'EmployeeController@insertEmployee');
 Route::delete('/admin/employee/{id}', 'EmployeeController@Delete');
 // Supplier Route
@@ -41,7 +46,7 @@ Route::get('/admin/supplier', 'SupplierController@ManageSupplier');
 Route::post('/admin/supplier', 'SupplierController@insertSupplier');
 Route::delete('/admin/supplier/{id}', 'SupplierController@DeleteSupplier');
 Route::get('/admin/get-supplier/{id}', 'SupplierController@getSupplier');
-Route::post('/admin/supplier/{id}', 'SupplierController@UpdateSupplier');
+
 Route::post('/admin/search_supplier', 'SupplierController@searchSupplier');
 Route::get('/admin/supplier_balance/{id}', 'SupplierController@getBalance');
 // customer route

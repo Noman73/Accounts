@@ -12,6 +12,7 @@ class PermissionManageController extends Controller
 {
     public function __construct(){
     	$this->middleware('auth');
+      $this->middleware('role:Super-Admin');
     }
 
     public function CreateRoleForm(){

@@ -85,6 +85,9 @@
                                     <span class="status"></span><span class="ml-2 text-success">Available</span>
                                 </div>
                                 <a class="dropdown-item" href="#"><i class="fas fa-user mr-2"></i>Account</a>
+                                @role('Super-Admin')
+                                <a class="dropdown-item" href="{{URL::to('register')}}"><i class="fas fa-user mr-2"></i>Register</a>
+                                @endrole
                                 <a class="dropdown-item" href="{{URL::to('admin/change_password')}}"><i class="fas fa-cog mr-2"></i>Password Change</a>
                                 <a class="dropdown-item" href="{{ route('logout') }}" 
 
@@ -166,7 +169,7 @@
          
           <li class="nav-item">
             <a href="{{ URL::to('/home') }}" class="nav-link">
-              <i class="nav-icon fas fa-donate"></i>
+              <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
               </p>
@@ -444,6 +447,7 @@
               </li>
             </ul>
           </li>
+          @role('Super-Admin')
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cog"></i>
@@ -479,6 +483,13 @@
               </li>
             </ul>
           </li>
+          <li class="nav-item">
+            <a href="{{ URL::to('/admin/user') }}" class="nav-link">
+              <i class="nav-icon fas fa-money-check-alt"></i>
+              <p>User</p>
+            </a>
+          </li>
+          @endrole
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-database"></i>
